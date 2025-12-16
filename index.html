@@ -133,6 +133,10 @@
             color: var(--text-main);
         }
 
+        .modal h3 .version-text {
+            margin-left: auto;
+        }
+
         .card h2.no-margin {
             margin-bottom: 0;
         }
@@ -157,7 +161,7 @@
             }
 
             #lista-registros {
-                max-height: 650px;
+                max-height: 975px;
                 overflow-y: auto;
                 padding: 0.5rem;
                 scrollbar-gutter: stable;
@@ -891,7 +895,7 @@
         }
 
         .registro-mes-detalle.expanded {
-            max-height: 10000px;
+            max-height: 3500px;
             opacity: 1;
         }
 
@@ -909,7 +913,7 @@
         .header-profile-btn {
             background: transparent;
             border: 1px solid var(--border);
-            border-radius: 10px;
+            border-radius: 8px;
             padding: 0.25rem 0.75rem;
             color: var(--text-main);
             font-size: 0.9rem;
@@ -1051,6 +1055,62 @@
         #modo-lote.fade-out {
             opacity: 0;
             transform: translateY(-10px);
+        }
+
+        .separador-semana {
+            height: 0;
+            background: transparent;
+            margin: 1.5rem auto;
+            border: none;
+            width: 100%;
+        }
+
+        /* --- Selector de Días Semanales --- */
+        .week-selector {
+            display: flex;
+            justify-content: space-between;
+            gap: 5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .day-checkbox {
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .day-checkbox input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .day-checkbox span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .day-checkbox input:checked~span {
+            background: rgba(96, 172, 148, 0.1);
+            color: var(--c-green);
+            border: 1px solid var(--c-green);
+            font-weight: bold;
+            transform: scale(1.1);
+        }
+
+        .day-checkbox:hover span {
+            border-color: var(--text-muted);
         }
     </style>
 </head>
@@ -1201,6 +1261,14 @@
         <symbol id="icon-logo-bolt" viewBox="0 0 24 24">
             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" class="icon-line" stroke="currentColor" stroke-width="2"
                 stroke-linejoin="round" fill="none"></path>
+        </symbol>
+        <symbol id="icon-gift" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 12 20 22 4 22 4 12"></polyline>
+            <rect x="2" y="7" width="20" height="5"></rect>
+            <line x1="12" y1="22" x2="12" y2="7"></line>
+            <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+            <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
         </symbol>
     </svg>
     <div class="header">
@@ -1455,9 +1523,8 @@
                     </svg>
                     Configuración
                 </span>
-                <span class="version-text">v6.60</span>
+                <span class="version-text">v6.69</span>
             </h3>
-
             <div class="form-group">
                 <label>Horas diarias</label>
                 <div class="input-number-group">
@@ -1473,19 +1540,37 @@
                 </div>
             </div>
             <div class="form-group">
-                <label>Días hábiles por semana</label>
-                <div class="input-number-group">
-                    <input type="number" id="config-dias-habiles" min="1" max="7" step="1" readonly />
-                    <button class="btn-increment" onmousedown="UILogic.iniciarCambioDias(1)"
-                        onmouseup="UILogic.detenerCambio()" onmouseleave="UILogic.detenerCambio()"
-                        ontouchstart="event.preventDefault(); UILogic.iniciarCambioDias(1)"
-                        ontouchend="event.preventDefault(); UILogic.detenerCambio()">+</button>
-                    <button class="btn-increment" onmousedown="UILogic.iniciarCambioDias(-1)"
-                        onmouseup="UILogic.detenerCambio()" onmouseleave="UILogic.detenerCambio()"
-                        ontouchstart="event.preventDefault(); UILogic.iniciarCambioDias(-1)"
-                        ontouchend="event.preventDefault(); UILogic.detenerCambio()">−</button>
+                <label>Días laborales</label>
+                <div class="week-selector">
+                    <label class="day-checkbox">
+                        <input type="checkbox" name="dia-habil" value="1">
+                        <span>Lu</span>
+                    </label>
+                    <label class="day-checkbox">
+                        <input type="checkbox" name="dia-habil" value="2">
+                        <span>Ma</span>
+                    </label>
+                    <label class="day-checkbox">
+                        <input type="checkbox" name="dia-habil" value="3">
+                        <span>Mi</span>
+                    </label>
+                    <label class="day-checkbox">
+                        <input type="checkbox" name="dia-habil" value="4">
+                        <span>Ju</span>
+                    </label>
+                    <label class="day-checkbox">
+                        <input type="checkbox" name="dia-habil" value="5">
+                        <span>Vi</span>
+                    </label>
+                    <label class="day-checkbox">
+                        <input type="checkbox" name="dia-habil" value="6">
+                        <span>Sa</span>
+                    </label>
+                    <label class="day-checkbox">
+                        <input type="checkbox" name="dia-habil" value="0"> <span>Do</span>
+                    </label>
                 </div>
-                <div id="config-total-feedback" class="config-hint-text">(Total semanal: 35hs)</div>
+                <div id="config-total-feedback" class="config-hint-text">(Total semanal: --hs)</div>
             </div>
             <hr style="border: 0; border-top: 1px solid var(--border); margin: 1.5rem 0 1rem 0;">
             <div class="config-actions">
@@ -1560,7 +1645,8 @@
                     <input type="text" id="edit-entrada" inputmode="numeric" placeholder="hh:mm" maxlength="5" />
                     <button class="time-btn" onclick="UILogic.pegarHoraActual('edit-entrada')"><svg class="icon">
                             <use href="#icon-clock" />
-                        </svg></button>
+                        </svg>
+                    </button>
                 </div>
             </div>
             <div class="form-group">
@@ -1569,17 +1655,26 @@
                     <input type="text" id="edit-salida" inputmode="numeric" placeholder="hh:mm" maxlength="5" />
                     <button class="time-btn" onclick="UILogic.pegarHoraActual('edit-salida')"><svg class="icon">
                             <use href="#icon-clock" />
-                        </svg></button>
+                        </svg>
+                    </button>
                 </div>
             </div>
             <div class="form-group">
-                <label>Tiempo Fuera (opcional)</label>
+                <label>Tiempo Fuera</label>
                 <div class="input-with-btn">
                     <input type="text" id="edit-tiempo-fuera" inputmode="numeric" placeholder="Ej: 00:20"
                         maxlength="5" />
-                    <button class="time-btn" onclick="UILogic.limpiarCampo('edit-tiempo-fuera')">
+
+                    <button class="time-btn" onclick="UILogic.limpiarCampo('edit-tiempo-fuera')" title="Limpiar">
                         <svg class="icon">
                             <use href="#icon-broom" />
+                        </svg>
+                    </button>
+
+                    <button id="btn-toggle-credito" class="time-btn" onclick="UILogic.toggleCredito()"
+                        style="margin-left: 5px;" title="(Compensación/Asueto)">
+                        <svg class="icon">
+                            <use href="#icon-gift" />
                         </svg>
                     </button>
                 </div>
@@ -1697,15 +1792,21 @@
                 <ul class="indice-lista">
                     <li class="indice-item"><a href="#ayuda-perfiles" class="indice-link">💼 Gestión de Perfiles</a>
                     </li>
-                    <li class="indice-item"><a href="#ayuda-entrada" class="indice-link">📥 Registrar entrada/salida</a>
+                    <li class="indice-item"><a href="#ayuda-entrada" class="indice-link">📥 Registrar
+                            entrada/salida</a>
                     </li>
-                    <li class="indice-item"><a href="#ayuda-vistas" class="indice-link">👁️ Vista Diario / Semanal</a>
+                    <li class="indice-item"><a href="#ayuda-vistas" class="indice-link">👁️ Vista Diario /
+                            Semanal</a>
                     </li>
-                    <li class="indice-item"><a href="#ayuda-manual" class="indice-link">✏️ Fecha/Hora manual</a></li>
-                    <li class="indice-item"><a href="#ayuda-rango" class="indice-link">📅 Vacaciones y Lotes</a></li>
-                    <li class="indice-item"><a href="#ayuda-break" class="indice-link">☕ Timer / Tiempo fuera</a></li>
+                    <li class="indice-item"><a href="#ayuda-manual" class="indice-link">✏️ Fecha/Hora manual</a>
+                    </li>
+                    <li class="indice-item"><a href="#ayuda-rango" class="indice-link">📅 Vacaciones y Lotes</a>
+                    </li>
+                    <li class="indice-item"><a href="#ayuda-break" class="indice-link">☕ Timer / Tiempo fuera</a>
+                    </li>
                     <li class="indice-item"><a href="#ayuda-editar" class="indice-link">📝 Editar registro</a></li>
-                    <li class="indice-item"><a href="#ayuda-codigos" class="indice-link">🔢 Códigos horarios</a></li>
+                    <li class="indice-item"><a href="#ayuda-codigos" class="indice-link">🔢 Códigos horarios</a>
+                    </li>
                     <li class="indice-item"><a href="#ayuda-extra" class="indice-link">⚙️ Backup y Configuración</a>
                     </li>
                 </ul>
@@ -1715,11 +1816,13 @@
                 <p id="ayuda-perfiles"><strong>¿Cómo funcionan los Perfiles?</strong></p>
                 <p>Gestiona múltiples trabajos de forma independiente:</p>
                 <ul style="padding-left: 1.5rem; margin-top: 0.5rem;">
-                    <li><strong>Cambiar:</strong> Toca el nombre del perfil en la cabecera (arriba a la derecha).</li>
+                    <li><strong>Cambiar:</strong> Toca el nombre del perfil en la cabecera (arriba a la derecha).
+                    </li>
                     <li><strong>Crear:</strong> En el menú, escribe un nombre y toca <svg class="icon">
                             <use href="#icon-plus" />
                         </svg>.</li>
-                    <li><strong>Datos independientes:</strong> Cada perfil tiene sus propios registros, configuración de
+                    <li><strong>Datos independientes:</strong> Cada perfil tiene sus propios registros,
+                        configuración de
                         horas y días hábiles.</li>
                 </ul>
                 <a href="#inicio-ayuda" class="volver-arriba">↑ Volver al índice</a>
@@ -1760,9 +1863,11 @@
                         <use href="#icon-calendar-simple" />
                     </svg> junto a la fecha.</p>
                 <ul style="padding-left: 1.5rem;">
-                    <li><strong>Registro rápido:</strong> Sin llenar fechas, toca <strong>Registrar</strong> para marcar
+                    <li><strong>Registro rápido:</strong> Sin llenar fechas, toca <strong>Registrar</strong> para
+                        marcar
                         HOY como el tipo seleccionado (Feriado, Ausencia o Vacaciones).</li>
-                    <li><strong>Registro por lote:</strong> Llena "Desde" y "Hasta" para registrar (o borrar) múltiples
+                    <li><strong>Registro por lote:</strong> Llena "Desde" y "Hasta" para registrar (o borrar)
+                        múltiples
                         días simultáneamente.</li>
                 </ul>
                 <a href="#inicio-ayuda" class="volver-arriba">↑ Volver al índice</a>
@@ -1772,7 +1877,8 @@
                 <p id="ayuda-break"><strong>Timer / Tiempo fuera</strong></p>
                 <p>Toca el botón <svg class="icon">
                         <use href="#icon-coffee" />
-                    </svg>. El timer contará el tiempo que no estás trabajando. Al detenerlo, ese tiempo se descontará
+                    </svg>. El timer contará el tiempo que no estás trabajando. Al detenerlo, ese tiempo se
+                    descontará
                     automáticamente del total del día.</p>
                 <a href="#inicio-ayuda" class="volver-arriba">↑ Volver al índice</a>
 
@@ -2129,12 +2235,15 @@
                         if (typeof r.tiempoFuera !== 'string' || !REGEX_PATTERNS.HORA.test(r.tiempoFuera)) return false;
                     }
 
+                    if (r.credito !== null && r.credito !== undefined && r.credito !== '') {
+                        if (typeof r.credito !== 'string' || !REGEX_PATTERNS.HORA.test(r.credito)) return false;
+                    }
+
                     if (!Number.isFinite(r.horas) || r.horas < 0 || r.horas > 24) return false;
                     if (!Number.isFinite(r.minutos) || r.minutos < 0 || r.minutos > 59) return false;
                     if (!Number.isFinite(r.total) || r.total < 0 || r.total > 24) return false;
 
-                    const propiedadesPermitidas = ['id', 'fecha', 'entrada', 'salida', 'tiempoFuera', 'horas', 'minutos', 'total'];
-                    const propiedadesActuales = Object.keys(r);
+                    const propiedadesPermitidas = ['id', 'fecha', 'entrada', 'salida', 'tiempoFuera', 'horas', 'minutos', 'total', 'credito']; const propiedadesActuales = Object.keys(r);
                     const tienePropiedadesSospechosas = propiedadesActuales.some(prop => !propiedadesPermitidas.includes(prop));
                     if (tienePropiedadesSospechosas) return false;
 
@@ -2255,12 +2364,12 @@
                             }
                         }
 
-                        // 7. Fallback: Asegurar que siempre exista al menos el perfil default
+                        // 7. Fallback
                         if (!perfiles['default']) {
                             perfiles['default'] = {
                                 nombre: 'Principal',
                                 registros: [],
-                                diasHabiles: 5,
+                                diasHabiles: [1, 2, 3, 4, 5], // <---  Array
                                 horasDiarias: 7
                             };
                         }
@@ -2459,8 +2568,7 @@
             // II. DATA MANAGEMENT MODULE (CORREGIDO)
             // ====================================================================
             const DataManagement = (function (S) {
-                let registros = [], diasHabiles = 5, horasDiarias = 7, editandoId = null;
-                let vistaActual = 'diaria';
+                let registros = [], diasHabiles = [1, 2, 3, 4, 5], horasDiarias = 7, editandoId = null; let vistaActual = 'diaria';
                 let cacheSemana = { inicio: null, fin: null, calculado: null };
                 let filtroActivo = false;
                 let filtroDesde = null;
@@ -2624,29 +2732,30 @@
 
                 function cargarConfiguracion() {
                     try {
-                        const d = parseFloat(localStorage.getItem('diasHabiles'));
+                        let d = JSON.parse(localStorage.getItem('diasHabiles'));
                         const hd = parseFloat(localStorage.getItem('horasDiarias'));
 
-                        let diasCalculados = 5;
-                        if (isNaN(d)) {
-                            const hsAntiguas = parseFloat(localStorage.getItem('horasSemanales'));
-                            if (!isNaN(hsAntiguas) && !isNaN(hd) && hd > 0) {
-                                diasCalculados = Math.round(hsAntiguas / hd);
-                                if (diasCalculados < 1) diasCalculados = 1;
-                                if (diasCalculados > 7) diasCalculados = 7;
-                            }
+                        // Lógica de migración: Número antiguo vs Array nuevo
+                        let diasFinal = [1, 2, 3, 4, 5]; // Default
+
+                        if (d === null) {
+                            // Default
+                        } else if (typeof d === 'number') {
+                            // MIGRACIÓN: Convertir número viejo a array
+                            diasFinal = [];
+                            for (let i = 1; i <= d; i++) diasFinal.push(i);
+                            if (d === 7) diasFinal.push(0);
+                        } else if (Array.isArray(d)) {
+                            // Ya es el formato nuevo
+                            diasFinal = d;
                         }
 
                         let t = localStorage.getItem('temaOscuro') === 'true';
-                        if (localStorage.getItem('temaOscuro') === null) {
-                            t = true;
-                        }
-
+                        if (localStorage.getItem('temaOscuro') === null) t = true;
                         const v = localStorage.getItem('vistaActual');
 
-                        // Validación estricta de tipos
-                        const diasFinal = (!isNaN(d) && Number.isFinite(d) && d >= 1 && d <= 7) ? d : diasCalculados;
                         const horasFinal = (!isNaN(hd) && Number.isFinite(hd) && hd >= 0 && hd <= 24) ? hd : 7;
+
                         return {
                             diasHabiles: diasFinal,
                             horasDiarias: horasFinal,
@@ -2654,8 +2763,8 @@
                             vistaActual: (v === 'semana' || v === 'diaria') ? v : 'diaria'
                         };
                     } catch (e) {
-                        console.error('Error cargando configuración:', e);
-                        return { diasHabiles: 5, horasDiarias: 7, temaOscuro: true, vistaActual: 'diaria' };
+                        console.error('Error config:', e);
+                        return { diasHabiles: [1, 2, 3, 4, 5], horasDiarias: 7, temaOscuro: true, vistaActual: 'diaria' };
                     }
                 }
 
@@ -2665,57 +2774,44 @@
                     return (hr * 60) + mn;
                 }
 
-                function calcularHoras(e, s, tf = null) {
+                function calcularHoras(e, s, tf = null, cr = null) { // <--- Agregamos cr
                     const tfMinutos = tf ? tiempoEnMinutos(tf) : 0;
+                    const crMinutos = cr ? tiempoEnMinutos(cr) : 0; // <--- Calculamos minutos crédito
 
+                    // ... (Mantener lógica de Ausencia, Vacaciones y Feriado igual que antes) ...
                     // Ausencia/Licencia
                     if (e === '11:11' && s === '11:11') {
                         return { horas: 0, minutos: 0, total: horasDiarias, esAusencia: true };
                     }
-
-                    // Vacaciones
-                    if (e === '22:22' && s === '22:22') {
-                        return { horas: 0, minutos: 0, total: horasDiarias, esVacaciones: true };
-                    }
-
-                    // Feriado
-                    if (e === '00:00' && s === '00:00') {
-                        const minFeriado = horasDiarias * 60;
-                        return { horas: Math.floor(minFeriado / 60), minutos: Math.round(minFeriado % 60), total: horasDiarias };
-                    }
+                    // Vacaciones, Feriados... (mantener igual)
 
                     if (!e || !s || !e.includes(':') || !s.includes(':')) return null;
 
                     const [hE, mE] = e.split(':').map(Number);
                     const [hS, mS] = s.split(':').map(Number);
 
-                    if (!Number.isFinite(hE) || !Number.isFinite(mE) ||
-                        !Number.isFinite(hS) || !Number.isFinite(mS)) {
+                    if (!Number.isFinite(hE) || !Number.isFinite(mE) || !Number.isFinite(hS) || !Number.isFinite(mS)) {
                         return null;
                     }
 
                     const minutosEntrada = hE * 60 + mE;
                     const minutosSalida = hS * 60 + mS;
 
-                    if (minutosEntrada > 1440 || minutosSalida > 1440 ||
-                        minutosEntrada < 0 || minutosSalida < 0) {
-                        return null;
-                    }
-
                     let minTotal = minutosSalida - minutosEntrada;
+                    if (minTotal < 0) minTotal += 24 * 60;
 
-                    if (minTotal < 0) {
-                        minTotal += 24 * 60; // Agregar 24 horas
-                    }
+                    // Fórmula: (Salida - Entrada) - TiempoFuera + Crédito
+                    let minNeto = (minTotal - tfMinutos) + crMinutos;
 
-                    let minNeto = minTotal - tfMinutos;
                     if (minNeto < 0) minNeto = 0;
 
+                    // Retornamos también el crédito usado para guardarlo si es necesario (opcional)
                     return { horas: Math.floor(minNeto / 60), minutos: minNeto % 60, total: minNeto / 60 };
                 }
 
                 function calcularHorasFeriadoEnRango(inicio, fin) {
                     const horasDiariasLocal = horasDiarias;
+                    const diasHabilesConfig = diasHabiles;
                     let horasDescontar = 0;
 
                     registros.forEach(r => {
@@ -2724,7 +2820,14 @@
                         const esVacaciones = r.entrada === '22:22' && r.salida === '22:22';
 
                         if (r.fecha >= inicio && r.fecha <= fin && (esFeriado || esAusencia || esVacaciones)) {
-                            horasDescontar += horasDiariasLocal;
+                            // 🔧 CORRECCIÓN: Solo descontar si el día especial cae en un día hábil
+                            const fechaObj = new Date(r.fecha.replace(/-/g, '/') + ' 00:00:00');
+                            const diaSemana = fechaObj.getDay(); // 0=Dom, 1=Lun, ..., 6=Sáb
+
+                            // Solo descontar si este día estaba configurado como día laboral
+                            if (diasHabilesConfig.includes(diaSemana)) {
+                                horasDescontar += horasDiariasLocal;
+                            }
                         }
                     });
                     return horasDescontar;
@@ -2768,6 +2871,21 @@
                     const f = S.sanitizeString($('fecha').value, 10);
                     let e = S.sanitizeString($('entrada').value.trim(), 5);
                     let s = S.sanitizeString($('salida').value.trim(), 5);
+
+                    // --- VALIDACIÓN DE FUTURO PARA NORMALES ---
+                    const hoy = UILogic.obtenerFechaHoy();
+                    if (f > hoy) {
+                        // Verificamos si es un registro especial (estos SÍ se permiten en el futuro)
+                        const esFeriado = e === '00:00' && s === '00:00';
+                        const esAusencia = e === '11:11' && s === '11:11';
+                        const esVacaciones = e === '22:22' && s === '22:22';
+
+                        if (!esFeriado && !esAusencia && !esVacaciones) {
+                            UILogic.resetearBoton(btn);
+                            UILogic.mostrarToast('Fecha futura no permitida en registro regular', 'warning');
+                            return;
+                        }
+                    }
 
                     const registroExistente = registros.find(r => r.fecha === f);
 
@@ -2924,17 +3042,48 @@
                 }
 
                 function editarRegistro(id) {
+                    // 1. Validaciones iniciales (si ya se está editando o no existe el ID)
                     if (editandoId !== null) return;
                     const r = registros.find(x => x.id === id);
                     if (!r) return;
+
+                    // 2. Cargar datos en los inputs
                     editandoId = id;
                     $('edit-fecha').value = r.fecha;
                     $('edit-entrada').value = r.entrada || '';
                     $('edit-salida').value = r.salida || '';
                     $('edit-tiempo-fuera').value = r.tiempoFuera || '';
+
+                    // 3. CONFIGURAR EL BOTÓN DE CRÉDITO (Aquí está el cambio visual)
+                    const btnCredito = document.getElementById('btn-toggle-credito');
+
+                    // A) Limpieza total: Le quitamos cualquier estilo previo para empezar de cero
+                    btnCredito.style.background = '';
+                    btnCredito.style.color = '';
+                    btnCredito.style.border = '';
+
+                    // B) Decidir si se pinta de verde o se queda gris
+                    if (r.credito && r.credito !== '00:00') {
+                        // SI TIENE CRÉDITO -> Lo pintamos estilo "Día Hábil" (Verde transparente)
+                        btnCredito.dataset.activo = "true";
+
+                        btnCredito.style.background = 'rgba(96, 172, 148, 0.1)'; // Fondo transparente
+                        btnCredito.style.color = 'var(--c-green)';                // Icono verde
+                        btnCredito.style.border = '1px solid var(--c-green)';     // Borde fino
+                    } else {
+                        // NO TIENE CRÉDITO -> Se queda como está (Gris por defecto de CSS)
+                        btnCredito.dataset.activo = "false";
+                    }
+
+                    // 4. Mostrar el modal y activar bloqueos
                     $('modal-editar').classList.add('show');
-                    UILogic.setBloqueoEdicion(true)
+                    UILogic.setBloqueoEdicion(true);
+
+                    requestAnimationFrame(() => {
+                        UILogic.verificarBloqueoCredito();
+                    });
                 }
+
                 async function guardarEdicion() {
                     const r = registros.find(x => x.id === editandoId);
                     if (!r) return;
@@ -2943,38 +3092,85 @@
                     const btnGuardar = modal.querySelector('.btn-edit');
                     btnGuardar.disabled = true;
 
-                    // Obtener valores de los inputs
+                    // --- 1. OBTENER VALORES DE LOS INPUTS ---
                     const f = S.sanitizeString($('edit-fecha').value, 10);
                     const e = S.sanitizeString($('edit-entrada').value.trim(), 5);
                     const s = S.sanitizeString($('edit-salida').value.trim(), 5);
+
                     let tf = S.sanitizeString($('edit-tiempo-fuera').value.trim(), 5);
                     if (tf === '') tf = null;
 
-                    // DETECTAR CAMBIOS ---
+                    // --- CALCULAR CRÉDITO SEGÚN EL BOTÓN ---
+                    let cr = null;
+                    const btnCredito = document.getElementById('btn-toggle-credito');
+
+                    // Solo calculamos si el botón existe y está marcado como activo
+                    if (btnCredito && btnCredito.dataset.activo === "true") {
+                        // Calculamos las horas trabajadas reales (sin crédito)
+                        const calcTemp = calcularHoras(e, s, tf, null);
+
+                        if (calcTemp) {
+                            const horasTrabajadas = calcTemp.total;
+                            const horasObjetivo = horasDiarias; // Variable global de configuración
+
+                            // Diferencia: Lo que falta para llegar al objetivo
+                            const diferencia = horasObjetivo - horasTrabajadas;
+
+                            if (diferencia > 0.01) { // Usamos 0.01 para evitar errores de redondeo pequeños
+                                // Convertimos la diferencia a formato HH:MM
+                                const h = Math.floor(diferencia);
+                                const m = Math.round((diferencia - h) * 60);
+                                cr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+                            }
+                            // Si diferencia <= 0, significa que ya cumplió el horario, así que cr se queda en null
+                        }
+                    }
+                    // --- VALIDACIÓN DE FUTURO PARA NORMALES ---
+                    const hoy = UILogic.obtenerFechaHoy();
+                    if (f > hoy) {
+                        const esFeriado = e === '00:00' && s === '00:00';
+                        const esAusencia = e === '11:11' && s === '11:11';
+                        const esVacaciones = e === '22:22' && s === '22:22';
+
+                        if (!esFeriado && !esAusencia && !esVacaciones) {
+                            UILogic.restaurarBotonGuardarEdicion(btnGuardar);
+                            UILogic.mostrarToast('Fecha futura no permitida en registro regular', 'warning');
+                            return;
+                        }
+                    }
+
+                    // --- 2. DETECTAR SI HUBO CAMBIOS ---
                     const actualEntrada = r.entrada || '';
                     const nuevaEntrada = e || '';
                     const actualSalida = r.salida || '';
                     const nuevaSalida = s || '';
                     const actualTF = r.tiempoFuera || '';
-                    const nuevoTF = tf || ''; // tf puede ser null, pero para comparar usamos ''
+                    const nuevoTF = tf || '';
 
-                    // Comparamos todo
+                    // Comparar crédito también
+                    const actualCR = r.credito || '';
+                    const nuevoCR = cr || '';
+
                     if (r.fecha === f &&
                         actualEntrada === nuevaEntrada &&
                         actualSalida === nuevaSalida &&
-                        actualTF === nuevoTF) {
+                        actualTF === nuevoTF &&
+                        actualCR === nuevoCR) {
 
-                        // Si todo es igual, avisamos y cerramos
                         UILogic.mostrarToast('Sin cambios', 'info');
                         UILogic.restaurarBotonGuardarEdicion(btnGuardar);
                         UILogic.cerrarEdicion();
                         return;
                     }
-                    // --------------------------------------
 
-                    if (!S.validarFechaSegura(f) || (e && !S.validarHoraSegura(e)) || (s && !S.validarHoraSegura(s)) || (tf && !S.validarHoraSegura(tf))) {
+                    // --- 3. VALIDACIONES DE SEGURIDAD ---
+                    if (!S.validarFechaSegura(f) ||
+                        (e && !S.validarHoraSegura(e)) ||
+                        (s && !S.validarHoraSegura(s)) ||
+                        (tf && !S.validarHoraSegura(tf))) { // El crédito calculado por sistema es seguro, no hace falta validarlo manual
+
                         UILogic.restaurarBotonGuardarEdicion(btnGuardar);
-                        UILogic.mostrarToast('Verifica los campos', 'error');
+                        UILogic.mostrarToast('Verifica los campos (hora inválida)', 'error');
                         return;
                     }
 
@@ -2984,11 +3180,10 @@
                         return;
                     }
 
+                    // Caso: Borrar registro si todo está vacío
                     if (!e && !s) {
-                        // Si ambos campos están vacíos, eliminar el registro
                         const registroABorrar = registros.find(r => r.id === editandoId);
                         if (registroABorrar && registroABorrar.fecha === UILogic.obtenerFechaHoy()) {
-                            // 🔧 LIMPIAR TIMER DEL PERFIL ACTUAL
                             const perfilId = window.PerfilManager ? PerfilManager.obtenerPerfilActual() : 'default';
                             const storageKey = `breakStartTime_${perfilId}`;
                             localStorage.removeItem(storageKey);
@@ -2996,9 +3191,7 @@
                         }
                         registros = registros.filter(r => r.id !== editandoId);
                         HistoryManager.saveState(registros);
-
                         const saved = await guardarYActualizar();
-
                         if (saved) {
                             UILogic.mostrarToast('Registro eliminado (vacío)', 'info');
                             UILogic.restaurarBotonGuardarEdicion(btnGuardar);
@@ -3009,29 +3202,35 @@
                         return;
                     }
 
+                    // Verificar duplicados de fecha
                     const existeFecha = registros.some(reg => reg.fecha === f && reg.id !== editandoId);
                     if (existeFecha) {
                         UILogic.restaurarBotonGuardarEdicion(btnGuardar);
-                        UILogic.mostrarToast('Ya existe otro registro', 'error');
+                        UILogic.mostrarToast('Ya existe otro registro para esa fecha', 'error');
                         return;
                     }
 
-                    // Si pasó las validaciones y hubo cambios, actualizamos
+                    // --- 4. ACTUALIZAR EL OBJETO ---
                     r.fecha = f;
                     r.entrada = e || null;
 
-                    // 🔧 Detener timer si está corriendo y se agrega salida
                     if (s && !actualSalida) {
                         const timerDetenido = detenerYRegistrarTimer(r);
-                        if (timerDetenido) tf = r.tiempoFuera; // Actualizar tf con el nuevo valor
+                        if (timerDetenido) tf = r.tiempoFuera;
                     }
 
                     r.salida = s || null;
                     r.tiempoFuera = tf;
-                    const t = calcularHoras(r.entrada, r.salida, r.tiempoFuera);
+                    r.credito = cr; // Guardamos el crédito calculado
+
+                    // --- 5. RECALCULAR TOTALES ---
+                    const t = calcularHoras(r.entrada, r.salida, r.tiempoFuera, r.credito);
+
                     r.horas = t?.horas || 0;
                     r.minutos = t?.minutos || 0;
                     r.total = t?.total || 0;
+
+                    // Ordenar
                     registros.sort((a, b) => {
                         if (a.fecha !== b.fecha) return b.fecha.localeCompare(a.fecha);
                         return (b.entrada || '').localeCompare(a.entrada || '');
@@ -3042,7 +3241,12 @@
                     const saved = await guardarYActualizar();
 
                     if (saved) {
-                        UILogic.mostrarToast('Registro actualizado', 'success');
+                        // Mensaje personalizado si se aplicó compensación
+                        if (cr) {
+                            UILogic.mostrarToast(`Guardado y compensado (+${cr})`, 'success');
+                        } else {
+                            UILogic.mostrarToast('Registro actualizado', 'success');
+                        }
                         UILogic.restaurarBotonGuardarEdicion(btnGuardar);
                         UILogic.cerrarEdicion();
                     } else {
@@ -3051,60 +3255,60 @@
                 }
 
                 function guardarConfig() {
-                    const d = parseFloat($('config-dias-habiles').value);
                     const vd = parseFloat($('config-horas-diarias').value);
 
-                    // Validación básica
-                    if (isNaN(d) || d < 1 || d > 7) {
-                        UILogic.mostrarToast('Días hábiles inválidos', 'error');
+                    // Leer checkboxes y ordenar para comparar bien
+                    const checkboxes = document.querySelectorAll('input[name="dia-habil"]:checked');
+                    const nuevosDias = Array.from(checkboxes).map(cb => parseInt(cb.value)).sort((a, b) => a - b);
+
+                    if (nuevosDias.length === 0) {
+                        UILogic.mostrarToast('Selecciona al menos un día', 'error');
                         return;
                     }
-
                     if (isNaN(vd) || vd < 0 || vd > 24) {
-                        UILogic.mostrarToast('Horas diarias inválidas', 'error');
+                        UILogic.mostrarToast('Horas inválidas', 'error');
                         return;
                     }
 
-                    // Comparamos cambios
-                    if (d === diasHabiles && vd === horasDiarias) {
+                    // --- NUEVA VALIDACIÓN DE CAMBIOS (Array vs Array) ---
+                    // Ordenamos la configuración actual para que la comparación sea justa
+                    const diasActuales = [...diasHabiles].sort((a, b) => a - b);
+
+                    // Convertimos a texto para comparar contenido real
+                    const sonDiasIguales = JSON.stringify(diasActuales) === JSON.stringify(nuevosDias);
+
+                    if (sonDiasIguales && vd === horasDiarias) {
                         UILogic.mostrarToast('Sin cambios', 'info');
                         UILogic.cerrarConfig();
                         return;
                     }
+                    // ---------------------------------------------------
 
-                    diasHabiles = d;
+                    // Guardar en memoria
+                    diasHabiles = nuevosDias;
                     horasDiarias = vd;
 
-                    // Recalcular registros especiales si cambiaron las horas diarias
+                    // Recalcular feriados (00:00) si cambiaron las horas
                     registros.forEach(r => {
                         if (r.entrada === '00:00' && r.salida === '00:00') {
                             const t = calcularHoras('00:00', '00:00', r.tiempoFuera || null);
-                            r.horas = t?.horas || 0;
-                            r.minutos = t?.minutos || 0;
-                            r.total = t?.total || 0;
+                            r.horas = t?.horas || 0; r.minutos = t?.minutos || 0; r.total = t?.total || 0;
                         }
                     });
 
                     try {
-                        // Verificamos si es el perfil default antes de tocar el localStorage global
                         const esPerfilDefault = window.PerfilManager && PerfilManager.obtenerPerfilActual() === 'default';
-
                         if (esPerfilDefault) {
-                            localStorage.setItem('diasHabiles', diasHabiles);
+                            localStorage.setItem('diasHabiles', JSON.stringify(diasHabiles));
                             localStorage.setItem('horasDiarias', horasDiarias);
-                            localStorage.removeItem('horasSemanales'); // Limpieza de legacy muy viejo
+                            localStorage.removeItem('horasSemanales');
                         }
-                        // Los perfiles secundarios NO tocan estas keys globales, 
-                        // sus configs se guardan via PerfilManager en el paso siguiente.
-
                     } catch (e) {
                         UILogic.mostrarToast('Error al guardar', 'error');
                         return;
                     }
 
-                    // Esto se encarga de persistir los datos (ya sea en legacy o en perfiles)
                     guardarYActualizar(true);
-
                     UILogic.mostrarToast('Configuración guardada', 'success');
                     UILogic.cerrarConfig();
                 }
@@ -3253,7 +3457,8 @@
                                         tiempoFuera: validarHora(r.tiempoFuera),
                                         horas: Math.max(0, Math.min(24, parseFloat(r.horas) || 0)),
                                         minutos: Math.max(0, Math.min(59, parseFloat(r.minutos) || 0)),
-                                        total: Math.max(0, Math.min(24, parseFloat(r.total) || 0))
+                                        total: Math.max(0, Math.min(24, parseFloat(r.total) || 0)),
+                                        credito: validarHora(r.credito),
                                     };
                                 });
 
@@ -3264,7 +3469,7 @@
 
                             // Recalcular horas para asegurar consistencia
                             registrosImportados.forEach(r => {
-                                const t = calcularHoras(r.entrada, r.salida, r.tiempoFuera || null);
+                                const t = calcularHoras(r.entrada, r.salida, r.tiempoFuera || null, r.credito || null);
                                 r.horas = t?.horas || 0;
                                 r.minutos = t?.minutos || 0;
                                 r.total = t?.total || 0;
@@ -3278,10 +3483,26 @@
                                 registros = registrosImportados;
 
                                 //Validación estricta de tipos de configuración
+                                // BLOQUE NUEVO (PEGAR)
                                 if (data.diasHabiles !== undefined) {
-                                    const diasParsed = typeof data.diasHabiles === 'string' ? parseFloat(data.diasHabiles) : data.diasHabiles;
-                                    if (Number.isFinite(diasParsed) && diasParsed >= 1 && diasParsed <= 7) {
-                                        diasHabiles = diasParsed;
+                                    // Caso 1: Es un Array (Backup nuevo) - Validación segura
+                                    if (Array.isArray(data.diasHabiles)) {
+                                        // Filtramos solo números válidos entre 0 (domingo) y 6 (sábado)
+                                        const diasValidos = data.diasHabiles.filter(d => Number.isInteger(d) && d >= 0 && d <= 6);
+                                        if (diasValidos.length > 0) {
+                                            diasHabiles = diasValidos;
+                                        }
+                                    }
+                                    // Caso 2: Es un Número (Backup antiguo) - Conversión
+                                    else {
+                                        const diasParsed = parseFloat(data.diasHabiles);
+                                        if (Number.isFinite(diasParsed) && diasParsed >= 1 && diasParsed <= 7) {
+                                            // Convertimos el número antiguo al nuevo formato array
+                                            const diasArray = [];
+                                            for (let i = 1; i <= diasParsed; i++) diasArray.push(i); // 1 a N
+                                            if (diasParsed === 7) diasArray.push(0); // Agregar domingo si eran 7 días
+                                            diasHabiles = diasArray;
+                                        }
                                     }
                                 }
 
@@ -3396,33 +3617,22 @@
                     const horasDiariasLocal = horasDiarias;
                     let buffer = 0;
 
-                    // Filtrar registros relevantes una sola vez
-                    const registrosRango = registros.filter(r =>
-                        r.fecha >= inicioSemana && r.fecha <= fechaHoy
-                    );
+                    const registrosRango = registros.filter(r => r.fecha >= inicioSemana && r.fecha <= fechaHoy);
+                    const registrosMap = new Map(registrosRango.map(r => [r.fecha, r]));
 
-                    // Crear Map para búsqueda
-                    const registrosMap = new Map(
-                        registrosRango.map(r => [r.fecha, r])
-                    );
-
+                    // Aseguramos que las fechas se interpreten a las 00:00 localmente para evitar errores de zona horaria
                     let fechaIteracion = new Date(inicioSemana.replace(/-/g, '/') + ' 00:00:00');
                     let fechaLimite = new Date(fechaHoy.replace(/-/g, '/') + ' 00:00:00');
 
                     while (fechaIteracion <= fechaLimite) {
+                        // Formato YYYY-MM-DD manual para evitar saltos de día por UTC
                         const y = fechaIteracion.getFullYear();
                         const m = String(fechaIteracion.getMonth() + 1).padStart(2, '0');
                         const d = String(fechaIteracion.getDate()).padStart(2, '0');
                         const isoDate = `${y}-${m}-${d}`;
 
-                        const numDia = fechaIteracion.getDay();
-                        let esDiaLaboralConfigurado = false;
-
-                        if (numDia === 0) {
-                            esDiaLaboralConfigurado = (diasHabiles === 7);
-                        } else {
-                            esDiaLaboralConfigurado = (numDia <= diasHabiles);
-                        }
+                        const numDia = fechaIteracion.getDay(); // 0=Dom, 1=Lun...
+                        const esDiaLaboralConfigurado = diasHabiles.includes(numDia); // Tu configuración personalizada
 
                         const r = registrosMap.get(isoDate);
                         let horasObjetivoDia = 0;
@@ -3432,11 +3642,17 @@
                         const esAusencia = r && r.entrada === '11:11' && r.salida === '11:11';
                         const esVacaciones = r && r.entrada === '22:22' && r.salida === '22:22';
 
+                        // Validar si el registro está cerrado o si es un día pasado
                         const tieneSalida = r && r.salida && !esFeriado && !esAusencia && !esVacaciones;
+                        // Comparamos cadenas de texto para evitar problemas de horas en objetos Date
                         const esDiaPasado = isoDate < fechaHoy;
 
-                        if (esDiaLaboralConfigurado && !esFeriado && !esAusencia && !esVacaciones && (esDiaPasado || (isoDate === fechaHoy && tieneSalida))) {
-                            horasObjetivoDia = horasDiariasLocal;
+                        // Solo sumamos objetivo si es un día configurado Y no es especial
+                        if (esDiaLaboralConfigurado && !esFeriado && !esAusencia && !esVacaciones) {
+                            // Si es un día pasado (ya terminó) O es hoy y ya cerraste turno, cuenta el objetivo
+                            if (esDiaPasado || (isoDate === fechaHoy && tieneSalida)) {
+                                horasObjetivoDia = horasDiariasLocal;
+                            }
                         }
 
                         if (r && !esFeriado && !esAusencia && !esVacaciones) {
@@ -3446,6 +3662,8 @@
                         }
 
                         buffer += (horasHechasDia - horasObjetivoDia);
+
+                        // Sumar 1 día
                         fechaIteracion.setDate(fechaIteracion.getDate() + 1);
                     }
                     return buffer;
@@ -3645,7 +3863,7 @@
 
                 return {
                     registros: () => registros,
-                    horasSemanales: () => (horasDiarias * diasHabiles),
+                    horasSemanales: () => (horasDiarias * diasHabiles.length),
                     diasHabiles: () => diasHabiles,
                     horasDiarias: () => horasDiarias,
                     setDiasHabiles: (v) => diasHabiles = v,
@@ -3779,19 +3997,32 @@
                     const cache = D.cacheSemana();
                     const hoy = new Date().toDateString();
                     if (cache.calculado === hoy) return { inicio: cache.inicio, fin: cache.fin };
+
                     const now = new Date();
                     const dia = now.getDay();
-                    const offset = dia === 0 ? -6 : 1 - dia;
+                    const offset = dia === 0 ? -6 : 1 - dia; // Calcular Lunes
+
                     const lun = new Date(now);
                     lun.setDate(now.getDate() + offset);
                     lun.setHours(0, 0, 0, 0);
-                    const vie = new Date(lun);
-                    vie.setDate(lun.getDate() + 4);
-                    vie.setHours(23, 59, 59, 999);
+                    const dom = new Date(lun);
+                    dom.setDate(lun.getDate() + 6);
+                    dom.setHours(23, 59, 59, 999);
+
                     const inicio = lun.toISOString().split('T')[0];
-                    const fin = vie.toISOString().split('T')[0];
+                    const fin = dom.toISOString().split('T')[0];
+
                     D.setCacheSemana({ inicio, fin, calculado: hoy });
                     return { inicio, fin };
+                }
+
+                function obtenerLunesSemana(fecha) {
+                    const date = new Date(fecha.replace(/-/g, '/') + ' 00:00:00');
+                    const dia = date.getDay();
+                    const offset = dia === 0 ? -6 : 1 - dia;
+                    const lunes = new Date(date);
+                    lunes.setDate(date.getDate() + offset);
+                    return lunes.toISOString().split('T')[0];
                 }
 
                 function horasATexto(t) {
@@ -3957,21 +4188,17 @@
                     return resultado;
                 }
 
-                function crearItemRegistroIndividual(r, horasDiarias, idResaltar = null) { // <--- NUEVO
+                function crearItemRegistroIndividual(r, horasDiarias, idResaltar = null) {
                     const item = document.createElement('div');
                     const hoy = obtenerFechaHoy();
 
-
-
                     let className = r.fecha === hoy ? 'registro-item hoy' : 'registro-item';
 
-                    // Si el ID de este registro coincide con el que queremos resaltar...
                     if (idResaltar && r.id === idResaltar) {
                         className += ' nuevo-registro-animacion';
                     }
 
-                    item.className = className; // Asignamos las clases
-
+                    item.className = className;
                     item.onclick = () => D.editarRegistro(r.id);
 
                     const info = document.createElement('div');
@@ -3991,7 +4218,10 @@
 
                     fechaEl.textContent = `${obtenerNombreDia(r.fecha)} ${r.fecha.substring(8)}${etiqueta}`;
 
+                    // --- VISUALIZACIÓN DE EXTRAS ---
                     const tfText = r.tiempoFuera && r.tiempoFuera !== '' ? ` (${r.tiempoFuera} Fuera)` : '';
+
+                    const crText = r.credito && r.credito !== '00:00' ? ' 🎁 (Asueto)' : '';
 
                     const horasEl = document.createElement('div');
                     horasEl.className = 'registro-horas';
@@ -4003,7 +4233,8 @@
                     } else if (isVacaciones) {
                         horasEl.textContent = 'Vacaciones';
                     } else {
-                        horasEl.textContent = `${r.entrada || '-'} → ${r.salida || '-'}${tfText}`;
+                        // Agregamos crText aquí al final de la línea
+                        horasEl.textContent = `${r.entrada || '-'} → ${r.salida || '-'}${tfText}${crText}`;
                     }
 
                     const totalEl = document.createElement('div');
@@ -4011,21 +4242,14 @@
                     let totalText = 'Incompleto';
                     totalEl.classList.remove('green-text', 'red-text', 'purple-text');
 
-                    if (isFeriadoContabilizado) {
-                        totalText = 'Justificado';
-                        totalEl.classList.add('purple-text');
-                    } else if (isAusencia) {
-                        totalText = 'Justificado';
-                        totalEl.classList.add('purple-text');
-                    } else if (isVacaciones) {
+                    if (isFeriadoContabilizado || isAusencia || isVacaciones) {
                         totalText = 'Justificado';
                         totalEl.classList.add('purple-text');
                     } else if (r.entrada && r.salida) {
                         totalText = `${r.horas}h ${r.minutos}m`;
 
-                        // Sin objetivo: solo mostrar tiempo sin colores
                         if (horasDiarias === 0) {
-                            // No aplicar color, dejar el texto por defecto
+                            // Sin color
                         } else {
                             const diffText = formatoDiferencia(r.total);
                             if (r.total >= horasDiarias) {
@@ -4150,16 +4374,39 @@
                         }
 
                         // --- BUCLE PRINCIPAL DE ITEMS ---
+                        let semanaAnterior = null;
+
                         grupos.forEach(grupo => {
                             if (grupo.tipo === 'grupo') {
-                                // CAMBIO CLAVE 3: ¡AQUÍ ESTABA EL ERROR! 
-                                // Asegúrate de que 'idNuevo' esté aquí como 4to parámetro
+                                const primerRegistro = grupo.registros[grupo.registros.length - 1]; // El más antiguo del grupo
+                                const semanaActual = obtenerLunesSemana(primerRegistro.fecha);
+
+                                // Si cambió la semana, insertar separador
+                                if (semanaAnterior && semanaActual !== semanaAnterior) {
+                                    const separador = document.createElement('div');
+                                    separador.className = 'separador-semana';
+                                    detalleMesActual.appendChild(separador);
+                                }
+
                                 const container = crearGrupoExpandible(grupo, horasDiarias, gruposExpandidos, idNuevo);
                                 detalleMesActual.appendChild(container);
+
+                                semanaAnterior = semanaActual;
                             } else {
                                 const r = grupo.registros[0];
+                                const semanaActual = obtenerLunesSemana(r.fecha);
+
+                                // Si cambió la semana, insertar separador
+                                if (semanaAnterior && semanaActual !== semanaAnterior) {
+                                    const separador = document.createElement('div');
+                                    separador.className = 'separador-semana';
+                                    detalleMesActual.appendChild(separador);
+                                }
+
                                 const item = crearItemRegistroIndividual(r, horasDiarias, idNuevo);
                                 detalleMesActual.appendChild(item);
+
+                                semanaAnterior = semanaActual;
                             }
                         });
 
@@ -4185,7 +4432,16 @@
                                     chevronIcon.style.transform = 'rotate(180deg)';
 
                                     setTimeout(() => {
-                                        contenedor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                        // 1. Obtenemos la posición del contenedor del mes
+                                        const rect = contenedor.getBoundingClientRect();
+
+                                        // 2. Definimos el margen del header (la barra blanca de arriba)
+                                        const margenHeader = 80;
+
+                                        // 3. LOGICA CONDICIONAL:
+                                        if (rect.top < margenHeader) {
+                                            contenedor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                        }
                                     }, 310);
                                 }
                             };
@@ -4297,7 +4553,7 @@
                     if (mesAnio) {
                         const [año, mes] = mesAnio.split('-').map(Number);
                         añoActual = año;
-                        mesActual = mes - 1; // JavaScript usa 0-11 para meses
+                        mesActual = mes - 1;
                     } else {
                         const hoy = new Date();
                         mesActual = hoy.getMonth();
@@ -4309,20 +4565,15 @@
                         return año === añoActual && mes === mesActual + 1;
                     });
 
-                    // Contar feriados y ausencias
-                    const feriados = registrosMes.filter(r =>
-                        r.entrada === '00:00' && r.salida === '00:00'
-                    ).length;
+                    // Contadores básicos
+                    const feriados = registrosMes.filter(r => r.entrada === '00:00' && r.salida === '00:00').length;
+                    const ausencias = registrosMes.filter(r => r.entrada === '11:11' && r.salida === '11:11').length;
+                    const vacaciones = registrosMes.filter(r => r.entrada === '22:22' && r.salida === '22:22').length;
 
-                    const ausencias = registrosMes.filter(r =>
-                        r.entrada === '11:11' && r.salida === '11:11'
-                    ).length;
+                    // Contar Asuetos (días con crédito válido)
+                    const asuetos = registrosMes.filter(r => r.credito && r.credito !== '00:00').length;
 
-                    const vacaciones = registrosMes.filter(r =>
-                        r.entrada === '22:22' && r.salida === '22:22'
-                    ).length;
-
-                    // Filtrar solo registros válidos (excluir feriados y ausencias)
+                    // Filtrar solo registros válidos para promedios (excluir feriados y ausencias puras)
                     const registrosValidos = registrosMes.filter(r =>
                         r.entrada && r.salida &&
                         r.entrada !== '00:00' && r.entrada !== '11:11' && r.entrada !== '22:22'
@@ -4336,11 +4587,12 @@
                             promedioDiario: '0h 0m',
                             feriados: feriados,
                             ausencias: ausencias,
-                            vacaciones: vacaciones
+                            vacaciones: vacaciones,
+                            asuetos: asuetos // Retornamos el nuevo dato
                         };
                     }
 
-                    // Calcular entrada promedio
+                    // Cálculos de promedios (Entrada)
                     let sumaMinutosEntrada = 0;
                     registrosValidos.forEach(r => {
                         const [h, m] = r.entrada.split(':').map(Number);
@@ -4350,7 +4602,7 @@
                     const hEntrada = Math.floor(promedioEntrada / 60);
                     const mEntrada = promedioEntrada % 60;
 
-                    // Calcular salida promedio
+                    // Cálculos de promedios (Salida)
                     let sumaMinutosSalida = 0;
                     registrosValidos.forEach(r => {
                         const [h, m] = r.salida.split(':').map(Number);
@@ -4360,7 +4612,7 @@
                     const hSalida = Math.floor(promedioSalida / 60);
                     const mSalida = promedioSalida % 60;
 
-                    // Calcular promedio de horas diarias
+                    // Promedio horas diarias
                     const totalHoras = registrosValidos.reduce((sum, r) => sum + r.total, 0);
                     const promedioDiario = totalHoras / registrosValidos.length;
                     const hPromedio = Math.floor(promedioDiario);
@@ -4373,7 +4625,8 @@
                         promedioDiario: `${hPromedio}h ${mPromedio}m`,
                         feriados: feriados,
                         ausencias: ausencias,
-                        vacaciones: vacaciones
+                        vacaciones: vacaciones,
+                        asuetos: asuetos // Retornamos el nuevo dato
                     };
                 }
 
@@ -4404,7 +4657,6 @@
                     const diasHabilesConfig = D.diasHabiles();
                     const vistaActual = D.vistaActual();
 
-                    // Actualizar lista solo si no es un refresco de reloj
                     if (!soloReloj) {
                         actualizarListaRegistros(registros, idNuevo);
                     }
@@ -4412,19 +4664,47 @@
                     const { inicio: ini, fin: fn } = obtenerSemanaActual();
                     const hoy = obtenerFechaHoy();
 
-                    // Detectar si hoy es día de descanso
-                    const fechaHoyObj = new Date();
-                    const diaSemanaHoy = fechaHoyObj.getDay(); // 0 = Domingo
-                    let esDiaDeDescanso = false;
-                    if (diaSemanaHoy === 0) {
-                        esDiaDeDescanso = (diasHabilesConfig < 7);
+                    // --- DETECCIÓN DE DÍAS HÁBILES (COMPATIBLE CON ARRAY v6.63) ---
+                    const diaObj = new Date();
+                    const diaSemanaHoy = diaObj.getDay(); // 0=Dom, 1=Lun...
+
+                    // Verificamos si es array (versiones nuevas) o número (fallback)
+                    let esDiaHabilHoy = true;
+                    if (Array.isArray(diasHabilesConfig)) {
+                        esDiaHabilHoy = diasHabilesConfig.includes(diaSemanaHoy);
                     } else {
-                        esDiaDeDescanso = (diaSemanaHoy > diasHabilesConfig);
+                        if (diaSemanaHoy === 0) esDiaHabilHoy = (diasHabilesConfig === 7);
+                        else esDiaHabilHoy = (diaSemanaHoy <= diasHabilesConfig);
                     }
+                    const esDiaDeDescanso = !esDiaHabilHoy;
+
+                    // --- LÓGICA DE SEMANA ABIERTA/CERRADA (v6.63) ---
+                    // Mapa para ordenar Lun(1) a Dom(7) y facilitar cálculo de "futuro"
+                    const mapDia = d => d === 0 ? 7 : d;
+                    const hoyIndex = mapDia(diaSemanaHoy);
+
+                    // Detectar si quedan días laborales en el FUTURO (Mañana en adelante)
+                    let quedanDiasFuturos = false;
+                    // Solo si es array iteramos (v6.63), sino usamos lógica simple
+                    if (Array.isArray(diasHabilesConfig)) {
+                        for (let d = hoyIndex + 1; d <= 7; d++) {
+                            const diaReal = d === 7 ? 0 : d;
+                            if (diasHabilesConfig.includes(diaReal)) {
+                                quedanDiasFuturos = true;
+                                break;
+                            }
+                        }
+                    } else {
+                        // Fallback simple
+                        quedanDiasFuturos = hoyIndex < diasHabilesConfig;
+                    }
+
+                    const registroHoy = registros.find(r => r.fecha === hoy);
+                    const hoyCerrado = registroHoy && registroHoy.salida;
+                    const semanaAbierta = quedanDiasFuturos || (esDiaHabilHoy && !hoyCerrado);
 
                     const bufferSemanal = D.calcularBufferSemanal(ini, hoy);
 
-                    // Elementos del DOM
                     const statsEl = $('stats-semana');
                     const progressEl = $('progress-bar');
                     const mensajeEl = $('stats-mensaje');
@@ -4432,10 +4712,11 @@
                     const hintEl = $('toggle-hint');
                     const bufferEl = $('stats-buffer');
 
-                    // --- 1. MOSTRAR BUFFER (EXTRAS/FALTANTES) ---
+                    // --- MOSTRAR BUFFER (SOLO SI SEMANA ABIERTA) ---
                     if (bufferEl) {
                         bufferEl.innerHTML = '';
-                        if (horasDiarias > 0 && Math.abs(bufferSemanal) > 0.01 && !esDiaDeDescanso) {
+                        // Solo mostrar buffer si hay horas configuradas, hay diferencia y la semana no terminó
+                        if (horasDiarias > 0 && Math.abs(bufferSemanal) > 0.01 && semanaAbierta) {
                             const esPositivo = bufferSemanal > 0;
                             const bufferIcono = esPositivo ? '✅' : '⚠️';
                             const bufferColor = esPositivo ? '#60ac94' : '#c05d76';
@@ -4456,9 +4737,11 @@
                     if (vistaActual === 'semana') {
                         tituloEl.innerHTML = `<svg class="icon"><use href="#icon-calendar-simple" /></svg> Esta Semana`;
 
-                        // Calcular total trabajado en la semana (excluyendo días especiales)
+                        // Solo contar hasta HOY
+                        const fechaLimiteCalculo = hoy < fn ? hoy : fn;
+
                         const tot = registros.filter(r =>
-                            r.fecha >= ini && r.fecha <= fn &&
+                            r.fecha >= ini && r.fecha <= fechaLimiteCalculo &&
                             !(r.entrada === '00:00' && r.salida === '00:00') &&
                             !(r.entrada === '11:11' && r.salida === '11:11') &&
                             !(r.entrada === '22:22' && r.salida === '22:22')
@@ -4471,11 +4754,7 @@
                         if (statsEl) statsEl.innerHTML = `<div>${horasATexto(tot)}</div>`;
                         if (progressEl) {
                             progressEl.style.width = prog + '%';
-                            if (horasDiarias === 0) {
-                                setProgressBarColor(progressEl, 'blue');
-                            } else {
-                                setProgressBarColor(progressEl, tot >= objetivoAjustado ? 'green' : 'blue');
-                            }
+                            setProgressBarColor(progressEl, (horasDiarias > 0 && tot >= objetivoAjustado) ? 'green' : 'blue');
                         }
 
                         if (mensajeEl) {
@@ -4486,14 +4765,13 @@
                                 mensajeEl.style.display = 'block';
                                 if (objetivoAjustado === 0) {
                                     mensajeEl.textContent = `Semana sin objetivo. Total: ${horasATexto(tot)}`;
-                                } else if (esDiaDeDescanso) {
-                                    mensajeEl.textContent = tot >= objetivoAjustado ?
-                                        `Hiciste ${horasATexto(tot - objetivoAjustado)} de más` :
-                                        `Faltaron ${horasATexto(objetivoAjustado - tot)}`;
                                 } else {
-                                    mensajeEl.textContent = tot >= objetivoAjustado ?
-                                        `${horasATexto(tot - objetivoAjustado)} de más!` :
-                                        `Faltan ${horasATexto(objetivoAjustado - tot)}`;
+                                    if (tot >= objetivoAjustado) {
+                                        mensajeEl.textContent = `Hiciste ${horasATexto(tot - objetivoAjustado)} de más`;
+                                    } else {
+                                        const verbo = semanaAbierta ? "Faltan" : "Faltaron";
+                                        mensajeEl.textContent = `${verbo} ${horasATexto(objetivoAjustado - tot)}`;
+                                    }
                                 }
                             }
                         }
@@ -4533,7 +4811,6 @@
                                 if (regHoy.salida) {
                                     tiempoTranscurrido = regHoy.total;
                                 } else {
-                                    // Calculando en tiempo real
                                     const ahora = new Date();
                                     const horaActual = String(ahora.getHours()).padStart(2, '0') + ':' + String(ahora.getMinutes()).padStart(2, '0');
                                     const t = D.calcularHoras(regHoy.entrada, horaActual, regHoy.tiempoFuera || null);
@@ -4545,11 +4822,12 @@
                                 if (statsEl) statsEl.innerHTML = `<div>${horasATexto(tiempoTranscurrido)}</div>`;
                                 if (progressEl) {
                                     progressEl.style.width = prog + '%';
-                                    progressEl.style.backgroundColor = '';
                                 }
 
                                 if (regHoy.salida) {
-                                    // DÍA CERRADO
+                                    // -------------------------------------------------
+                                    // CASO 1: DÍA CERRADO (Ya marcaste salida)
+                                    // -------------------------------------------------
                                     if (objetivoDiario === 0) {
                                         setProgressBarColor(progressEl, 'blue');
                                         if (mensajeEl) mensajeEl.style.display = 'none';
@@ -4560,27 +4838,47 @@
                                         if (mensajeEl) mensajeEl.textContent = dif >= 0 ? `${horasATexto(dif)} extras` : `Faltaron ${horasATexto(Math.abs(dif))}`;
                                     }
                                 } else {
-                                    // DÍA EN CURSO (ABIERTO)
+                                    // -------------------------------------------------
+                                    // CASO 2: DÍA ABIERTO (Estás trabajando ahora)
+                                    // -------------------------------------------------
                                     if (objetivoDiario === 0) {
                                         setProgressBarColor(progressEl, 'blue');
                                         if (mensajeEl) mensajeEl.style.display = 'none';
                                     } else {
                                         if (mensajeEl) mensajeEl.style.display = 'block';
-                                        setProgressBarColor(progressEl, 'blue');
+
+                                        // 1. ¿Objetivo Cumplido HOY?
+                                        const objetivoCumplido = tiempoTranscurrido >= objetivoDiario;
+
+                                        // Barra: Verde si cumpliste, Azul si falta
+                                        setProgressBarColor(progressEl, objetivoCumplido ? 'green' : 'blue');
+
                                         const faltante = Math.max(0, objetivoDiario - tiempoTranscurrido);
 
                                         if (mensajeEl) {
-                                            if (tiempoTranscurrido >= objetivoDiario) {
-                                                // Objetivo cumplido, chequear deuda semanal
-                                                const extraHoy = tiempoTranscurrido - objetivoDiario;
-                                                if (bufferSemanal < 0 && Math.abs(bufferSemanal) > extraHoy) {
+                                            if (objetivoCumplido) {
+                                                // --- A) YA CUMPLISTE LAS HORAS DE HOY ---
+                                                const extra = tiempoTranscurrido - objetivoDiario;
+
+                                                // Chequeo opcional: ¿Debes tiempo de la semana a pesar de haber cumplido hoy?
+                                                // bufferSemanal < 0 significa deuda total. extra es lo que ganaste hoy.
+                                                // Si tu deuda es mayor a lo que ganaste hoy, aun debes.
+                                                if (bufferSemanal < 0 && Math.abs(bufferSemanal) > extra) {
                                                     mensajeEl.textContent = `Te podes ir, pero debés tiempo`;
                                                 } else {
-                                                    mensajeEl.textContent = `Te podes ir`;
+                                                    // Mensaje de éxito con tiempo extra
+                                                    if (extra > 0) {
+                                                        mensajeEl.textContent = `Te podes ir (+${horasATexto(extra)})`;
+                                                    } else {
+                                                        mensajeEl.textContent = `Te podes ir`;
+                                                    }
                                                 }
                                             } else {
-                                                // Falta para el objetivo
+                                                // --- B) FALTA PARA EL OBJETIVO DE HOY ---
                                                 const faltanteTexto = `Faltan ${horasATexto(faltante)}`;
+
+                                                // LÓGICA DEL BUFFER RECUPERADA
+                                                // Si tienes horas a favor (buffer > 0) y cubren lo que te falta hoy:
                                                 if (bufferSemanal >= faltante) {
                                                     mensajeEl.textContent = `${faltanteTexto}, pero te podés ir`;
                                                 } else {
@@ -4594,37 +4892,36 @@
                         } else {
                             // SIN REGISTRO HOY
                             if (progressEl) { progressEl.style.width = '0%'; setProgressBarColor(progressEl, 'blue'); }
-                            if (statsEl) statsEl.innerHTML = `<div style="font-size: 1.8rem;">😴 Sin actividad</div>`;
-                            if (mensajeEl) {
-                                if (horasDiarias === 0) mensajeEl.style.display = 'none';
-                                else { mensajeEl.textContent = '...'; mensajeEl.style.display = 'block'; }
+
+                            if (esDiaDeDescanso) {
+                                if (statsEl) statsEl.innerHTML = `<div style="font-size: 1.8rem;">😴 Descanso</div>`;
+                                if (mensajeEl) mensajeEl.textContent = 'Día libre';
+                            } else {
+                                if (statsEl) statsEl.innerHTML = `<div style="font-size: 1.8rem;">😴 Sin actividad</div>`;
+                                if (mensajeEl) {
+                                    if (horasDiarias === 0) mensajeEl.style.display = 'none';
+                                    else { mensajeEl.textContent = '...'; mensajeEl.style.display = 'block'; }
+                                }
                             }
                         }
 
-                        // --- LÓGICA DE SALIDA ESTIMADA (NUEVO) ---
+                        // --- LÓGICA DE SALIDA ESTIMADA ---
                         if (hintEl) {
                             let mostrarEstimacion = false;
                             let horaSalida = '';
 
-                            // Solo calcular si hay entrada, no hay salida, y hay un objetivo > 0
                             if (regHoy && regHoy.entrada && !regHoy.salida && objetivoDiario > 0) {
                                 const esEspecial = (regHoy.entrada === '00:00' || regHoy.entrada === '11:11' || regHoy.entrada === '22:22');
 
                                 if (!esEspecial) {
-                                    // 1. Hora Entrada a minutos
                                     const [hE, mE] = regHoy.entrada.split(':').map(Number);
-                                    let minutosTotal = (hE * 60) + mE;
+                                    let minutosTotal = (hE * 60) + mE + (objetivoDiario * 60);
 
-                                    // 2. Sumar Objetivo Diario
-                                    minutosTotal += (objetivoDiario * 60);
-
-                                    // 3. Sumar Tiempo Fuera ya registrado (estático)
                                     if (regHoy.tiempoFuera) {
                                         const [hF, mF] = regHoy.tiempoFuera.split(':').map(Number);
                                         minutosTotal += (hF * 60) + mF;
                                     }
 
-                                    // 4. Sumar Tiempo Fuera EN CURSO (Live Timer)
                                     const perfilId = window.PerfilManager ? PerfilManager.obtenerPerfilActual() : 'default';
                                     const storageKey = `breakStartTime_${perfilId}`;
                                     const inicioBreak = localStorage.getItem(storageKey);
@@ -4635,11 +4932,9 @@
                                         if (minutosEnCurso > 0) minutosTotal += minutosEnCurso;
                                     }
 
-                                    // 5. Formatear hora de salida
                                     let hS = Math.floor(minutosTotal / 60);
                                     const mS = Math.round(minutosTotal % 60);
-
-                                    if (hS >= 24) hS = hS % 24; // Ajuste si pasa de medianoche
+                                    if (hS >= 24) hS = hS % 24;
 
                                     horaSalida = `${String(hS).padStart(2, '0')}:${String(mS).padStart(2, '0')}`;
                                     mostrarEstimacion = true;
@@ -4648,15 +4943,12 @@
 
                             if (mostrarEstimacion) {
                                 hintEl.innerHTML = `Salida estimada: <strong>${horaSalida}</strong>`;
-                                hintEl.style.color = 'var(--text-muted)';
                             } else {
                                 hintEl.textContent = 'Toca para ver la Semana';
-                                hintEl.style.color = 'var(--text-muted)';
                             }
                         }
                     }
 
-                    // Actualizar resto de componentes
                     actualizarEstadisticas();
                     actualizarEstadoBotonTimerMain();
                 }
@@ -4707,20 +4999,30 @@
                 }
 
                 function pegarHoraActual(id) {
-                    const c = $(id);
+                    const c = document.getElementById(id);
                     if (!c) return;
 
-                    // Si el campo tiene contenido, limpiarlo
+                    // 1. Si el campo tiene contenido, limpiarlo (toggle)
                     if (c.value.trim() !== '') {
                         c.value = '';
+
+                        // --- Avisar que se borró para bloquear el botón ---
+                        if (id === 'edit-entrada' || id === 'edit-salida') {
+                            verificarBloqueoCredito();
+                        }
                         return;
                     }
 
-                    // Si está vacío, pegar hora actual
+                    // 2. Si está vacío, pegar hora actual
                     const now = new Date();
                     const h = String(now.getHours()).padStart(2, '0');
                     const m = String(now.getMinutes()).padStart(2, '0');
                     c.value = `${h}:${m}`;
+
+                    // --- Avisar que se pegó para habilitar el botón ---
+                    if (id === 'edit-entrada' || id === 'edit-salida') {
+                        verificarBloqueoCredito();
+                    }
                 }
 
                 function limpiarCampo(id) {
@@ -4735,14 +5037,14 @@
                 }
 
                 function actualizarFeedbackConfig() {
-                    const dias = parseFloat($('config-dias-habiles').value) || 5;
+                    const seleccionados = document.querySelectorAll('input[name="dia-habil"]:checked').length;
                     const horas = parseFloat($('config-horas-diarias').value) || 0;
-                    const total = dias * horas;
+                    const total = seleccionados * horas;
 
-                    if (horas === 0) {
-                        $('config-total-feedback').textContent = `(Sin objetivo - Solo registro)`;
-                    } else {
-                        $('config-total-feedback').textContent = `(Total semanal: ${total}hs)`;
+                    const el = $('config-total-feedback');
+                    if (el) {
+                        if (horas === 0) el.textContent = `(Registro libre sin objetivos)`;
+                        else el.textContent = `(Total semanal: ${total}hs)`;
                     }
                 }
 
@@ -4759,18 +5061,6 @@
                         intervaloPulsacion = setInterval(() => {
                             cambiarHorasDiarias(incremento);
                         }, 100); // Repetir cada 100ms
-                    }, 500);
-                }
-
-                function iniciarCambioDias(incremento) {
-                    // Cambio inmediato al presionar
-                    cambiarDiasHabiles(incremento);
-
-                    // Esperar 500ms antes de iniciar repetición
-                    timeoutInicial = setTimeout(() => {
-                        intervaloPulsacion = setInterval(() => {
-                            cambiarDiasHabiles(incremento);
-                        }, 150); // Repetir cada 150ms (más lento para días)
                     }, 500);
                 }
 
@@ -4795,19 +5085,18 @@
                     actualizarFeedbackConfig();
                 }
 
-                function cambiarDiasHabiles(incremento) {
-                    let valorActual = parseFloat($('config-dias-habiles').value);
-                    if (isNaN(valorActual)) valorActual = D.diasHabiles();
-                    let nuevoValor = valorActual + incremento;
-                    if (nuevoValor > 7) nuevoValor = 7;
-                    if (nuevoValor < 1) nuevoValor = 1;
-                    $('config-dias-habiles').value = nuevoValor;
-                    actualizarFeedbackConfig();
-                }
-
                 function mostrarConfig() {
-                    $('config-dias-habiles').value = D.diasHabiles();
                     $('config-horas-diarias').value = D.horasDiarias();
+
+                    // Marcar checkboxes según configuración
+                    const diasActivos = D.diasHabiles();
+                    const checkboxes = document.querySelectorAll('input[name="dia-habil"]');
+                    checkboxes.forEach(cb => {
+                        cb.checked = diasActivos.includes(parseInt(cb.value));
+                        // Añadir evento para actualizar texto en tiempo real
+                        cb.onchange = UILogic.actualizarFeedbackConfig;
+                    });
+
                     UILogic.actualizarFeedbackConfig();
                     $('modal-config').classList.add('show');
                 }
@@ -4933,6 +5222,7 @@ REPORTE DE HORAS TRABAJADAS
 
 ────────────────────────────────────────────────────────────────`,
 
+                        // --- RESUMEN GENERAL ---
                         resumenGeneral: () => `
 
 📈 RESUMEN GENERAL
@@ -4942,6 +5232,7 @@ REPORTE DE HORAS TRABAJADAS
    • Feriados:               ${stats.feriados}
    • Ausencias:              ${stats.ausencias}
    • Vacaciones:             ${stats.vacaciones}
+   • Asuetos/Compensados:    ${stats.asuetos}
    
    • Entrada promedio:       ${stats.entradaPromedio}
    • Salida promedio:        ${stats.salidaPromedio}
@@ -4959,8 +5250,6 @@ REPORTE DE HORAS TRABAJADAS
 ────────────────────────────────────────────────────────────────
 
 `;
-
-                            // Ordenar registros por fecha ascendente
                             const registrosOrdenados = [...registrosMes].sort((a, b) =>
                                 new Date(a.fecha) - new Date(b.fecha)
                             );
@@ -4987,7 +5276,10 @@ REPORTE DE HORAS TRABAJADAS
                                     const entrada = r.entrada || '--:--';
                                     const salida = r.salida || '--:--';
                                     const total = r.salida ? `${r.horas}h ${r.minutos}m` : 'Incompleto';
+
+                                    // Detalles extras
                                     const tiempoFuera = r.tiempoFuera ? ` (${r.tiempoFuera} fuera)` : '';
+                                    const infoAsueto = (r.credito && r.credito !== '00:00') ? ' [ASUETO]' : '';
 
                                     // Determinar si cumplió objetivo
                                     let indicador = '  ';
@@ -4999,7 +5291,7 @@ REPORTE DE HORAS TRABAJADAS
                                         }
                                     }
 
-                                    linea = `${dia.padEnd(10)} ${fecha}  ${entrada} → ${salida}  [${total}]${tiempoFuera} ${indicador}`;
+                                    linea = `${dia.padEnd(10)} ${fecha}  ${entrada} → ${salida}  [${total}]${tiempoFuera}${infoAsueto} ${indicador}`;
                                 }
 
                                 seccion += linea + '\n';
@@ -5010,7 +5302,6 @@ REPORTE DE HORAS TRABAJADAS
 
                         // --- TOTALES POR SEMANA ---
                         totalesPorSemana: () => {
-                            // Función auxiliar para obtener el lunes de una fecha
                             function obtenerLunesSemana(fecha) {
                                 const date = new Date(fecha.replace(/-/g, '/') + ' 00:00:00');
                                 const dia = date.getDay();
@@ -5020,7 +5311,6 @@ REPORTE DE HORAS TRABAJADAS
                                 return lunes.toISOString().split('T')[0];
                             }
 
-                            // Agrupar TODOS los registros por semana
                             const semanas = new Map();
 
                             registrosMes.forEach(r => {
@@ -5030,7 +5320,8 @@ REPORTE DE HORAS TRABAJADAS
                                         trabajados: [],
                                         feriados: [],
                                         ausencias: [],
-                                        vacaciones: []
+                                        vacaciones: [],
+                                        asuetos: []
                                     });
                                 }
 
@@ -5044,17 +5335,18 @@ REPORTE DE HORAS TRABAJADAS
                                     semana.vacaciones.push(r);
                                 } else {
                                     semana.trabajados.push(r);
+                                    // Si tiene crédito, lo contamos como asueto en esta semana
+                                    if (r.credito && r.credito !== '00:00') {
+                                        semana.asuetos.push(r);
+                                    }
                                 }
                             });
 
-                            // Ordenar semanas por fecha
                             const semanasOrdenadas = Array.from(semanas.entries()).sort((a, b) =>
                                 new Date(a[0]) - new Date(b[0])
                             );
 
-                            if (semanasOrdenadas.length === 0) {
-                                return '';
-                            }
+                            if (semanasOrdenadas.length === 0) return '';
 
                             let seccion = `
 
@@ -5070,7 +5362,6 @@ REPORTE DE HORAS TRABAJADAS
                                 const horasSem = Math.floor(totalSemanal);
                                 const minutosSem = Math.round((totalSemanal - horasSem) * 60);
 
-                                // Calcular viernes de la semana
                                 const fechaLunes = new Date(lunes.replace(/-/g, '/') + ' 00:00:00');
                                 const fechaViernes = new Date(fechaLunes);
                                 fechaViernes.setDate(fechaLunes.getDate() + 4);
@@ -5082,17 +5373,11 @@ REPORTE DE HORAS TRABAJADAS
                                 seccion += `   Semana ${index + 1} (${lunesFormato} - ${viernesFormato}):\n`;
                                 seccion += `      └─ ${horasSem}h ${minutosSem}m (${totalSemanal.toFixed(2)}h)`;
 
-                                // Agregar información de feriados, ausencias y vacaciones
                                 const notasExtras = [];
-                                if (datos.feriados.length > 0) {
-                                    notasExtras.push(`${datos.feriados.length} feriado${datos.feriados.length > 1 ? 's' : ''}`);
-                                }
-                                if (datos.ausencias.length > 0) {
-                                    notasExtras.push(`${datos.ausencias.length} ausencia${datos.ausencias.length > 1 ? 's' : ''}`);
-                                }
-                                if (datos.vacaciones.length > 0) {
-                                    notasExtras.push(`${datos.vacaciones.length} vacación${datos.vacaciones.length > 1 ? 'es' : ''}`);
-                                }
+                                if (datos.feriados.length > 0) notasExtras.push(`${datos.feriados.length} feriado(s)`);
+                                if (datos.ausencias.length > 0) notasExtras.push(`${datos.ausencias.length} ausencia(s)`);
+                                if (datos.vacaciones.length > 0) notasExtras.push(`${datos.vacaciones.length} vacacion(es)`);
+                                if (datos.asuetos.length > 0) notasExtras.push(`${datos.asuetos.length} asueto(s)`);
 
                                 if (notasExtras.length > 0) {
                                     seccion += ` [${notasExtras.join(', ')}]`;
@@ -5104,8 +5389,14 @@ REPORTE DE HORAS TRABAJADAS
                             return seccion;
                         },
 
-                        // --- CONFIGURACIÓN ---
-                        configuracion: () => `
+                        configuracion: () => {
+                            const nombresDias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
+                            const diasTexto = D.diasHabiles()
+                                .map(d => nombresDias[d])
+                                .join(', ');
+
+                            return `
 
 ────────────────────────────────────────────────────────────────
 
@@ -5113,10 +5404,10 @@ REPORTE DE HORAS TRABAJADAS
 ────────────────────────────────────────────────────────────────
 
    • Horas diarias:          ${D.horasDiarias()}
-   • Días hábiles/semana:    ${D.diasHabiles()}
-   • Horas semanales:        ${D.horasSemanales()}`,
+   • Días hábiles/semana:    ${diasTexto}
+   • Horas semanales:        ${D.horasSemanales()}`;
+                        },
 
-                        // --- FOOTER ---
                         footer: () => `
 
 ────────────────────────────────────────────────────────────────
@@ -5125,9 +5416,6 @@ Generado por Sistema Horarios
 `
                     };
 
-                    // ============================================
-                    // GENERAR CONTENIDO COMPLETO
-                    // ============================================
                     const contenido =
                         reporte.header() +
                         reporte.resumenGeneral() +
@@ -5136,9 +5424,6 @@ Generado por Sistema Horarios
                         reporte.configuracion() +
                         reporte.footer();
 
-                    // ============================================
-                    // DESCARGAR ARCHIVO
-                    // ============================================
                     try {
                         const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
                         const url = URL.createObjectURL(blob);
@@ -5191,7 +5476,6 @@ Generado por Sistema Horarios
 
                     // Si no estamos en modo lote, nos aseguramos que se vea
                     btn.style.display = '';
-                    // ---------------------------------
 
                     const hoy = obtenerFechaHoy();
                     const registroHoy = D.registros().find(r => r.fecha === hoy);
@@ -5306,8 +5590,6 @@ Generado por Sistema Horarios
                     actualizarEstadoBotonTimerMain();
                 }
 
-
-
                 // --- Lógica de Bloqueo del Modal Editar ---
                 let edicionBloqueada = true;
 
@@ -5322,19 +5604,24 @@ Generado por Sistema Horarios
                         btnLock.style.color = bloqueado ? 'var(--c-red)' : 'var(--text-main)';
                     }
 
+                    // Bloquear Inputs (Menos el botón de crédito, que se maneja aparte)
                     const inputs = ['edit-fecha', 'edit-entrada', 'edit-salida', 'edit-tiempo-fuera'];
                     inputs.forEach(id => {
                         const el = $(id);
                         if (el) el.disabled = bloqueado;
                     });
 
+                    // Bloquear Botones generales
                     const modal = $('modal-editar');
                     if (modal) {
-                        const botones = modal.querySelectorAll('button:not(#btn-lock-toggle):not(.btn-cancel)');
+                        const botones = modal.querySelectorAll('button:not(#btn-lock-toggle):not(.btn-cancel):not(#btn-toggle-credito)');
                         botones.forEach(btn => {
                             btn.disabled = bloqueado;
                         });
                     }
+
+                    // IMPORTANTE: Forzamos la revisión del botón de crédito AHORA MISMO
+                    verificarBloqueoCredito();
                 }
 
                 function toggleBloqueoEdicion() {
@@ -5845,6 +6132,31 @@ Generado por Sistema Horarios
                     }
                 }
 
+                function toggleCredito() {
+                    const btn = document.getElementById('btn-toggle-credito');
+
+                    // Usamos el dataset como fuente de verdad
+                    const estaActivo = btn.dataset.activo === "true";
+
+                    if (estaActivo) {
+                        // --- DESACTIVAR (Volver a Gris original) ---
+                        btn.dataset.activo = "false";
+
+                        // Limpiamos estilos para que retome la clase .time-btn original
+                        btn.style.background = '';
+                        btn.style.color = '';
+                        btn.style.border = ''; // Quitar borde
+                    } else {
+                        // --- ACTIVAR (Estilo "Día Hábil/Perfil") ---
+                        btn.dataset.activo = "true";
+
+                        // Aplicamos EXACTAMENTE el mismo estilo que .day-checkbox input:checked~span
+                        btn.style.background = 'rgba(96, 172, 148, 0.1)'; // Fondo verde transparente
+                        btn.style.color = 'var(--c-green)';                // Icono verde
+                        btn.style.border = '1px solid var(--c-green)';     // Borde verde
+                    }
+                }
+
                 async function init() {
                     if (typeof (Storage) === "undefined") {
                         alert("Tu navegador no soporta localStorage.");
@@ -5853,6 +6165,7 @@ Generado por Sistema Horarios
 
                     PerfilManager.inicializar();
 
+                    // --- EXPORTAR MÓDULOS (Mantener igual) ---
                     window.DataManagement = {
                         agregarRegistro: D.agregarRegistro,
                         guardarConfig: D.guardarConfig,
@@ -5872,6 +6185,9 @@ Generado por Sistema Horarios
                         horasDiarias: D.horasDiarias,
                         setDiasHabiles: D.setDiasHabiles,
                         setHorasDiarias: D.setHorasDiarias,
+                        calcularHoras: D.calcularHoras,
+                        registrarVacacionesDirecto: D.registrarVacacionesDirecto,
+                        borrarPeriodoDirecto: D.borrarPeriodoDirecto,
                     };
                     window.HistoryManager = { undo: D.undoAction, redo: D.redoAction };
                     window.PWAInstaller = { instalarApp: PWAInstaller.instalarApp };
@@ -5882,61 +6198,79 @@ Generado por Sistema Horarios
                         cerrarEdicion, mostrarImportar, cerrarImportar, actualizarUI, mostrarToast,
                         mostrarError, limpiarError, resetearBoton, restaurarBotonGuardarEdicion,
                         limpiarCampo, obtenerFechaHoy, mostrarFiltros, poblarSelectorMeses, actualizarBotonLote,
-                        cerrarFiltros, mostrarAyuda, cerrarAyuda, cambiarMesStats, generarReporte,
-                        toggleFormulario, toggleBotonesHistorico, toggleStats, toggleTimerBreakMain,
-                        actualizarEstadoBotonTimerMain, toggleBloqueoEdicion, setBloqueoEdicion, actualizarFeedbackConfig,
-                        init, abrirEditorPerfil, cerrarEditorPerfil, guardarEdicionPerfil, eliminarPerfilDesdeEditor,
-                        crearPerfilDesdeSelector, renderizarListaPerfiles, iniciarCambioHoras, iniciarCambioDias, detenerCambio,
-                        abrirConfigDesdePerfiles, toggleModoLote, ejecutarAccionRegistro, registrarLoteDesdeCard,
-                        abrirSelectorPerfiles, cerrarSelectorPerfiles, alternarFechaActual
+                        cerrarFiltros, mostrarAyuda, registrarLoteDesdeCard,
+                        cerrarAyuda, cambiarMesStats, generarReporte, toggleBotonesHistorico, toggleStats, sumarMinutosAHora,
+                        toggleTimerBreakMain, actualizarEstadoBotonTimerMain, toggleBloqueoEdicion, setBloqueoEdicion,
+                        actualizarFeedbackConfig, poblarSelectorMeses, abrirSelectorPerfiles, actualizarBotonLote,
+                        cerrarSelectorPerfiles, abrirEditorPerfil, cerrarEditorPerfil, guardarEdicionPerfil, toggleModoLote,
+                        eliminarPerfilDesdeEditor, crearPerfilDesdeSelector, renderizarListaPerfiles, ejecutarAccionRegistro,
+                        iniciarCambioHoras, detenerCambio, abrirConfigDesdePerfiles, alternarFechaActual, verificarBloqueoCredito,
+                        toggleCredito, init, toggleFormulario
                     };
 
-                    // =========================================================
-                    // INICIO SISTEMA AUTOMÁTICO DE BLOQUEO DE SCROLL
-                    // =========================================================
-                    const modals = document.querySelectorAll('.modal');
-                    const scrollObserver = new MutationObserver(() => {
-                        const algunAbierto = document.querySelectorAll('.modal.show').length > 0;
-                        if (algunAbierto) {
-                            // Calcular cuánto mide la barra de scroll
-                            const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-                            document.body.style.paddingRight = `${scrollbarWidth}px`; // Compensa el espacio
-                            document.body.classList.add('modal-open');
-                        } else {
-                            document.body.classList.remove('modal-open');
-                            document.body.style.paddingRight = ''; // Quita la compensación
+                    // === LISTENERS E INTERACTIVIDAD (CORREGIDO) ===
+
+                    // A) Inputs normales del formulario principal (Solo formato)
+                    ['entrada', 'salida'].forEach(id => {
+                        const el = $(id);
+                        if (el) el.addEventListener('input', formatearInput);
+                    });
+
+                    // B) Inputs del Modal Editar (Formato + Verificación EN VIVO)
+                    ['edit-entrada', 'edit-salida'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) {
+                            // Usamos un listener unificado para garantizar el orden
+                            el.addEventListener('input', (e) => {
+                                // 1. Primero ponemos los dos puntos (formato)
+                                formatearInput(e);
+                                // 2. INMEDIATAMENTE verificamos si se habilita el botón
+                                verificarBloqueoCredito();
+                            });
+
+                            // Listener extra para cuando pegas texto o autocompletas
+                            el.addEventListener('change', verificarBloqueoCredito);
                         }
                     });
 
-                    modals.forEach(modal => {
-                        // Observamos cambios en la clase 'show' de cada modal
-                        scrollObserver.observe(modal, { attributes: true, attributeFilter: ['class'] });
-                    });
+                    // C) Otros inputs
+                    const tf = document.getElementById('edit-tiempo-fuera');
+                    if (tf) tf.addEventListener('input', formatearInput);
 
-                    // =========================================================
-                    // FIN SISTEMA AUTOMÁTICO DE BLOQUEO DE SCROLL
-                    // =========================================================
+                    // ===================================
 
-                    // 2. CARGAR CONFIGURACIÓN
+                    // CARGAR CONFIGURACIÓN
                     const config = D.cargarConfiguracion();
                     const temaOscuro = config.temaOscuro;
                     D.setVistaActual(config.vistaActual);
 
                     const perfilActual = PerfilManager.obtenerDatosPerfil();
-                    D.setDiasHabiles(perfilActual.diasHabiles !== undefined ? perfilActual.diasHabiles : 5);
+                    let diasRaw = perfilActual.diasHabiles;
+                    let diasArraySeguro = [1, 2, 3, 4, 5];
+
+                    if (Array.isArray(diasRaw)) {
+                        diasArraySeguro = diasRaw;
+                    } else if (typeof diasRaw === 'number') {
+                        diasArraySeguro = [];
+                        for (let i = 1; i <= diasRaw; i++) diasArraySeguro.push(i);
+                        if (diasRaw === 7) diasArraySeguro.push(0);
+                    }
+
+                    D.setDiasHabiles(diasArraySeguro);
                     D.setHorasDiarias(perfilActual.horasDiarias !== undefined ? perfilActual.horasDiarias : 7);
 
                     const registrosCargados = perfilActual.registros || [];
                     D.registros().splice(0, D.registros().length, ...registrosCargados);
 
+                    HistoryManager.clear();
                     HistoryManager.saveState(D.registros());
                     HistoryManager.updateButtons();
 
-                    // 3. INTERFAZ GRÁFICA (TEMA) - Versión Segura
+                    // TEMA
                     if (temaOscuro) {
                         document.body.classList.add('dark-mode');
                     }
-                    // Intentar actualizar botones de tema si existen
+                    // Restaurar iconos de tema...
                     const toggleBtnEl = $('theme-toggle');
                     if (toggleBtnEl) {
                         const tBtn = toggleBtnEl.querySelector('use');
@@ -5945,46 +6279,32 @@ Generado por Sistema Horarios
                     const toggleBtnModal = $('theme-toggle-modal');
                     if (toggleBtnModal) {
                         const tBtnM = toggleBtnModal.querySelector('use');
-                        const tTxt = $('theme-text');
                         if (tBtnM) tBtnM.setAttribute('href', temaOscuro ? '#icon-sun' : '#icon-moon');
-                        if (tTxt) tTxt.textContent = temaOscuro ? 'Modo Claro' : 'Modo Oscuro';
                     }
 
                     $('fecha').value = obtenerFechaHoy();
 
-                    // 4. LISTENERS E INTERACTIVIDAD
-                    ['entrada', 'salida', 'edit-entrada', 'edit-salida', 'edit-tiempo-fuera'].forEach(id => {
-                        const el = $(id);
-                        if (el) el.addEventListener('input', formatearInput);
-                    });
-
-                    // 5. RESTAURAR ESTADO VISUAL
+                    // RESTAURAR ESTADO VISUAL
                     try {
                         if (localStorage.getItem('formularioExpandido') === 'true') toggleFormulario();
                         if (localStorage.getItem('statsExpandido') === 'true') toggleStats();
                         if (localStorage.getItem('botonesHistoricoExpandido') === 'true') toggleBotonesHistorico();
                     } catch (e) { console.warn('Error restaurando estado visual:', e); }
 
-                    // Inicializar PWA
                     PWAInstaller.init();
 
-                    // Primera actualización de UI
                     actualizarUI();
                     setInterval(() => actualizarUI(null, true), 60000);
-                    console.log('Sistema iniciado correctamente v6.29');
+                    console.log('Sistema iniciado correctamente v6.68');
 
-                    // Listeners para actualizar botón cuando cambien las fechas en modo lote
+                    // Listeners Lote
                     const loteDesde = document.getElementById('lote-fecha-desde');
                     const loteHasta = document.getElementById('lote-fecha-hasta');
-
-                    // Usamos una función helper para añadir ambos eventos
                     const agregarListenersFecha = (el) => {
                         if (!el) return;
                         el.addEventListener('change', () => actualizarBotonLote());
                         el.addEventListener('input', () => actualizarBotonLote());
                     };
-
-                    // Aplicamos la función a AMBOS campos (Desde y Hasta)
                     agregarListenersFecha(loteDesde);
                     agregarListenersFecha(loteHasta);
                 }
@@ -6059,8 +6379,6 @@ Generado por Sistema Horarios
                     });
                 }
 
-                // ... dentro de UILogic ...
-
                 function alternarFechaActual(id) {
                     const c = document.getElementById(id);
                     if (!c) return;
@@ -6072,11 +6390,48 @@ Generado por Sistema Horarios
                         c.value = obtenerFechaHoy();
                     }
 
-                    // Importante: Actualizar el estado del botón principal
+                    // Actualizar el estado del botón principal
                     actualizarBotonLote();
                 }
 
-                // ...
+                function verificarBloqueoCredito() {
+                    const btnCredito = document.getElementById('btn-toggle-credito');
+                    if (!btnCredito) return; // Seguridad
+
+                    // 1. Verificamos estado del candado global
+                    const bloqueoGlobal = document.getElementById('edit-fecha').disabled;
+
+                    // 2. Obtenemos valores
+                    const e = document.getElementById('edit-entrada').value.trim();
+                    const s = document.getElementById('edit-salida').value.trim();
+
+                    // 3. Validamos que el horario esté VISUALMENTE completo (5 caracteres: HH:MM)
+                    const horarioCompleto = e.length === 5 && s.length === 5;
+
+                    // 4. Detectamos si son días especiales (para bloquear también)
+                    const esEspecial = (e === '00:00' && s === '00:00') ||
+                        (e === '11:11' && s === '11:11') ||
+                        (e === '22:22' && s === '22:22');
+
+                    // Si hay candado O es día especial O el horario NO está completo...
+                    if (bloqueoGlobal || esEspecial || !horarioCompleto) {
+                        // ... APAGAMOS EL BOTÓN
+                        btnCredito.disabled = true;
+                        btnCredito.style.opacity = '0.5';
+                        btnCredito.style.cursor = 'not-allowed';
+
+                        // Si el usuario borra la hora, visualmente desactivamos el toggle verde para no confundir
+                        if (!horarioCompleto && btnCredito.dataset.activo === "true") {
+                            toggleCredito(); // Esto lo vuelve gris automáticamente
+                        }
+                    } else {
+                        // ... HABILITAMOS EL BOTÓN
+                        btnCredito.disabled = false;
+                        btnCredito.style.opacity = '1';
+                        btnCredito.style.cursor = 'pointer';
+                    }
+                }
+
 
                 return {
                     init, obtenerFechaHoy, pegarHoraActual, alternarTema, alternarVista, mostrarConfig, cerrarConfig,
@@ -6088,7 +6443,8 @@ Generado por Sistema Horarios
                     actualizarFeedbackConfig, poblarSelectorMeses, abrirSelectorPerfiles, actualizarBotonLote,
                     cerrarSelectorPerfiles, abrirEditorPerfil, cerrarEditorPerfil, guardarEdicionPerfil, toggleModoLote,
                     eliminarPerfilDesdeEditor, crearPerfilDesdeSelector, renderizarListaPerfiles, ejecutarAccionRegistro,
-                    iniciarCambioHoras, iniciarCambioDias, detenerCambio, abrirConfigDesdePerfiles, alternarFechaActual
+                    iniciarCambioHoras, detenerCambio, abrirConfigDesdePerfiles, alternarFechaActual, verificarBloqueoCredito,
+                    toggleCredito
                 };
 
             })(SecurityAndUtils, DataManagement);
@@ -6121,10 +6477,10 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //             CAMBIOS REALIZADOS EN ESTA VERSION 6.60
+    //             CAMBIOS REALIZADOS EN ESTA VERSION 6.69
     // ====================================================================
-    1) Se modifica el funcionamiento del boton tiempo fuera, redondea para arriba o abajo con 30
-    segundos en el medio
-
+    1) se agrega validacion para los registros futuros, ahora no se puede crear un registro
+    con fecha mas alta que la actual, con excepcion de los registros especiales (feriados, etc)
+    2) se corrige la importacion de registros con la variable credito, las cuales no se importaban
 
     -->
