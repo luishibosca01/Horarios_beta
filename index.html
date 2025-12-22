@@ -1686,7 +1686,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <label>Tiempo Fuera / Salida Temprano</label>
+                <label>Tiempo Fuera</label>
                 <div class="input-with-btn">
                     <input type="text" id="edit-tiempo-fuera" inputmode="numeric" placeholder="Ej: 00:20"
                         maxlength="5" />
@@ -4318,7 +4318,7 @@
                     // --- VISUALIZACIÓN DE EXTRAS ---
                     const tfText = r.tiempoFuera && r.tiempoFuera !== '' ? ` (${r.tiempoFuera} Fuera)` : '';
 
-                    const crText = r.credito && r.credito !== '00:00' ? ' 🚪 (Salida Temprano)' : '';
+                    const crText = r.credito && r.credito !== '00:00' ? '(Salida Temprano)' : '';
 
                     const horasEl = document.createElement('div');
                     horasEl.className = 'registro-horas';
