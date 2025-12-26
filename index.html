@@ -4418,7 +4418,7 @@
                         }
                     });
 
-                    // 2. Guardar estado de mes abierto
+                    // 2. Guardar estado de meses abiertos
                     const mesesExpandidos = new Set();
                     lista.querySelectorAll('.registro-mes-container').forEach(container => {
                         const detalle = container.querySelector('.registro-mes-detalle');
@@ -4475,11 +4475,21 @@
                         const detalleMesActual = document.createElement('div');
                         detalleMesActual.className = 'registro-mes-detalle';
 
-                        // Lógica de apertura
+                        // 🆕 LÓGICA DE APERTURA CON LOCALSTORAGE
                         let debeEstarExpandido = false;
-                        if (mesesExpandidos.size > 0) {
-                            debeEstarExpandido = mesesExpandidos.has(claveMes);
-                        } else {
+
+                        try {
+                            const estadoGuardado = localStorage.getItem(`mes-${claveMes}-expandido`);
+
+                            if (estadoGuardado !== null) {
+                                // Si hay estado guardado, usarlo
+                                debeEstarExpandido = estadoGuardado === 'true';
+                            } else {
+                                // Si no hay estado guardado (primera vez), abrir solo el mes actual
+                                debeEstarExpandido = (claveMes === mesHoy);
+                            }
+                        } catch (e) {
+                            // Fallback: abrir solo mes actual
                             debeEstarExpandido = (claveMes === mesHoy);
                         }
 
@@ -4492,6 +4502,7 @@
                         let semanaAnterior = null;
 
                         grupos.forEach(grupo => {
+                            // ... resto del código sin cambios ...
                             if (grupo.tipo === 'grupo') {
                                 const primerRegistro = grupo.registros[grupo.registros.length - 1]; // El más antiguo del grupo
                                 const semanaActual = obtenerLunesSemana(primerRegistro.fecha);
@@ -4532,53 +4543,62 @@
                                 const estaExpandido = detalle.classList.contains('expanded');
 
                                 if (estaExpandido) {
-                                    // Simplemente cerrar
+                                    // Cerrar
                                     detalle.classList.remove('expanded');
                                     chevronIcon.style.transform = 'rotate(0deg)';
+
+                                    // 🆕 GUARDAR ESTADO AL CERRAR
+                                    try {
+                                        localStorage.setItem(`mes-${header.dataset.mesId}-expandido`, 'false');
+                                    } catch (e) { }
                                 } else {
-                                    // SECUENCIA MEJORADA: Primero cerrar otros, luego abrir
+                                    // Abrir
                                     const otrosMesesAbiertos = lista.querySelectorAll('.registro-mes-detalle.expanded');
                                     const hayOtrosAbiertos = Array.from(otrosMesesAbiertos).some(otro => otro !== detalle);
 
                                     if (hayOtrosAbiertos) {
-                                        // 1. Cerrar otros meses primero
+                                        // 🆕 CERRAR OTROS Y GUARDAR SU ESTADO
                                         otrosMesesAbiertos.forEach(otroDetalle => {
                                             if (otroDetalle !== detalle) {
                                                 otroDetalle.classList.remove('expanded');
                                                 const otroContainer = otroDetalle.closest('.registro-mes-container');
                                                 const otroChevron = otroContainer?.querySelector('.chevron-mes');
+                                                const otroHeader = otroContainer?.querySelector('.registro-mes-header');
+
                                                 if (otroChevron) otroChevron.style.transform = 'rotate(0deg)';
+
+                                                // 🆕 GUARDAR QUE SE CERRÓ
+                                                if (otroHeader && otroHeader.dataset.mesId) {
+                                                    try {
+                                                        localStorage.setItem(`mes-${otroHeader.dataset.mesId}-expandido`, 'false');
+                                                    } catch (e) { }
+                                                }
                                             }
                                         });
 
-                                        // 2. Esperar a que termine la animación de cierre (300ms)
                                         setTimeout(() => {
-                                            // 3. Ahora sí, abrir el nuevo mes
                                             detalle.classList.add('expanded');
                                             chevronIcon.style.transform = 'rotate(180deg)';
 
-                                            // 4. Scroll suave después de que se expanda
+                                            // 🆕 GUARDAR QUE SE ABRIÓ
+                                            try {
+                                                localStorage.setItem(`mes-${header.dataset.mesId}-expandido`, 'true');
+                                            } catch (e) { }
+
                                             setTimeout(() => {
                                                 const margenHeader = 80;
                                                 const alturaVentana = window.innerHeight;
-
-                                                // Buscar los 2 primeros registros dentro del mes expandido
                                                 const registros = detalle.querySelectorAll('.registro-item');
 
                                                 if (registros.length > 0) {
-                                                    // Verificar el primer registro
                                                     const primerRegistro = registros[0];
                                                     const rectPrimero = primerRegistro.getBoundingClientRect();
-
-                                                    // Verificar el segundo registro (si existe)
                                                     const segundoRegistro = registros.length > 1 ? registros[1] : null;
                                                     const rectSegundo = segundoRegistro ? segundoRegistro.getBoundingClientRect() : null;
 
-                                                    // Verificar si alguno de los dos primeros NO está completamente visible
                                                     const primeroCortado = rectPrimero.top < margenHeader || rectPrimero.bottom > alturaVentana;
                                                     const segundoCortado = rectSegundo && (rectSegundo.top < margenHeader || rectSegundo.bottom > alturaVentana);
 
-                                                    // Hacer scroll solo si alguno de los dos primeros está cortado
                                                     if (primeroCortado || segundoCortado) {
                                                         contenedor.scrollIntoView({ behavior: 'smooth', block: 'start' });
                                                     }
@@ -4586,31 +4606,28 @@
                                             }, 310);
                                         }, 300);
                                     } else {
-                                        // No hay otros abiertos, abrir inmediatamente
                                         detalle.classList.add('expanded');
                                         chevronIcon.style.transform = 'rotate(180deg)';
+
+                                        // 🆕 GUARDAR QUE SE ABRIÓ
+                                        try {
+                                            localStorage.setItem(`mes-${header.dataset.mesId}-expandido`, 'true');
+                                        } catch (e) { }
 
                                         setTimeout(() => {
                                             const margenHeader = 80;
                                             const alturaVentana = window.innerHeight;
-
-                                            // Buscar los 2 primeros registros dentro del mes expandido
                                             const registros = detalle.querySelectorAll('.registro-item');
 
                                             if (registros.length > 0) {
-                                                // Verificar el primer registro
                                                 const primerRegistro = registros[0];
                                                 const rectPrimero = primerRegistro.getBoundingClientRect();
-
-                                                // Verificar el segundo registro (si existe)
                                                 const segundoRegistro = registros.length > 1 ? registros[1] : null;
                                                 const rectSegundo = segundoRegistro ? segundoRegistro.getBoundingClientRect() : null;
 
-                                                // Verificar si alguno de los dos primeros NO está completamente visible
                                                 const primeroCortado = rectPrimero.top < margenHeader || rectPrimero.bottom > alturaVentana;
                                                 const segundoCortado = rectSegundo && (rectSegundo.top < margenHeader || rectSegundo.bottom > alturaVentana);
 
-                                                // Hacer scroll solo si alguno de los dos primeros está cortado
                                                 if (primeroCortado || segundoCortado) {
                                                     contenedor.scrollIntoView({ behavior: 'smooth', block: 'start' });
                                                 }
@@ -6920,5 +6937,6 @@ Generado por Sistema Horarios
     // ====================================================================
     1) Se agrega "semana pasada" a la tarjeta de estadisticas
     2) se intercambia la calumna 1 y 2 del detalle diario en reporte
+    3) se agrega guardado de localstorage de la vista de registros del historico
 
     -->
