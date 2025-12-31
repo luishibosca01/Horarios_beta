@@ -43,6 +43,7 @@
             --c-gold: #d6af66;
             --c-gray-btn: #4b5563;
             --c-gray-light: #cbd5e1;
+            --c-white: #ffffff;
             --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             --radius: 12px;
             --bg-progress-bar: rgba(224, 224, 224, 0.3);
@@ -148,7 +149,7 @@
         @media (min-width: 1024px) {
             .container {
                 display: grid;
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: minmax(350px, 1fr) minmax(400px, 1fr);
                 gap: 1rem;
                 align-items: start;
             }
@@ -494,7 +495,22 @@
         }
 
         .registro-item.hoy {
-            border-left: 5px solid var(--text-main);
+            border-left: 3px solid var(--c-green);
+            position: relative;
+        }
+
+        .registro-item.hoy::before {
+            content: "HOY";
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--c-green);
+            color: var(--c-white);
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
         }
 
         .registro-info {
@@ -1556,7 +1572,7 @@
                     </svg>
                     Configuración
                 </span>
-                <span class="version-text">v6.80</span>
+                <span class="version-text">v6.82</span>
             </h3>
             <div class="form-group">
                 <label>Horas diarias</label>
@@ -2483,7 +2499,7 @@
                     });
                 }
 
-                function cambiarPerfil(nuevoId) { // Modificado para aceptar ID directo
+                function cambiarPerfil(nuevoId) {
                     if (!nuevoId) return; // Si viene del select antiguo (ya no existe)
                     if (nuevoId === perfilActual) return;
 
@@ -2751,16 +2767,12 @@
 
                 async function guardarYActualizar(actualizarRegistros = true, idNuevo = null) {
                     let saveSuccessful = true;
-
-                    // DETALLE IMPORTANTE:
                     // Verificamos si estamos en el perfil 'default' (el principal)
                     const esPerfilDefault = window.PerfilManager && PerfilManager.obtenerPerfilActual() === 'default';
-
                     // 1. Guardado Legacy (Compatibilidad hacia atrás)
                     // SOLO guardamos en la clave raíz 'registros' si estamos en el perfil default.
                     // Esto evita que un perfil secundario sobrescriba tu backup principal.
                     if (actualizarRegistros && esPerfilDefault) {
-                        // Nota: Asegúrate de que la función guardarConIntegridad esté accesible o descomentada si la usas
                         saveSuccessful = await guardarConIntegridad(registros);
                     }
 
@@ -3338,8 +3350,7 @@
                         return;
                     }
 
-                    // --- NUEVA VALIDACIÓN DE CAMBIOS (Array vs Array) ---
-                    // Ordenamos la configuración actual para que la comparación sea justa
+                    // --- VALIDACIÓN DE CAMBIOS (Array vs Array) ---
                     const diasActuales = [...diasHabiles].sort((a, b) => a - b);
 
                     // Convertimos a texto para comparar contenido real
@@ -3350,8 +3361,6 @@
                         UILogic.cerrarConfig();
                         return;
                     }
-                    // ---------------------------------------------------
-
                     // Guardar en memoria
                     diasHabiles = nuevosDias;
                     horasDiarias = vd;
@@ -4547,7 +4556,7 @@
                                     detalle.classList.remove('expanded');
                                     chevronIcon.style.transform = 'rotate(0deg)';
 
-                                    // 🆕 GUARDAR ESTADO AL CERRAR
+                                    // GUARDAR ESTADO AL CERRAR
                                     try {
                                         localStorage.setItem(`mes-${header.dataset.mesId}-expandido`, 'false');
                                     } catch (e) { }
@@ -4557,9 +4566,15 @@
                                     const hayOtrosAbiertos = Array.from(otrosMesesAbiertos).some(otro => otro !== detalle);
 
                                     if (hayOtrosAbiertos) {
-                                        // 🆕 CERRAR OTROS Y GUARDAR SU ESTADO
+                                        // CALCULAR Y RESERVAR ALTURA ANTES DE CERRAR
                                         otrosMesesAbiertos.forEach(otroDetalle => {
                                             if (otroDetalle !== detalle) {
+                                                const alturaActual = otroDetalle.scrollHeight;
+
+                                                // Fijar altura actual como mínima temporalmente
+                                                otroDetalle.style.minHeight = `${alturaActual}px`;
+
+                                                // Cerrar visualmente
                                                 otroDetalle.classList.remove('expanded');
                                                 const otroContainer = otroDetalle.closest('.registro-mes-container');
                                                 const otroChevron = otroContainer?.querySelector('.chevron-mes');
@@ -4567,12 +4582,17 @@
 
                                                 if (otroChevron) otroChevron.style.transform = 'rotate(0deg)';
 
-                                                // 🆕 GUARDAR QUE SE CERRÓ
+                                                // GUARDAR QUE SE CERRÓ
                                                 if (otroHeader && otroHeader.dataset.mesId) {
                                                     try {
                                                         localStorage.setItem(`mes-${otroHeader.dataset.mesId}-expandido`, 'false');
                                                     } catch (e) { }
                                                 }
+
+                                                // LIBERAR LA ALTURA DESPUÉS DE LA ANIMACIÓN
+                                                setTimeout(() => {
+                                                    otroDetalle.style.minHeight = '';
+                                                }, 350); // 50ms después de la animación de 300ms
                                             }
                                         });
 
@@ -4580,7 +4600,7 @@
                                             detalle.classList.add('expanded');
                                             chevronIcon.style.transform = 'rotate(180deg)';
 
-                                            // 🆕 GUARDAR QUE SE ABRIÓ
+                                            // GUARDAR QUE SE ABRIÓ
                                             try {
                                                 localStorage.setItem(`mes-${header.dataset.mesId}-expandido`, 'true');
                                             } catch (e) { }
@@ -4609,7 +4629,7 @@
                                         detalle.classList.add('expanded');
                                         chevronIcon.style.transform = 'rotate(180deg)';
 
-                                        // 🆕 GUARDAR QUE SE ABRIÓ
+                                        // GUARDAR QUE SE ABRIÓ
                                         try {
                                             localStorage.setItem(`mes-${header.dataset.mesId}-expandido`, 'true');
                                         } catch (e) { }
@@ -4656,7 +4676,7 @@
                     // Encabezado del grupo
                     const header = document.createElement('div');
 
-                    // --- CAMBIO CLAVE 4: Lógica de detección de IDs nuevos ---
+                    // --- Lógica de detección de IDs nuevos ---
                     let className = 'registro-item';
                     let animarGrupo = false;
 
@@ -4879,6 +4899,29 @@
                 }
 
                 function actualizarEstadisticas(mesAnio = null) {
+                    const selectMes = $('select-mes-stats');
+
+                    // Si no se especifica mes, usar el seleccionado (o el actual como fallback)
+                    if (!mesAnio && selectMes) {
+                        mesAnio = selectMes.value;
+                    }
+
+                    // Si el mes seleccionado ya no tiene registros, resetear al actual
+                    if (mesAnio && selectMes) {
+                        const [año, mes] = mesAnio.split('-').map(Number);
+                        const registrosDelMes = D.registros().filter(r => {
+                            const [aReg, mReg] = r.fecha.split('-').map(Number);
+                            return aReg === año && mReg === mes;
+                        });
+
+                        if (registrosDelMes.length === 0) {
+                            // El mes seleccionado ya no tiene registros, volver al actual
+                            const hoy = new Date();
+                            mesAnio = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
+                            if (selectMes) selectMes.value = mesAnio;
+                        }
+                    }
+
                     const stats = calcularEstadisticasMes(mesAnio);
 
                     const elEntrada = $('stat-entrada-promedio');
@@ -4899,7 +4942,7 @@
                     if (elPromedio) elPromedio.textContent = stats.promedioDiario;
                     if (elSemanaPasada) elSemanaPasada.textContent = stats.semanaPasada;
 
-                    // 🆕 Ocultar/Mostrar items según valor
+                    // Ocultar/Mostrar items según valor
                     const toggleStatItem = (element, value) => {
                         if (!element) return;
                         const statItem = element.closest('.stat-item');
@@ -5278,6 +5321,7 @@
                         }
                     }
 
+                    poblarSelectorMeses();
                     actualizarEstadisticas();
                     actualizarEstadoBotonTimerMain();
                 }
@@ -5464,6 +5508,9 @@
                     const selectMes = $('select-mes-stats');
                     if (!selectMes) return;
 
+                    // Guardar mes seleccionado actual
+                    const mesActualmenteSeleccionado = selectMes.value;
+
                     // Obtener todos los meses únicos de los registros
                     const mesesUnicos = new Set();
                     D.registros().forEach(r => {
@@ -5486,9 +5533,20 @@
                         return;
                     }
 
-                    // Agregar mes actual por defecto si tiene registros
+                    // Mes actual
                     const hoy = new Date();
                     const mesActual = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
+
+                    // Determinar qué mes debe quedar seleccionado
+                    let mesASeleccionar = mesActual;
+
+                    // Si había un mes seleccionado y aún existe, mantenerlo
+                    if (mesActualmenteSeleccionado && mesesOrdenados.includes(mesActualmenteSeleccionado)) {
+                        mesASeleccionar = mesActualmenteSeleccionado;
+                    } else if (!mesesOrdenados.includes(mesActual)) {
+                        // Si el mes actual no tiene registros, usar el más reciente
+                        mesASeleccionar = mesesOrdenados[0];
+                    }
 
                     // Crear opciones
                     mesesOrdenados.forEach(mesAnio => {
@@ -5501,13 +5559,16 @@
                         const nombreMes = fecha.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
                         option.textContent = nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1);
 
-                        // Seleccionar el mes actual por defecto
-                        if (mesAnio === mesActual) {
+                        // Seleccionar el mes correcto
+                        if (mesAnio === mesASeleccionar) {
                             option.selected = true;
                         }
 
                         selectMes.appendChild(option);
                     });
+
+                    // Actualizar stats con el mes correcto
+                    actualizarEstadisticas(mesASeleccionar);
                 }
 
                 function cambiarMesStats() {
@@ -5579,7 +5640,7 @@ REPORTE DE HORAS TRABAJADAS
    • Salida promedio:        ${stats.salidaPromedio}
    • Promedio diario:        ${stats.promedioDiario}
    
-   • Total horas trabajadas: ${horasTotales}h ${minutosTotales}m (${totalHoras.toFixed(2)}h)`,
+   • Total horas trabajadas: ${horasTotales}h ${minutosTotales}m`,
 
                         // --- DETALLE DIARIO ---
                         detalleDiario: () => {
@@ -5659,6 +5720,18 @@ REPORTE DE HORAS TRABAJADAS
                                 return lunes.toISOString().split('T')[0];
                             }
 
+                            // 🆕 Obtener el mes seleccionado del selector
+                            const selectMes = $('select-mes-stats');
+                            const mesSeleccionado = selectMes ? selectMes.value : null;
+
+                            if (!mesSeleccionado) return '';
+
+                            // 🆕 Obtener límites del mes actual
+                            const [añoActual, mesActual] = mesSeleccionado.split('-').map(Number);
+                            const primerDiaMes = `${añoActual}-${String(mesActual).padStart(2, '0')}-01`;
+                            const ultimoDiaMes = new Date(añoActual, mesActual, 0).getDate();
+                            const ultimaFechaMes = `${añoActual}-${String(mesActual).padStart(2, '0')}-${String(ultimoDiaMes).padStart(2, '0')}`;
+
                             const semanas = new Map();
 
                             registrosMes.forEach(r => {
@@ -5709,20 +5782,53 @@ REPORTE DE HORAS TRABAJADAS
 
 `;
 
+                            // 🆕 Array para almacenar semanas incompletas
+                            const semanasIncompletas = [];
+
                             semanasOrdenadas.forEach(([lunes, datos], index) => {
                                 const totalSemanal = datos.trabajados.reduce((sum, r) => sum + r.total, 0);
                                 const horasSem = Math.floor(totalSemanal);
                                 const minutosSem = Math.round((totalSemanal - horasSem) * 60);
 
                                 const fechaLunes = new Date(lunes.replace(/-/g, '/') + ' 00:00:00');
-                                const fechaViernes = new Date(fechaLunes);
-                                fechaViernes.setDate(fechaLunes.getDate() + 4);
-                                const viernes = fechaViernes.toISOString().split('T')[0];
+                                const fechaDomingo = new Date(fechaLunes);
+                                fechaDomingo.setDate(fechaLunes.getDate() + 6);
+                                const domingo = fechaDomingo.toISOString().split('T')[0];
 
-                                const lunesFormato = lunes.split('-').reverse().join('/');
-                                const viernesFormato = viernes.split('-').reverse().join('/');
+                                // 🆕 Detectar si la semana sale del mes
+                                let fechaFin = domingo;
+                                let esIncompleta = false;
+                                let continuaEn = '';
 
-                                seccion += `   Semana ${index + 1} (${lunesFormato} - ${viernesFormato}):\n`;
+                                if (domingo > ultimaFechaMes) {
+                                    fechaFin = ultimaFechaMes;
+                                    esIncompleta = true;
+
+                                    // Calcular en qué mes continúa
+                                    const mesSiguiente = mesActual === 12 ? 1 : mesActual + 1;
+                                    const añoSiguiente = mesActual === 12 ? añoActual + 1 : añoActual;
+                                    const fechaSiguiente = new Date(añoSiguiente, mesSiguiente - 1, 1);
+                                    const nombreMesSiguiente = fechaSiguiente.toLocaleDateString('es-ES', { month: 'long' });
+                                    continuaEn = `continúa en ${nombreMesSiguiente}`;
+                                }
+
+                                if (lunes < primerDiaMes) {
+                                    const fechaInicioReal = new Date(primerDiaMes.replace(/-/g, '/') + ' 00:00:00');
+                                    lunes = primerDiaMes;
+                                    esIncompleta = true;
+                                    const mesAnterior = mesActual === 1 ? 12 : mesActual - 1;
+                                    const añoAnterior = mesActual === 1 ? añoActual - 1 : añoActual;
+                                    const fechaAnterior = new Date(añoAnterior, mesAnterior - 1, 1);
+                                    const nombreMesAnterior = fechaAnterior.toLocaleDateString('es-ES', { month: 'long' });
+                                    continuaEn = `viene de ${nombreMesAnterior}`;
+                                }
+
+                                const lunesFormato = (lunes < primerDiaMes ? primerDiaMes : lunes).split('-').reverse().join('/');
+                                const finFormato = fechaFin.split('-').reverse().join('/');
+
+                                const asterisco = esIncompleta ? '*' : '';
+
+                                seccion += `   Semana ${index + 1} (${lunesFormato} - ${finFormato})${asterisco}:\n`;
                                 seccion += `      └─ ${horasSem}h ${minutosSem}m`;
 
                                 const notasExtras = [];
@@ -5737,7 +5843,17 @@ REPORTE DE HORAS TRABAJADAS
                                 }
 
                                 seccion += '\n\n';
+
+                                // 🆕 Guardar info de semana incompleta
+                                if (esIncompleta && continuaEn) {
+                                    semanasIncompletas.push(`* Semana ${index + 1}: ${continuaEn}`);
+                                }
                             });
+
+                            // 🆕 Agregar notas de semanas incompletas al final
+                            if (semanasIncompletas.length > 0) {
+                                seccion += semanasIncompletas.join('\n') + '\n';
+                            }
 
                             return seccion;
                         },
@@ -5916,6 +6032,7 @@ Generado por Sistema Horarios
                             localStorage.removeItem(storageKey);
                             mostrarToast('⏱️ Tiempo muy corto, no se registró', 'info');
                             actualizarEstadoBotonTimerMain();
+                            actualizarUI();
                             return;
                         }
 
@@ -6104,7 +6221,7 @@ Generado por Sistema Horarios
 
                     input.value = '';
 
-                    // ⭐ RENDERIZAR LISTA ACTUALIZADA
+                    // RENDERIZAR LISTA ACTUALIZADA
                     renderizarListaPerfiles();
 
                     // Resaltar nuevo perfil
@@ -6210,7 +6327,6 @@ Generado por Sistema Horarios
                     if (window.PerfilManager) {
                         window.PerfilManager.inicializar();
                     }
-                    // --------------------------------------------------------
 
                     mostrarToast('Perfil actualizado', 'success');
                     cerrarEditorPerfil();
@@ -6933,10 +7049,15 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //             CAMBIOS REALIZADOS EN ESTA VERSION 6.80
+    //             CAMBIOS REALIZADOS EN ESTA VERSION 6.82
     // ====================================================================
-    1) Se agrega "semana pasada" a la tarjeta de estadisticas
-    2) se intercambia la calumna 1 y 2 del detalle diario en reporte
-    3) se agrega guardado de localstorage de la vista de registros del historico
+    1) Mejora al cambiar entre meses en el histórico
+    - Ahora el cambio entre meses es más suave y no "salta" la pantalla
+    - Se mantiene la posición del scroll durante la transición
+    2) se corrige bug al actualizar las estadisticas, al realizar algun registro
+    no se actualiza en tiempo real
+    3) se agrega leyenda en el reporte cuando una semana del periodo tiene registros
+    de otro mes
+
 
     -->
