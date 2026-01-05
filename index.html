@@ -2656,7 +2656,6 @@
             // ====================================================================
             const DataManagement = (function (S) {
                 let registros = [], diasHabiles = [1, 2, 3, 4, 5], horasDiarias = 7, editandoId = null; let vistaActual = 'diaria';
-                let cacheSemana = { inicio: null, fin: null, calculado: null };
                 let filtroActivo = false;
                 let filtroDesde = null;
                 let filtroHasta = null;
@@ -2926,7 +2925,7 @@
 
                     if (registroExistente) {
                         UILogic.mostrarToast('Ya existe un registro para hoy', 'warning');
-                        throw new Error('Registro ya existe'); 
+                        throw new Error('Registro ya existe');
                     }
 
                     // Determinar valores según tipo
@@ -2959,13 +2958,13 @@
                             break;
                         default:
                             UILogic.mostrarToast('Tipo inválido', 'error');
-                            throw new Error('Tipo inválido'); 
+                            throw new Error('Tipo inválido');
                     }
 
                     // Verificar límite
                     if (registros.length >= S.SECURITY_LIMITS.MAX_REGISTROS) {
                         UILogic.mostrarToast('Límite de registros alcanzado', 'error');
-                        throw new Error('Límite alcanzado'); 
+                        throw new Error('Límite alcanzado');
                     }
 
                     // Crear registro
@@ -2994,7 +2993,7 @@
                     if (saved) {
                         UILogic.mostrarToast(`Registrado como ${tipoTexto}`, 'success');
                     } else {
-                        throw new Error('Error al guardar'); 
+                        throw new Error('Error al guardar');
                     }
                 }
 
@@ -4149,14 +4148,14 @@
                     // VALIDACIÓN DE LÍMITE
                     if (fechasARegistrar.length > 60) {
                         UILogic.mostrarToast(`El rango seleccionado contiene ${fechasARegistrar.length} días.\n Máximo permitido: 60 días por operación.`, 'error');
-                        throw new Error('Límite de días excedido'); 
+                        throw new Error('Límite de días excedido');
                     }
 
                     const nuevosRegistros = fechasARegistrar.filter(f => !registros.some(r => r.fecha === f));
 
                     if (nuevosRegistros.length === 0) {
                         UILogic.mostrarToast('Todas las fechas ya están registradas', 'warning');
-                        throw new Error('Sin fechas nuevas'); 
+                        throw new Error('Sin fechas nuevas');
                     }
 
                     //  1: Creamos array para guardar IDs ---
@@ -4196,71 +4195,45 @@
                             UILogic.actualizarBotonLote();
                         }
                     } else {
-                        throw new Error('Error al guardar'); 
+                        throw new Error('Error al guardar');
                     }
                 }
 
-                async function borrarPeriodoDirecto(desde, hasta, tipo) {
-                    let registrosAEliminar;
+                async function borrarPeriodoDirecto(desde, hasta) {
+                    // Solo borra registros normales (eliminamos parámetro 'tipo')
+                    const registrosAEliminar = registros.filter(r => {
+                        if (r.fecha < desde || r.fecha > hasta) return false;
 
-                    if (tipo === 'normal') {
-                        // Si es tipo "normal", borrar solo registros normales (no especiales)
-                        registrosAEliminar = registros.filter(r => {
-                            const dentroDelRango = r.fecha >= desde && r.fecha <= hasta;
-                            const esFeriado = r.entrada === '00:00' && r.salida === '00:00';
-                            const esAusencia = r.entrada === '11:11' && r.salida === '11:11';
-                            const esVacaciones = r.entrada === '12:12' && r.salida === '12:12';
-                            const esEnfermedad = r.entrada === '14:14' && r.salida === '14:14';
-                            const esAsueto = r.entrada === '13:13' && r.salida === '13:13';
-                            return dentroDelRango && !esFeriado && !esAusencia && !esVacaciones &&
-                                !esEnfermedad && !esAsueto;
-                        });
-                    } else {
-                        // Para tipos específicos, borrar SOLO ese tipo
-                        const entrada = tipo === 'vacaciones' ? '12:12' :
-                            tipo === 'ausencia' ? '11:11' :
-                                tipo === 'enfermedad' ? '14:14' :
-                                    tipo === 'asueto' ? '13:13' :
-                                        '00:00';
-                        const salida = entrada;
+                        // Excluir todos los tipos especiales
+                        const esEspecial =
+                            (r.entrada === '00:00' && r.salida === '00:00') ||  // Feriado
+                            (r.entrada === '11:11' && r.salida === '11:11') ||  // Ausencia
+                            (r.entrada === '12:12' && r.salida === '12:12') ||  // Vacaciones
+                            (r.entrada === '14:14' && r.salida === '14:14') ||  // Enfermedad
+                            (r.entrada === '13:13' && r.salida === '13:13');    // Asueto
 
-                        registrosAEliminar = registros.filter(r =>
-                            r.fecha >= desde &&
-                            r.fecha <= hasta &&
-                            r.entrada === entrada &&
-                            r.salida === salida
-                        );
-                    }
+                        return !esEspecial;
+                    });
 
                     if (registrosAEliminar.length > 60) {
-                        UILogic.mostrarToast(`El rango seleccionado contiene ${registrosAEliminar.length} registros.\n Máximo permitido: 60 registros por operación.`, 'error');
-                        throw new Error('Límite de registros excedido'); 
+                        UILogic.mostrarToast(`Máximo 60 registros. Encontrados: ${registrosAEliminar.length}`, 'error');
+                        throw new Error('Límite excedido');
                     }
 
                     if (registrosAEliminar.length === 0) {
-                        const nombreTipo = tipo === 'normal' ? 'normales' :
-                            tipo === 'feriado' ? 'Feriados' :
-                                tipo === 'ausencia' ? 'Ausencias' : 'Vacaciones';
-                        UILogic.mostrarToast(`No hay registros de ${nombreTipo} en ese período`, 'info');
-                        throw new Error('Sin registros para eliminar'); 
+                        UILogic.mostrarToast('No hay registros normales en ese período', 'info');
+                        throw new Error('Sin registros');
                     }
 
                     registros = registros.filter(r => !registrosAEliminar.includes(r));
                     HistoryManager.saveState(registros);
+
                     const saved = await guardarYActualizar();
-
                     if (saved) {
-                        const nombreTipo = tipo === 'normal' ? 'normales' :
-                            tipo === 'feriado' ? 'Feriados' :
-                                tipo === 'ausencia' ? 'Ausencias' : 'Vacaciones';
-                        UILogic.mostrarToast(`${registrosAEliminar.length} registro(s) de ${nombreTipo} eliminados`, 'success');
-
-                        // Actualizar el botón después de borrar
-                        if (UILogic.actualizarBotonLote) {
-                            UILogic.actualizarBotonLote();
-                        }
+                        UILogic.mostrarToast(`${registrosAEliminar.length} registros eliminados`, 'success');
+                        UILogic.actualizarBotonLote?.();
                     } else {
-                        throw new Error('Error al guardar'); 
+                        throw new Error('Error al guardar');
                     }
                 }
 
@@ -4275,8 +4248,6 @@
                     setEditandoId: (id) => editandoId = id,
                     vistaActual: () => vistaActual,
                     setVistaActual: (v) => vistaActual = v,
-                    cacheSemana: () => cacheSemana,
-                    setCacheSemana: (c) => cacheSemana = c,
                     cargarConVerificacion,
                     cargarConfiguracion,
                     calcularHoras,
@@ -5961,15 +5932,15 @@ REPORTE DE HORAS TRABAJADAS
                                 let linea = '';
 
                                 if (esFeriado) {
-                                    linea = `${fecha}  ${dia.padEnd(10)} FERIADO`; 
+                                    linea = `${fecha}  ${dia.padEnd(10)} FERIADO`;
                                 } else if (esAusencia) {
-                                    linea = `${fecha}  ${dia.padEnd(10)} AUSENCIA`; 
+                                    linea = `${fecha}  ${dia.padEnd(10)} AUSENCIA`;
                                 } else if (esVacaciones) {
-                                    linea = `${fecha}  ${dia.padEnd(10)} VACACIONES`; 
+                                    linea = `${fecha}  ${dia.padEnd(10)} VACACIONES`;
                                 } else if (esEnfermedad) {
-                                    linea = `${fecha}  ${dia.padEnd(10)} ENFERMEDAD`; 
+                                    linea = `${fecha}  ${dia.padEnd(10)} ENFERMEDAD`;
                                 } else if (esAsueto) {
-                                    linea = `${fecha}  ${dia.padEnd(10)} ASUETO`; 
+                                    linea = `${fecha}  ${dia.padEnd(10)} ASUETO`;
                                 }
                                 else {
                                     const entrada = r.entrada || '--:--';
@@ -6870,7 +6841,7 @@ Generado por Sistema Horarios
                     // Intentar la operación (registrar o borrar)
                     try {
                         if (tipo === 'normal') {
-                            await DataManagement.borrarPeriodoDirecto(desde, hasta, tipo);
+                            await DataManagement.borrarPeriodoDirecto(desde, hasta);
                         } else {
                             await DataManagement.registrarVacacionesDirecto(desde, hasta, tipo);
                         }
@@ -6945,7 +6916,7 @@ Generado por Sistema Horarios
 
                         // Caso Normal: Siempre es una acción de borrado
                         if (registrosDelTipoEnRango.length > 0) {
-                            btnTexto.textContent = 'Borrar Normales';
+                            btnTexto.textContent = 'Borrar';
                             btn.style.color = 'var(--c-red)';
                         } else {
                             btnTexto.textContent = 'Borrar (Vacío)';
@@ -7405,7 +7376,8 @@ Generado por Sistema Horarios
 <!--// ====================================================================
     //             CAMBIOS REALIZADOS EN ESTA VERSION 6.94
     // ====================================================================
-    1)
+    1) Se reemplaza la funcion obtenersemanaactual para corregir el error de calculo de "esta semana"
+    2) Se simplifica la funcion borrarperiododirecto
 
 
     -->
