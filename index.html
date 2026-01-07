@@ -247,6 +247,7 @@
             color: var(--text-main);
             transition: border-color 0.2s;
             height: 48px;
+            transition: transform 0.3s, background 0.3s;
         }
 
         input:disabled,
@@ -758,10 +759,6 @@
             .stats-grid {
                 grid-template-columns: 1fr;
             }
-        }
-
-        select:hover:not(:disabled) {
-            border-color: var(--text-muted);
         }
 
         /* --- Colapso de formulario --- */
@@ -1435,7 +1432,7 @@
                         </div>
                         <div class="stats-grid" style="padding-right: 0.5rem;">
                             <div class="stat-item">
-                                <div class="stat-label">Jornadas completas</div>
+                                <div class="stat-label">Jornadas Completas</div>
                                 <div class="stat-value" id="stat-dias-trabajados">0</div>
                             </div>
                             <div class="stat-item">
@@ -1467,21 +1464,21 @@
                                 <div class="stat-value" id="stat-tiempo-fuera-total">0h 0m</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-label">Entrada promedio</div>
+                                <div class="stat-label">Entrada Promedio</div>
                                 <div class="stat-value" id="stat-entrada-promedio">--:--</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-label">Salida promedio</div>
+                                <div class="stat-label">Salida Promedio</div>
                                 <div class="stat-value" id="stat-salida-promedio">--:--</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-label">Promedio diario</div>
+                                <div class="stat-label">Promedio Diario</div>
                                 <div class="stat-value" id="stat-promedio-diario">0h 0m</div>
                             </div>
                             <div style="grid-column: 1 / -1; height: 1px; background: var(--border); margin: 0.5rem 0;">
                             </div>
                             <div class="stat-item">
-                                <div class="stat-label">Semana pasada</div>
+                                <div class="stat-label">Semana Pasada</div>
                                 <div class="stat-value" id="stat-semana-pasada">0h 0m</div>
                             </div>
                         </div>
@@ -1541,7 +1538,7 @@
                     </svg>
                     Configuración
                 </span>
-                <span class="version-text">v6.94</span>
+                <span class="version-text">v6.97</span>
             </h3>
             <div class="form-group">
                 <label>Horas diarias</label>
@@ -1660,7 +1657,7 @@
             <div class="form-group">
                 <label>Entrada</label>
                 <div class="input-with-btn">
-                    <input type="text" id="edit-entrada" inputmode="numeric" placeholder="Hora" maxlength="5" />
+                    <input type="text" id="edit-entrada" inputmode="numeric" maxlength="5" />
                     <button class="time-btn" onclick="UILogic.pegarHoraActual('edit-entrada')"><svg class="icon">
                             <use href="#icon-clock" />
                         </svg>
@@ -1670,7 +1667,7 @@
             <div class="form-group">
                 <label>Salida</label>
                 <div class="input-with-btn">
-                    <input type="text" id="edit-salida" inputmode="numeric" placeholder="Hora" maxlength="5" />
+                    <input type="text" id="edit-salida" inputmode="numeric" maxlength="5" />
                     <button class="time-btn" onclick="UILogic.pegarHoraActual('edit-salida')"><svg class="icon">
                             <use href="#icon-clock" />
                         </svg>
@@ -1680,8 +1677,7 @@
             <div class="form-group">
                 <label>Tiempo Fuera</label>
                 <div class="input-with-btn">
-                    <input type="text" id="edit-tiempo-fuera" inputmode="numeric" placeholder="Ej: 00:20"
-                        maxlength="5" />
+                    <input type="text" id="edit-tiempo-fuera" inputmode="numeric" maxlength="5" />
 
                     <button class="time-btn" onclick="UILogic.limpiarCampo('edit-tiempo-fuera')" title="Limpiar">
                         <svg class="icon">
@@ -1980,7 +1976,7 @@
                 </div>
             </div>
             <div class="btn-group">
-                <button class="btn-edit" onclick="UILogic.abrirConfigDesdePerfiles()" style="flex: 1;">
+                <button class="btn-edit" onclick="UILogic.mostrarconfig()" style="flex: 1;">
                     <svg class="icon">
                         <use href="#icon-settings" />
                     </svg>
@@ -2201,7 +2197,7 @@
             })();
 
             // ====================================================================
-            // I. SECURITY AND UTILS MODULE
+            // SECURITY AND UTILS MODULE
             // ====================================================================
             const SecurityAndUtils = (function () {
                 const SECURITY_LIMITS = {
@@ -2565,6 +2561,44 @@
             })(SecurityAndUtils);
 
             // ====================================================================
+            // MODAL MANAGER MODULE
+            // ====================================================================
+            const ModalManager = (function () {
+                function abrir(modalId, callback = null) {
+                    const modal = document.getElementById(modalId);
+                    if (!modal) {
+                        console.warn(`Modal ${modalId} no encontrado`);
+                        return;
+                    }
+
+                    modal.classList.add('show');
+                    document.body.classList.add('modal-open');
+
+                    if (callback) callback();
+                }
+
+                function cerrar(modalId, callback = null) {
+                    const modal = document.getElementById(modalId);
+                    if (!modal) {
+                        console.warn(`Modal ${modalId} no encontrado`);
+                        return;
+                    }
+
+                    modal.classList.remove('show');
+                    document.body.classList.remove('modal-open');
+
+                    if (callback) callback();
+                }
+
+                function alternar(modalIdCerrar, modalIdAbrir, callbackCerrar = null, callbackAbrir = null) {
+                    cerrar(modalIdCerrar, callbackCerrar);
+                    abrir(modalIdAbrir, callbackAbrir);
+                }
+
+                return { abrir, cerrar, alternar };
+            })();
+
+            // ====================================================================
             // HISTORY MANAGER MODULE
             // ====================================================================
             const HistoryManager = (function () {
@@ -2662,7 +2696,102 @@
             })();
 
             // ====================================================================
-            // II. DATA MANAGEMENT MODULE 
+            // TIPOS DE REGISTRO MODULE
+            // ====================================================================
+            const TiposRegistro = (function () {
+                const TIPOS = {
+                    FERIADO: {
+                        id: 'feriado',
+                        codigo: '00:00',
+                        emoji: '🥳',
+                        label: 'Feriado',
+                        labelPlural: 'Feriados',
+                        descripcion: 'Día no laboral',
+                        color: 'purple',
+                        contabiliza: true
+                    },
+                    AUSENCIA: {
+                        id: 'ausencia',
+                        codigo: '11:11',
+                        emoji: '✈️',
+                        label: 'Ausencia',
+                        labelPlural: 'Ausencias',
+                        descripcion: 'Licencia / Ausencia',
+                        color: 'purple',
+                        contabiliza: true
+                    },
+                    VACACIONES: {
+                        id: 'vacaciones',
+                        codigo: '12:12',
+                        emoji: '🏖️',
+                        label: 'Vacaciones',
+                        labelPlural: 'Vacaciones',
+                        descripcion: 'Vacaciones',
+                        color: 'purple',
+                        contabiliza: true
+                    },
+                    ASUETO: {
+                        id: 'asueto',
+                        codigo: '13:13',
+                        emoji: '🎁',
+                        label: 'Asueto',
+                        labelPlural: 'Asuetos',
+                        descripcion: 'Día de asueto',
+                        color: 'purple',
+                        contabiliza: true
+                    },
+                    ENFERMEDAD: {
+                        id: 'enfermedad',
+                        codigo: '14:14',
+                        emoji: '🥼',
+                        label: 'Enfermedad',
+                        labelPlural: 'Enfermedades',
+                        descripcion: 'Enfermedad justificada',
+                        color: 'purple',
+                        contabiliza: true
+                    }
+                };
+
+                function esRegistroEspecial(entrada, salida) {
+                    if (!entrada || !salida) return false;
+                    return entrada === salida && Object.values(TIPOS).some(t => t.codigo === entrada);
+                }
+
+                function obtenerTipoPorCodigo(entrada, salida) {
+                    if (!esRegistroEspecial(entrada, salida)) return null;
+                    return Object.values(TIPOS).find(t => t.codigo === entrada) || null;
+                }
+
+                function obtenerTipoPorId(id) {
+                    return Object.values(TIPOS).find(t => t.id === id) || null;
+                }
+
+                function validarTipoPermitido(id) {
+                    return Object.values(TIPOS).some(t => t.id === id);
+                }
+
+                function obtenerTodosLosTipos() {
+                    return Object.values(TIPOS);
+                }
+
+                function obtenerCodigosPorTipo(id) {
+                    const tipo = obtenerTipoPorId(id);
+                    return tipo ? { entrada: tipo.codigo, salida: tipo.codigo } : null;
+                }
+
+                return {
+                    TIPOS,
+                    esRegistroEspecial,
+                    obtenerTipoPorCodigo,
+                    obtenerTipoPorId,
+                    validarTipoPermitido,
+                    obtenerTodosLosTipos,
+                    obtenerCodigosPorTipo
+                };
+            })();
+
+            // ====================================================================
+            // DATA MANAGEMENT MODULE 
             // ====================================================================
             const DataManagement = (function (S) {
                 let registros = [], diasHabiles = [1, 2, 3, 4, 5], horasDiarias = 7, editandoId = null; let vistaActual = 'diaria';
@@ -2686,8 +2815,7 @@
                     $('edit-grupo-desde').value = grupoEnEdicion.fechaDesde;
                     $('edit-grupo-hasta').value = grupoEnEdicion.fechaHasta;
 
-                    $('modal-editar-grupo').classList.add('show');
-                    document.body.classList.add('modal-open');
+                    ModalManager.abrir('modal-editar-grupo');
 
                     UILogic.setBloqueoEdicionGrupo(true);
                 }
@@ -2756,8 +2884,7 @@
                     // ============================================
                     // 4. VALIDACIÓN DE TIPO
                     // ============================================
-                    const tiposPermitidos = ['feriado', 'ausencia', 'vacaciones', 'enfermedad', 'asueto'];
-                    if (!tiposPermitidos.includes(nuevoTipo)) {
+                    if (!TiposRegistro.validarTipoPermitido(nuevoTipo)) {
                         UILogic.mostrarToast('Tipo de registro inválido', 'error');
                         btnGuardar.disabled = false;
                         return;
@@ -2835,12 +2962,9 @@
                     // ============================================
                     registros = registros.filter(r => !idsDelGrupo.includes(r.id));
 
-                    const entrada = nuevoTipo === 'vacaciones' ? '12:12' :
-                        nuevoTipo === 'ausencia' ? '11:11' :
-                            nuevoTipo === 'enfermedad' ? '14:14' :
-                                nuevoTipo === 'asueto' ? '13:13' :
-                                    '00:00';
-                    const salida = entrada;
+                    const codigosTipo = TiposRegistro.obtenerCodigosPorTipo(nuevoTipo);
+                    const entrada = codigosTipo.entrada;
+                    const salida = codigosTipo.salida;
                     const idsNuevos = [];
 
                     fechasNuevas.forEach(fechaISO => {
@@ -2938,38 +3062,16 @@
                         throw new Error('Registro ya existe');
                     }
 
-                    // Determinar valores según tipo
-                    let entrada, salida, tipoTexto;
-                    switch (tipo) {
-                        case 'vacaciones':
-                            entrada = '12:12';
-                            salida = '12:12';
-                            tipoTexto = '�️ Vacaciones';
-                            break;
-                        case 'ausencia':
-                            entrada = '11:11';
-                            salida = '11:11';
-                            tipoTexto = '✈️ Ausencia';
-                            break;
-                        case 'feriado':
-                            entrada = '00:00';
-                            salida = '00:00';
-                            tipoTexto = '🥳 Feriado';
-                            break;
-                        case 'enfermedad':
-                            entrada = '14:14';
-                            salida = '14:14';
-                            tipoTexto = '🥼 Enfermedad';
-                            break;
-                        case 'asueto':
-                            entrada = '13:13';
-                            salida = '13:13';
-                            tipoTexto = '🎁 Asueto';
-                            break;
-                        default:
-                            UILogic.mostrarToast('Tipo inválido', 'error');
-                            throw new Error('Tipo inválido');
+                    // Obtener códigos del tipo especial
+                    const tipoConfig = TiposRegistro.obtenerTipoPorId(tipo);
+                    if (!tipoConfig) {
+                        UILogic.mostrarToast('Tipo inválido', 'error');
+                        throw new Error('Tipo inválido');
                     }
+
+                    const entrada = tipoConfig.codigo;
+                    const salida = tipoConfig.codigo;
+                    const tipoTexto = `${tipoConfig.emoji} ${tipoConfig.label}`;
 
                     // Verificar límite
                     if (registros.length >= S.SECURITY_LIMITS.MAX_REGISTROS) {
@@ -3108,29 +3210,16 @@
 
                 function calcularHoras(e, s, tf = null, cr = null) {
                     const tfMinutos = tf ? tiempoEnMinutos(tf) : 0;
-                    const crMinutos = cr ? tiempoEnMinutos(cr) : 0; // <--- Calculamos minutos crédito
+                    const crMinutos = cr ? tiempoEnMinutos(cr) : 0;
 
-                    if (e === '00:00' && s === '00:00') {
-                        return { horas: 0, minutos: 0, total: horasDiarias, esFeriado: true };
+                    // Verificar si es un registro especial
+                    const tipoEspecial = TiposRegistro.obtenerTipoPorCodigo(e, s);
+                    if (tipoEspecial) {
+                        // Crear objeto de retorno dinámico
+                        const resultado = { horas: 0, minutos: 0, total: horasDiarias };
+                        resultado[`es${tipoEspecial.label}`] = true; // Ej: esFeriado, esAusencia
+                        return resultado;
                     }
-
-                    if (e === '11:11' && s === '11:11') {
-                        return { horas: 0, minutos: 0, total: horasDiarias, esAusencia: true };
-                    }
-
-                    if (e === '12:12' && s === '12:12') {
-                        return { horas: 0, minutos: 0, total: horasDiarias, esVacaciones: true };
-                    }
-
-                    if (e === '13:13' && s === '13:13') {
-                        return { horas: 0, minutos: 0, total: horasDiarias, esAsueto: true };
-                    }
-
-                    if (e === '14:14' && s === '14:14') {
-                        return { horas: 0, minutos: 0, total: horasDiarias, esEnfermedad: true };
-                    }
-
-
 
                     if (!e || !s || !e.includes(':') || !s.includes(':')) return null;
 
@@ -3162,14 +3251,9 @@
                     let horasDescontar = 0;
 
                     registros.forEach(r => {
-                        const esFeriado = r.entrada === '00:00' && r.salida === '00:00';
-                        const esAusencia = r.entrada === '11:11' && r.salida === '11:11';
-                        const esVacaciones = r.entrada === '12:12' && r.salida === '12:12';
-                        const esEnfermedad = r.entrada === '14:14' && r.salida === '14:14';
-                        const esAsueto = r.entrada === '13:13' && r.salida === '13:13';
+                        const esEspecial = TiposRegistro.esRegistroEspecial(r.entrada, r.salida);
 
-                        if (r.fecha >= inicio && r.fecha <= fin &&
-                            (esFeriado || esAusencia || esVacaciones || esEnfermedad || esAsueto)) {
+                        if (r.fecha >= inicio && r.fecha <= fin && esEspecial) {
                             const fechaObj = new Date(r.fecha.replace(/-/g, '/') + ' 00:00:00');
                             const diaSemana = fechaObj.getDay();
 
@@ -3224,13 +3308,9 @@
                     const hoy = UILogic.obtenerFechaHoy();
                     if (f > hoy) {
                         // Verificamos si es un registro especial (estos SÍ se permiten en el futuro)
-                        const esFeriado = e === '00:00' && s === '00:00';
-                        const esAusencia = e === '11:11' && s === '11:11';
-                        const esVacaciones = e === '12:12' && s === '12:12';
-                        const esEnfermedad = e === '14:14' && s === '14:14';
-                        const esAsueto = e === '13:13' && s === '13:13';
+                        const esEspecial = TiposRegistro.esRegistroEspecial(e, s);
 
-                        if (!esFeriado && !esAusencia && !esVacaciones && !esEnfermedad && !esAsueto) {
+                        if (!esEspecial) {
                             UILogic.resetearBoton(btn);
                             UILogic.mostrarToast('Fecha futura no permitida en registro regular', 'warning');
                             return;
@@ -3426,8 +3506,7 @@
                     }
 
                     // 4. Mostrar el modal y activar bloqueos
-                    $('modal-editar').classList.add('show');
-                    document.body.classList.add('modal-open');
+                    ModalManager.abrir('modal-editar');
 
                     UILogic.setBloqueoEdicion(true);
 
@@ -3480,13 +3559,9 @@
                     // --- VALIDACIÓN DE FUTURO PARA NORMALES ---
                     const hoy = UILogic.obtenerFechaHoy();
                     if (f > hoy) {
-                        const esFeriado = e === '00:00' && s === '00:00';
-                        const esAusencia = e === '11:11' && s === '11:11';
-                        const esVacaciones = e === '12:12' && s === '12:12';
-                        const esEnfermedad = e === '14:14' && s === '14:14';
-                        const esAsueto = e === '13:13' && s === '13:13';
+                        const esEspecial = TiposRegistro.esRegistroEspecial(e, s);
 
-                        if (!esFeriado && !esAusencia && !esVacaciones && !esAsueto && !esEnfermedad) {
+                        if (!esEspecial) {
                             UILogic.restaurarBotonGuardarEdicion(btnGuardar);
                             UILogic.mostrarToast('Fecha futura no permitida en registro regular', 'warning');
                             return;
@@ -3711,25 +3786,42 @@
                 }
 
                 function exportarJSON() {
-                    const data = { registros, diasHabiles, horasDiarias, fecha: new Date().toISOString(), version: S.SECURITY_LIMITS.SCHEMA_VERSION };
+                    // 🆕 Generar fecha local en formato YYYY-MM-DD HH:MM:SS
+                    const ahora = new Date();
+                    const año = ahora.getFullYear();
+                    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+                    const dia = String(ahora.getDate()).padStart(2, '0');
+                    const hora = String(ahora.getHours()).padStart(2, '0');
+                    const minuto = String(ahora.getMinutes()).padStart(2, '0');
+                    const segundo = String(ahora.getSeconds()).padStart(2, '0');
+
+                    const fechaLocal = `${año}-${mes}-${dia} ${hora}:${minuto}:${segundo}`;
+
+                    const data = {
+                        registros,
+                        diasHabiles,
+                        horasDiarias,
+                        fecha: fechaLocal, // ✅ Fecha local sin conversión UTC
+                        version: S.SECURITY_LIMITS.SCHEMA_VERSION
+                    };
+
                     try {
                         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = url;
 
-                        //Obtener y limpiar nombre del perfil
+                        // Obtener y limpiar nombre del perfil
                         let nombrePerfil = 'Backup';
                         if (window.PerfilManager) {
                             nombrePerfil = window.PerfilManager.obtenerDatosPerfil().nombre;
                         }
-                        // Quitamos caracteres raros y cambiamos espacios por guiones bajos
-                        const nombreSafe = nombrePerfil.replace(/[^a-zA-Z0-9áéíóúñÑ\-_ ]/g, '').trim().replace(/\s+/g, '_');
-                        const fechaHoy = new Date().toISOString().split('T')[0];
+                        const nombreSafe = nombrePerfil.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ'\-_ ]/g, '').trim().replace(/\s+/g, '_');
 
-                        // Formato: horarios_NombrePerfil_2023-12-06.json
+                        // 🆕 Usar también fecha local para el nombre del archivo
+                        const fechaHoy = `${año}-${mes}-${dia}`;
+
                         a.download = `Horarios_${nombreSafe}_${fechaHoy}.json`;
-                        // --------------------------------------------------
 
                         document.body.appendChild(a);
                         a.click();
@@ -4011,25 +4103,21 @@
                         let horasObjetivoDia = 0;
                         let horasHechasDia = 0;
 
-                        const esFeriado = r && r.entrada === '00:00' && r.salida === '00:00';
-                        const esAusencia = r && r.entrada === '11:11' && r.salida === '11:11';
-                        const esVacaciones = r && r.entrada === '12:12' && r.salida === '12:12';
-                        const esEnfermedad = r && r.entrada === '14:14' && r.salida === '14:14';  // ← AGREGAR
-                        const esAsueto = r && r.entrada === '13:13' && r.salida === '13:13';      // ← AGREGAR
+                        const esEspecial = r && TiposRegistro.esRegistroEspecial(r.entrada, r.salida);
 
                         // Validar si el registro está cerrado o si es un día pasado
-                        const tieneSalida = r && r.salida && !esFeriado && !esAusencia && !esVacaciones && !esEnfermedad && !esAsueto;  // ← MODIFICAR
+                        const tieneSalida = r && r.salida && !esEspecial;
                         const esDiaPasado = isoDate < fechaHoy;
 
                         // Solo sumamos objetivo si es un día configurado Y no es especial
-                        if (esDiaLaboralConfigurado && !esFeriado && !esAusencia && !esVacaciones && !esEnfermedad && !esAsueto) {  // ← MODIFICAR
+                        if (esDiaLaboralConfigurado && !esEspecial) {
                             // Si es un día pasado (ya terminó) O es hoy y ya cerraste turno, cuenta el objetivo
                             if (esDiaPasado || (isoDate === fechaHoy && tieneSalida)) {
                                 horasObjetivoDia = horasDiariasLocal;
                             }
                         }
 
-                        if (r && !esFeriado && !esAusencia && !esVacaciones && !esEnfermedad && !esAsueto) {
+                        if (r && !esEspecial) {
                             if (r.salida) {
                                 horasHechasDia = r.total;
                             }
@@ -4063,15 +4151,12 @@
 
                     let mensaje = 'Filtro aplicado';
                     if (tipo) {
-                        const tipos = {
-                            'normal': 'Normales',
-                            'feriado': 'Feriados',
-                            'ausencia': 'Ausencias',
-                            'vacaciones': 'Vacaciones',
-                            'enfermedad': 'Enfermedades',
-                            'asueto': 'Asuetos'
-                        };
-                        mensaje += `: ${tipos[tipo]}`;
+                        if (tipo === 'normal') {
+                            mensaje += ': Normales';
+                        } else {
+                            const tipoConfig = TiposRegistro.obtenerTipoPorId(tipo);
+                            mensaje += `: ${tipoConfig ? tipoConfig.labelPlural : tipo}`;
+                        }
                     }
                     UILogic.mostrarToast(mensaje, 'success');
                     document.getElementById('btn-filtro').classList.add('filtro-activo');
@@ -4101,32 +4186,14 @@
                         if (filtroHasta && r.fecha > filtroHasta) return false;
 
                         if (filtroTipo) {
-                            const esFeriado = r.entrada === '00:00' && r.salida === '00:00';
-                            const esAusencia = r.entrada === '11:11' && r.salida === '11:11';
-                            const esVacaciones = r.entrada === '12:12' && r.salida === '12:12';
-                            const esEnfermedad = r.entrada === '14:14' && r.salida === '14:14';
-                            const esAsueto = r.entrada === '13:13' && r.salida === '13:13';
+                            const tipoRegistro = TiposRegistro.obtenerTipoPorCodigo(r.entrada, r.salida);
 
-                            switch (filtroTipo) {
-                                case 'feriado':
-                                    if (!esFeriado) return false;
-                                    break;
-                                case 'ausencia':
-                                    if (!esAusencia) return false;
-                                    break;
-                                case 'vacaciones':
-                                    if (!esVacaciones) return false;
-                                    break;
-                                case 'enfermedad':
-                                    if (!esEnfermedad) return false;
-                                    break;
-                                case 'asueto':
-                                    if (!esAsueto) return false;
-                                    break;
-                                case 'normal':
-                                    if (esFeriado || esAusencia || esVacaciones ||
-                                        esEnfermedad || esAsueto) return false;
-                                    break;
+                            if (filtroTipo === 'normal') {
+                                // Si el filtro es "normal", excluir todos los especiales
+                                if (tipoRegistro) return false;
+                            } else {
+                                // Si el filtro es un tipo especial, solo mostrar ese tipo
+                                if (!tipoRegistro || tipoRegistro.id !== filtroTipo) return false;
                             }
                         }
 
@@ -4135,13 +4202,14 @@
                 }
 
                 async function registrarVacacionesDirecto(desde, hasta, tipo) {
-                    const entrada = tipo === 'vacaciones' ? '12:12' :
-                        tipo === 'ausencia' ? '11:11' :
-                            tipo === 'enfermedad' ? '14:14' :
-                                tipo === 'asueto' ? '13:13' :
-                                    '00:00'; // feriado por defecto
+                    const tipoConfig = TiposRegistro.obtenerTipoPorId(tipo);
+                    if (!tipoConfig) {
+                        UILogic.mostrarToast('Tipo inválido', 'error');
+                        throw new Error('Tipo inválido');
+                    }
 
-                    const salida = entrada;
+                    const entrada = tipoConfig.codigo;
+                    const salida = tipoConfig.codigo;
 
                     let fechaActual = new Date(desde.replace(/-/g, '/') + ' 00:00:00');
                     const fechaFin = new Date(hasta.replace(/-/g, '/') + ' 00:00:00');
@@ -4215,12 +4283,7 @@
                         if (r.fecha < desde || r.fecha > hasta) return false;
 
                         // Excluir todos los tipos especiales
-                        const esEspecial =
-                            (r.entrada === '00:00' && r.salida === '00:00') ||  // Feriado
-                            (r.entrada === '11:11' && r.salida === '11:11') ||  // Ausencia
-                            (r.entrada === '12:12' && r.salida === '12:12') ||  // Vacaciones
-                            (r.entrada === '14:14' && r.salida === '14:14') ||  // Enfermedad
-                            (r.entrada === '13:13' && r.salida === '13:13');    // Asueto
+                        const esEspecial = TiposRegistro.esRegistroEspecial(r.entrada, r.salida);
 
                         return !esEspecial;
                     });
@@ -4308,7 +4371,7 @@
 
             })(SecurityAndUtils);
             // ====================================================================
-            // III. UI LOGIC MODULE
+            // UI LOGIC MODULE
             // ====================================================================
             const UILogic = (function (S, D) {
 
@@ -4383,16 +4446,34 @@
 
                 function obtenerSemanaActual() {
                     const hoy = new Date();
-                    const diaSemana = hoy.getDay(); // 0 es domingo, 1 lunes...
-                    const diff = hoy.getDate() - diaSemana + (diaSemana === 0 ? -6 : 1); // Ajuste para que empiece el lunes
 
-                    const lunes = new Date(hoy.setDate(diff));
+                    // Normalizar a medianoche LOCAL (evita problemas de zona horaria)
+                    hoy.setHours(0, 0, 0, 0);
+
+                    const diaSemana = hoy.getDay(); // 0=Domingo, 1=Lunes...
+
+                    // Calcular offset al lunes (sin mutar el objeto original)
+                    const offsetLunes = diaSemana === 0 ? -6 : 1 - diaSemana;
+
+                    // Crear NUEVA instancia para el lunes
+                    const lunes = new Date(hoy);
+                    lunes.setDate(hoy.getDate() + offsetLunes);
+
+                    // Crear NUEVA instancia para el domingo
                     const domingo = new Date(lunes);
                     domingo.setDate(lunes.getDate() + 6);
 
+                    // Formatear a YYYY-MM-DD en hora local (no UTC)
+                    const formatearFecha = (fecha) => {
+                        const y = fecha.getFullYear();
+                        const m = String(fecha.getMonth() + 1).padStart(2, '0');
+                        const d = String(fecha.getDate()).padStart(2, '0');
+                        return `${y}-${m}-${d}`;
+                    };
+
                     return {
-                        inicio: lunes.toISOString().split('T')[0],
-                        fin: domingo.toISOString().split('T')[0]
+                        inicio: formatearFecha(lunes),
+                        fin: formatearFecha(domingo)
                     };
                 }
 
@@ -4486,16 +4567,8 @@
                 function obtenerTipoRegistro(registro) {
                     if (!registro) return null;
 
-                    const entrada = registro.entrada;
-                    const salida = registro.salida;
-
-                    if (entrada === '00:00' && salida === '00:00') return 'feriado';
-                    if (entrada === '11:11' && salida === '11:11') return 'ausencia';
-                    if (entrada === '12:12' && salida === '12:12') return 'vacaciones';
-                    if (entrada === '14:14' && salida === '14:14') return 'enfermedad';
-                    if (entrada === '13:13' && salida === '13:13') return 'asueto';
-
-                    return null; // Registro normal
+                    const tipo = TiposRegistro.obtenerTipoPorCodigo(registro.entrada, registro.salida);
+                    return tipo ? tipo.id : null; // Retorna el id o null si es normal
                 }
 
                 // Función auxiliar para verificar si una fecha es consecutiva a otra
@@ -4586,44 +4659,27 @@
                     const info = document.createElement('div');
                     info.className = 'registro-info';
 
-                    const isFeriadoContabilizado = r.entrada === '00:00' && r.salida === '00:00';
-                    const isAusencia = r.entrada === '11:11' && r.salida === '11:11';
-                    const isVacaciones = r.entrada === '12:12' && r.salida === '12:12';
-                    const isEnfermedad = r.entrada === '14:14' && r.salida === '14:14';
-                    const isAsueto = r.entrada === '13:13' && r.salida === '13:13';
+                    const tipoEspecial = TiposRegistro.obtenerTipoPorCodigo(r.entrada, r.salida);
 
                     const fechaEl = document.createElement('div');
                     fechaEl.className = 'registro-fecha';
 
                     let etiqueta = '';
-                    if (isFeriadoContabilizado) etiqueta = ' 🥳 (Feriado)';
-                    else if (isAusencia) etiqueta = ' ✈️ (Ausencia)';
-                    else if (isVacaciones) etiqueta = ' 🏖️ (Vacaciones)';
-                    else if (isEnfermedad) etiqueta = ' 🏥 (Enfermedad)';
-                    else if (isAsueto) etiqueta = ' 🎁 (Asueto)';
+                    if (tipoEspecial) {
+                        etiqueta = ` ${tipoEspecial.emoji} (${tipoEspecial.label})`;
+                    }
 
                     fechaEl.textContent = `${obtenerNombreDia(r.fecha)} ${r.fecha.substring(8)}${etiqueta}`;
-
                     // --- VISUALIZACIÓN DE EXTRAS ---
                     const tfText = r.tiempoFuera && r.tiempoFuera !== '' ? ` (${r.tiempoFuera} Fuera)` : '';
-
                     const crText = r.credito && r.credito !== '00:00' ? ' (Salida Temprano)' : '';
 
                     const horasEl = document.createElement('div');
                     horasEl.className = 'registro-horas';
 
-                    if (isFeriadoContabilizado) {
-                        horasEl.textContent = 'Día no laboral';
-                    } else if (isAusencia) {
-                        horasEl.textContent = 'Licencia / Ausencia';
-                    } else if (isVacaciones) {
-                        horasEl.textContent = 'Vacaciones';
-                    } else if (isEnfermedad) {
-                        horasEl.textContent = 'Enfermedad justificada';
-                    } else if (isAsueto) {
-                        horasEl.textContent = 'Día de asueto';
-                    }
-                    else {
+                    if (tipoEspecial) {
+                        horasEl.textContent = tipoEspecial.descripcion;
+                    } else {
                         horasEl.textContent = `${r.entrada || '-'} → ${r.salida || '-'}${tfText}${crText}`;
                     }
 
@@ -4632,7 +4688,7 @@
                     let totalText = 'Incompleto';
                     totalEl.classList.remove('green-text', 'red-text', 'purple-text');
 
-                    if (isFeriadoContabilizado || isAusencia || isVacaciones || isEnfermedad || isAsueto) {
+                    if (tipoEspecial) {
                         totalText = 'Justificado';
                         totalEl.classList.add('purple-text');
                     } else if (r.entrada && r.salida) {
@@ -4952,17 +5008,9 @@
                     const fechaEl = document.createElement('div');
                     fechaEl.className = 'registro-fecha';
 
-                    const emoji = grupo.subtipo === 'feriado' ? '🥳' :
-                        grupo.subtipo === 'ausencia' ? '✈️' :
-                            grupo.subtipo === 'vacaciones' ? '🏖️' :
-                                grupo.subtipo === 'enfermedad' ? '🏥' :
-                                    grupo.subtipo === 'asueto' ? '🎁' : '🏖️';
-
-                    const label = grupo.subtipo === 'feriado' ? 'Feriados' :
-                        grupo.subtipo === 'ausencia' ? 'Ausencias' :
-                            grupo.subtipo === 'vacaciones' ? 'Vacaciones' :
-                                grupo.subtipo === 'enfermedad' ? 'Enfermedades' :
-                                    grupo.subtipo === 'asueto' ? 'Asuetos' : 'Vacaciones';
+                    const tipoConfig = TiposRegistro.obtenerTipoPorId(grupo.subtipo);
+                    const emoji = tipoConfig ? tipoConfig.emoji : '📅';
+                    const label = tipoConfig ? tipoConfig.labelPlural : 'Registros';
 
                     fechaEl.textContent = `${emoji} ${label} (${grupo.registros.length} días)`;
 
@@ -5009,12 +5057,18 @@
                         return año === añoActual && mes === mesActual + 1;
                     });
 
-                    // Contadores básicos
-                    const feriados = registrosMes.filter(r => r.entrada === '00:00' && r.salida === '00:00').length;
-                    const ausencias = registrosMes.filter(r => r.entrada === '11:11' && r.salida === '11:11').length;
-                    const vacaciones = registrosMes.filter(r => r.entrada === '12:12' && r.salida === '12:12').length;
-                    const enfermedades = registrosMes.filter(r => r.entrada === '14:14' && r.salida === '14:14').length;
-                    const asuetosDiaCompleto = registrosMes.filter(r => r.entrada === '13:13' && r.salida === '13:13').length;
+                    // Contadores básicos usando tipos centralizados
+                    const contarPorTipo = (tipoId) => {
+                        const tipo = TiposRegistro.obtenerTipoPorId(tipoId);
+                        if (!tipo) return 0;
+                        return registrosMes.filter(r => r.entrada === tipo.codigo && r.salida === tipo.codigo).length;
+                    };
+
+                    const feriados = contarPorTipo('feriado');
+                    const ausencias = contarPorTipo('ausencia');
+                    const vacaciones = contarPorTipo('vacaciones');
+                    const enfermedades = contarPorTipo('enfermedad');
+                    const asuetosDiaCompleto = contarPorTipo('asueto');
 
                     // Contar Compensaciones/Asuetos parciales (días con crédito válido)
                     const compensaciones = registrosMes.filter(r => r.credito && r.credito !== '00:00').length;
@@ -5033,11 +5087,10 @@
                     const hTiempoFuera = Math.floor(tiempoFueraTotalMinutos / 60);
                     const mTiempoFuera = tiempoFueraTotalMinutos % 60;
 
-                    // Filtrar solo registros válidos para promedios (excluir feriados y ausencias puras)
+                    // Filtrar solo registros válidos para promedios (excluir registros especiales)
                     const registrosValidos = registrosMes.filter(r =>
                         r.entrada && r.salida &&
-                        r.entrada !== '00:00' && r.entrada !== '11:11' && r.entrada !== '12:12' &&
-                        r.entrada !== '14:14' && r.entrada !== '13:13'
+                        !TiposRegistro.esRegistroEspecial(r.entrada, r.salida)
                     );
 
                     if (registrosValidos.length === 0) {
@@ -5106,10 +5159,7 @@
 
                     // Filtrar registros de semana pasada (SOLO registros normales)
                     const registrosSemanaPasada = D.registros().filter(r => {
-                        const codigosEspeciales = ['00:00', '11:11', '12:12', '13:13', '14:14'];
-
-                        // Solo es especial si entrada === salida Y es un código especial
-                        const esEspecial = codigosEspeciales.includes(r.entrada) && r.entrada === r.salida;
+                        const esEspecial = TiposRegistro.esRegistroEspecial(r.entrada, r.salida);
                         const esNormal = r.entrada && r.salida && !esEspecial;
 
                         const dentroDelRango = r.fecha >= inicioSemanaPasada && r.fecha <= finSemanaPasada;
@@ -5322,11 +5372,7 @@
 
                         const tot = registros.filter(r =>
                             r.fecha >= ini && r.fecha <= fechaLimiteCalculo &&
-                            !(r.entrada === '00:00' && r.salida === '00:00') &&
-                            !(r.entrada === '11:11' && r.salida === '11:11') &&
-                            !(r.entrada === '12:12' && r.salida === '12:12') &&
-                            !(r.entrada === '14:14' && r.salida === '14:14') &&
-                            !(r.entrada === '13:13' && r.salida === '13:13')
+                            !TiposRegistro.esRegistroEspecial(r.entrada, r.salida)
                         ).reduce((s, r) => s + r.total, 0);
 
                         const horasDescontar = D.calcularHorasFeriadoEnRango(ini, fn);
@@ -5369,44 +5415,16 @@
                         let objetivoDiario = horasDiarias;
 
                         if (regHoy && regHoy.entrada) {
-                            const isFeriadoHoy = regHoy.entrada === '00:00' && regHoy.salida === '00:00';
-                            const isAusenciaHoy = regHoy.entrada === '11:11' && regHoy.salida === '11:11';
-                            const isVacacionesHoy = regHoy.entrada === '12:12' && regHoy.salida === '12:12';
-                            const isEnfermedadHoy = regHoy.entrada === '14:14' && regHoy.salida === '14:14';
-                            const isAsuetoHoy = regHoy.entrada === '13:13' && regHoy.salida === '13:13';
+                            const tipoEspecialHoy = TiposRegistro.obtenerTipoPorCodigo(regHoy.entrada, regHoy.salida);
 
-                            if (isFeriadoHoy) {
-                                if (statsEl) statsEl.innerHTML = `<div>🥳 Feriado</div>`;
-                                if (progressEl) { progressEl.style.width = '100%'; setProgressBarColor(progressEl, 'purple'); }
-                                if (mensajeEl) mensajeEl.textContent = `¡Día no laboral!`;
-
-                            } else if (isAusenciaHoy) {
-                                if (statsEl) statsEl.innerHTML = `<div>✈️ Ausencia</div>`;
-                                if (progressEl) { progressEl.style.width = '100%'; setProgressBarColor(progressEl, 'purple'); }
-                                if (mensajeEl) mensajeEl.textContent = `¡Día justificado!`;
-
-                            } else if (isVacacionesHoy) {
-                                if (statsEl) statsEl.innerHTML = `<div>🏖️ Vacaciones</div>`;
-                                if (progressEl) { progressEl.style.width = '100%'; setProgressBarColor(progressEl, 'purple'); }
-                                if (mensajeEl) mensajeEl.textContent = `¡Día de vacaciones!`;
-
-                            } else if (isEnfermedadHoy) {
-                                if (statsEl) statsEl.innerHTML = `<div>🏥 Enfermedad</div>`;
+                            if (tipoEspecialHoy) {
+                                if (statsEl) statsEl.innerHTML = `<div>${tipoEspecialHoy.emoji} ${tipoEspecialHoy.label}</div>`;
                                 if (progressEl) {
                                     progressEl.style.width = '100%';
-                                    setProgressBarColor(progressEl, 'purple');
+                                    setProgressBarColor(progressEl, tipoEspecialHoy.color);
                                 }
-                                if (mensajeEl) mensajeEl.textContent = `¡Día justificado por enfermedad!`;
-
-                            } else if (isAsuetoHoy) {
-                                if (statsEl) statsEl.innerHTML = `<div>🎁 Asueto</div>`;
-                                if (progressEl) {
-                                    progressEl.style.width = '100%';
-                                    setProgressBarColor(progressEl, 'purple');
-                                }
-                                if (mensajeEl) mensajeEl.textContent = `¡Día de asueto!`;
-                            }
-                            else {
+                                if (mensajeEl) mensajeEl.textContent = `¡${tipoEspecialHoy.descripcion}!`;
+                            } else {
                                 // --- DÍA NORMAL CON REGISTRO ---
                                 if (regHoy.salida) {
                                     tiempoTranscurrido = regHoy.total;
@@ -5726,53 +5744,30 @@
                     actualizarFeedbackConfig();
                 }
 
-                function mostrarConfig() {
-                    $('config-horas-diarias').value = D.horasDiarias();
-
-                    // Marcar checkboxes según configuración
-                    const diasActivos = D.diasHabiles();
-                    const checkboxes = document.querySelectorAll('input[name="dia-habil"]');
-                    checkboxes.forEach(cb => {
-                        cb.checked = diasActivos.includes(parseInt(cb.value));
-                        // Añadir evento para actualizar texto en tiempo real
-                        cb.onchange = UILogic.actualizarFeedbackConfig;
-                    });
-
-                    UILogic.actualizarFeedbackConfig();
-                    $('modal-config').classList.add('show');
-                    document.body.classList.add('modal-open');
-                }
-
                 function cerrarConfig() {
-                    $('modal-config').classList.remove('show');
-                    document.body.classList.remove('modal-open');
+                    ModalManager.cerrar('modal-config');
                 }
 
                 function cerrarEdicion() {
-                    $('modal-editar').classList.remove('show');
-                    document.body.classList.remove('modal-open');
-                    D.setEditandoId(null);
+                    ModalManager.cerrar('modal-editar', () => {
+                        D.setEditandoId(null);
+                    });
                 }
 
                 function mostrarImportar() {
-                    $('modal-config').classList.remove('show');
-                    $('file-import').value = '';
+                    ModalManager.alternar('modal-config', 'modal-importar', null, () => {
+                        $('file-import').value = '';
 
-                    // Limpiar nombre de archivo mostrado
-                    const nombreEl = document.getElementById('nombre-archivo-seleccionado');
-                    if (nombreEl) {
-                        nombreEl.style.display = 'none';
-                        nombreEl.textContent = '';
-                    }
-
-                    $('modal-importar').classList.add('show');
-                    document.body.classList.add('modal-open');
+                        const nombreEl = document.getElementById('nombre-archivo-seleccionado');
+                        if (nombreEl) {
+                            nombreEl.style.display = 'none';
+                            nombreEl.textContent = '';
+                        }
+                    });
                 }
 
                 function cerrarImportar() {
-                    $('modal-importar').classList.remove('show');
-                    $('modal-config').classList.add('show');
-                    document.body.classList.add('modal-open');
+                    ModalManager.alternar('modal-importar', 'modal-config');
                 }
 
                 function poblarSelectorMeses() {
@@ -5869,9 +5864,9 @@
                         return aReg === año && mReg === mes;
                     });
 
-                    // Calcular total de horas del mes
+                    // Calcular total de horas del mes (excluir registros especiales)
                     const totalHoras = registrosMes
-                        .filter(r => r.entrada !== '00:00' && r.entrada !== '11:11' && r.entrada !== '12:12' && r.entrada !== '14:14' && r.entrada !== '13:13')
+                        .filter(r => !TiposRegistro.esRegistroEspecial(r.entrada, r.salida))
                         .reduce((sum, r) => sum + r.total, 0);
 
                     const horasTotales = Math.floor(totalHoras);
@@ -5933,26 +5928,13 @@ REPORTE DE HORAS TRABAJADAS
                                 const dia = obtenerNombreDia(r.fecha);
                                 const fecha = r.fecha.split('-').reverse().join('/');
 
-                                const esFeriado = r.entrada === '00:00' && r.salida === '00:00';
-                                const esAusencia = r.entrada === '11:11' && r.salida === '11:11';
-                                const esVacaciones = r.entrada === '12:12' && r.salida === '12:12';
-                                const esAsueto = r.entrada === '13:13' && r.salida === '13:13';
-                                const esEnfermedad = r.entrada === '14:14' && r.salida === '14:14';
+                                const tipoEspecial = TiposRegistro.obtenerTipoPorCodigo(r.entrada, r.salida);
 
                                 let linea = '';
 
-                                if (esFeriado) {
-                                    linea = `${fecha}  ${dia.padEnd(10)} FERIADO`;
-                                } else if (esAusencia) {
-                                    linea = `${fecha}  ${dia.padEnd(10)} AUSENCIA`;
-                                } else if (esVacaciones) {
-                                    linea = `${fecha}  ${dia.padEnd(10)} VACACIONES`;
-                                } else if (esEnfermedad) {
-                                    linea = `${fecha}  ${dia.padEnd(10)} ENFERMEDAD`;
-                                } else if (esAsueto) {
-                                    linea = `${fecha}  ${dia.padEnd(10)} ASUETO`;
-                                }
-                                else {
+                                if (tipoEspecial) {
+                                    linea = `${fecha}  ${dia.padEnd(10)} ${tipoEspecial.label.toUpperCase()}`;
+                                } else {
                                     const entrada = r.entrada || '--:--';
                                     const salida = r.salida || '--:--';
                                     const total = r.salida ? `${r.horas}h ${r.minutos}m` : 'Incompleto';
@@ -6019,17 +6001,14 @@ REPORTE DE HORAS TRABAJADAS
                                 }
 
                                 const semana = semanas.get(lunes);
+                                const tipoEspecial = TiposRegistro.obtenerTipoPorCodigo(r.entrada, r.salida);
 
-                                if (r.entrada === '00:00' && r.salida === '00:00') {
-                                    semana.feriados.push(r);
-                                } else if (r.entrada === '11:11' && r.salida === '11:11') {
-                                    semana.ausencias.push(r);
-                                } else if (r.entrada === '12:12' && r.salida === '12:12') {
-                                    semana.vacaciones.push(r);
-                                } else if (r.entrada === '14:14' && r.salida === '14:14') {
-                                    semana.enfermedades.push(r);
-                                } else if (r.entrada === '13:13' && r.salida === '13:13') {
-                                    semana.asuetos.push(r);
+                                if (tipoEspecial) {
+                                    // Agregar a la categoría correspondiente
+                                    const categoria = tipoEspecial.id + 's'; // 'feriado' -> 'feriados'
+                                    if (semana[categoria]) {
+                                        semana[categoria].push(r);
+                                    }
                                 } else {
                                     semana.trabajados.push(r);
                                     if (r.credito && r.credito !== '00:00') {
@@ -6422,26 +6401,24 @@ Generado por Sistema Horarios
                 }
 
                 function abrirSelectorPerfiles() {
-                    const inputNuevo = document.getElementById('nombre-nuevo-perfil-selector');
-                    if (inputNuevo) inputNuevo.value = '';
+                    ModalManager.abrir('modal-selector-perfiles', () => {
+                        const inputNuevo = document.getElementById('nombre-nuevo-perfil-selector');
+                        if (inputNuevo) inputNuevo.value = '';
 
-                    renderizarListaPerfiles();
+                        renderizarListaPerfiles();
 
-                    const temaOscuro = document.body.classList.contains('dark-mode');
-                    const toggleBtnModal = document.getElementById('theme-toggle-modal');
+                        const temaOscuro = document.body.classList.contains('dark-mode');
+                        const toggleBtnModal = document.getElementById('theme-toggle-modal');
 
-                    if (toggleBtnModal) {
-                        const icon = toggleBtnModal.querySelector('use');
-                        if (temaOscuro) {
-                            icon.setAttribute('href', '#icon-sun');
-                        } else {
-                            icon.setAttribute('href', '#icon-moon');
+                        if (toggleBtnModal) {
+                            const icon = toggleBtnModal.querySelector('use');
+                            if (temaOscuro) {
+                                icon.setAttribute('href', '#icon-sun');
+                            } else {
+                                icon.setAttribute('href', '#icon-moon');
+                            }
                         }
-                    }
-                    // --------------------------------------------------
-
-                    document.getElementById('modal-selector-perfiles').classList.add('show');
-                    document.body.classList.add('modal-open');
+                    });
                 }
 
 
@@ -6507,15 +6484,22 @@ Generado por Sistema Horarios
                 }
 
                 function cerrarSelectorPerfiles() {
-                    document.getElementById('modal-selector-perfiles').classList.remove('show');
-                    document.body.classList.remove('modal-open');
+                    ModalManager.cerrar('modal-selector-perfiles');
                 }
 
-                function abrirConfigDesdePerfiles() {
-                    // Cerrar el modal de perfiles
-                    document.getElementById('modal-selector-perfiles').classList.remove('show');
-                    // Abrir configuración
-                    mostrarConfig();
+                function mostrarconfig() {
+                    ModalManager.alternar('modal-selector-perfiles', 'modal-config', null, () => {
+                        $('config-horas-diarias').value = D.horasDiarias();
+
+                        const diasActivos = D.diasHabiles();
+                        const checkboxes = document.querySelectorAll('input[name="dia-habil"]');
+                        checkboxes.forEach(cb => {
+                            cb.checked = diasActivos.includes(parseInt(cb.value));
+                            cb.onchange = UILogic.actualizarFeedbackConfig;
+                        });
+
+                        UILogic.actualizarFeedbackConfig();
+                    });
                 }
 
                 let perfilEnEdicion = null;
@@ -6541,16 +6525,16 @@ Generado por Sistema Horarios
                     }
 
                     // Cerrar selector y abrir editor
-                    document.getElementById('modal-selector-perfiles').classList.remove('show');
-                    document.getElementById('modal-editar-perfil').classList.add('show');
-                    document.body.classList.add('modal-open');
+                    ModalManager.alternar('modal-selector-perfiles', 'modal-editar-perfil');
                 }
 
                 function cerrarEditorPerfil() {
                     perfilEnEdicion = null;
-                    document.getElementById('modal-editar-perfil').classList.remove('show');
-                    // Reabrir selector
-                    abrirSelectorPerfiles();
+                    ModalManager.alternar('modal-editar-perfil', 'modal-selector-perfiles', null, () => {
+                        const inputNuevo = document.getElementById('nombre-nuevo-perfil-selector');
+                        if (inputNuevo) inputNuevo.value = '';
+                        renderizarListaPerfiles();
+                    });
                 }
 
                 function guardarEdicionPerfil() {
@@ -6914,14 +6898,8 @@ Generado por Sistema Horarios
                     if (tipo === 'normal') {
                         registrosDelTipoEnRango = DataManagement.registros().filter(r => {
                             const dentroDelRango = r.fecha >= desde && r.fecha <= hasta;
-                            const esFeriado = r.entrada === '00:00' && r.salida === '00:00';
-                            const esAusencia = r.entrada === '11:11' && r.salida === '11:11';
-                            const esVacaciones = r.entrada === '12:12' && r.salida === '12:12';
-                            const esEnfermedad = r.entrada === '14:14' && r.salida === '14:14';
-                            const esAsueto = r.entrada === '13:13' && r.salida === '13:13';
-
-                            return dentroDelRango && !esFeriado && !esAusencia && !esVacaciones &&
-                                !esEnfermedad && !esAsueto;
+                            const esEspecial = TiposRegistro.esRegistroEspecial(r.entrada, r.salida);
+                            return dentroDelRango && !esEspecial;
                         });
 
                         // Caso Normal: Siempre es una acción de borrado
@@ -6934,20 +6912,18 @@ Generado por Sistema Horarios
                         }
 
                     } else {
-                        // Casos Especiales (Feriado, Vacaciones, Ausencia, Enfermedad, Asueto)
-                        const entrada = tipo === 'vacaciones' ? '12:12' :
-                            tipo === 'ausencia' ? '11:11' :
-                                tipo === 'enfermedad' ? '14:14' :
-                                    tipo === 'asueto' ? '13:13' :
-                                        '00:00'; // feriado por defecto
-                        const salida = entrada;
-
-                        registrosDelTipoEnRango = DataManagement.registros().filter(r =>
-                            r.fecha >= desde &&
-                            r.fecha <= hasta &&
-                            r.entrada === entrada &&
-                            r.salida === salida
-                        );
+                        // Casos Especiales
+                        const codigosTipo = TiposRegistro.obtenerCodigosPorTipo(tipo);
+                        if (codigosTipo) {
+                            registrosDelTipoEnRango = DataManagement.registros().filter(r =>
+                                r.fecha >= desde &&
+                                r.fecha <= hasta &&
+                                r.entrada === codigosTipo.entrada &&
+                                r.salida === codigosTipo.salida
+                            );
+                        } else {
+                            registrosDelTipoEnRango = [];
+                        }
 
                         btnTexto.textContent = 'Registrar Lote';
                     }
@@ -7018,7 +6994,7 @@ Generado por Sistema Horarios
                     window.PerfilManager = PerfilManager;
 
                     window.UILogic = {
-                        alternarTema, mostrarConfig, cerrarConfig, pegarHoraActual, alternarVista,
+                        alternarTema, cerrarConfig, pegarHoraActual, alternarVista,
                         cerrarEdicion, mostrarImportar, cerrarImportar, actualizarUI, mostrarToast,
                         mostrarError, limpiarError, resetearBoton, restaurarBotonGuardarEdicion,
                         limpiarCampo, obtenerFechaHoy, mostrarFiltros, poblarSelectorMeses, actualizarBotonLote,
@@ -7028,7 +7004,7 @@ Generado por Sistema Horarios
                         actualizarFeedbackConfig, poblarSelectorMeses, abrirSelectorPerfiles, actualizarBotonLote,
                         cerrarSelectorPerfiles, abrirEditorPerfil, cerrarEditorPerfil, guardarEdicionPerfil, toggleModoLote,
                         eliminarPerfilDesdeEditor, crearPerfilDesdeSelector, renderizarListaPerfiles, ejecutarAccionRegistro,
-                        iniciarCambioHoras, detenerCambio, abrirConfigDesdePerfiles, alternarFechaActual, verificarBloqueoCredito,
+                        iniciarCambioHoras, detenerCambio, mostrarconfig, alternarFechaActual, verificarBloqueoCredito,
                         toggleCredito, init, toggleFormulario, setBloqueoEdicionGrupo, toggleBloqueoEdicionGrupo, cerrarEdicionGrupo
                     };
 
@@ -7060,6 +7036,36 @@ Generado por Sistema Horarios
                     // C) Otros inputs
                     const tf = document.getElementById('edit-tiempo-fuera');
                     if (tf) tf.addEventListener('input', formatearInput);
+
+                    // ===================================
+                    // 🆕 LISTENERS PARA TECLA ENTER
+                    // ===================================
+
+                    // A) Enter en campo Entrada → Pasa a Salida
+                    const inputEntrada = document.getElementById('entrada');
+                    if (inputEntrada) {
+                        inputEntrada.addEventListener('keydown', (e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const inputSalida = document.getElementById('salida');
+                                if (inputSalida) inputSalida.focus();
+                            }
+                        });
+                    }
+
+                    // B) Enter en campo Salida → Ejecuta Registrar
+                    const inputSalida = document.getElementById('salida');
+                    if (inputSalida) {
+                        inputSalida.addEventListener('keydown', (e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const btnAgregar = document.getElementById('btn-agregar');
+                                if (btnAgregar && !btnAgregar.disabled) {
+                                    btnAgregar.click();
+                                }
+                            }
+                        });
+                    }
 
                     // ===================================
 
@@ -7153,25 +7159,19 @@ Generado por Sistema Horarios
                     }
 
                     // Si no hay filtro, mostrar modal
-                    $('modal-filtros').classList.add('show');
-                    document.body.classList.add('modal-open');
+                    ModalManager.abrir('modal-filtros');
                 }
 
                 function cerrarFiltros() {
-                    $('modal-filtros').classList.remove('show');
-                    document.body.classList.remove('modal-open');
+                    ModalManager.cerrar('modal-filtros');
                 }
 
                 function mostrarAyuda() {
-                    $('modal-config').classList.remove('show');
-                    $('modal-ayuda').classList.add('show');
-                    document.body.classList.add('modal-open');
+                    ModalManager.alternar('modal-config', 'modal-ayuda');
                 }
 
                 function cerrarAyuda() {
-                    $('modal-ayuda').classList.remove('show');
-                    $('modal-config').classList.add('show');
-                    document.body.classList.add('modal-open');
+                    ModalManager.alternar('modal-ayuda', 'modal-config');
                 }
 
                 // --- FUNCIÓN GENÉRICA PARA COLAPSABLES ---
@@ -7276,11 +7276,7 @@ Generado por Sistema Horarios
                     const horarioCompleto = e.length === 5 && s.length === 5;
 
                     // 4. Detectamos si son días especiales (para bloquear también)
-                    const esEspecial = (e === '00:00' && s === '00:00') ||
-                        (e === '11:11' && s === '11:11') ||
-                        (e === '12:12' && s === '12:12') ||
-                        (e === '14:14' && s === '14:14') ||
-                        (e === '13:13' && s === '13:13');
+                    const esEspecial = TiposRegistro.esRegistroEspecial(e, s);
 
                     // Si hay candado O es día especial O el horario NO está completo...
                     if (bloqueoGlobal || esEspecial || !horarioCompleto) {
@@ -7334,14 +7330,14 @@ Generado por Sistema Horarios
                 }
 
                 function cerrarEdicionGrupo() {
-                    $('modal-editar-grupo').classList.remove('show');
-                    document.body.classList.remove('modal-open');
-                    D.setGrupoEnEdicion(null);
+                    ModalManager.cerrar('modal-editar-grupo', () => {
+                        D.setGrupoEnEdicion(null);
+                    });
                 }
 
 
                 return {
-                    init, obtenerFechaHoy, pegarHoraActual, alternarTema, alternarVista, mostrarConfig, cerrarConfig,
+                    init, obtenerFechaHoy, pegarHoraActual, alternarTema, alternarVista, cerrarConfig,
                     cerrarEdicion, mostrarImportar, cerrarImportar, actualizarUI, mostrarToast, mostrarError,
                     limpiarError, resetearBoton, restaurarBotonGuardarEdicion, toggleFormulario,
                     limpiarCampo, mostrarFiltros, cerrarFiltros, mostrarAyuda, registrarLoteDesdeCard,
@@ -7350,7 +7346,7 @@ Generado por Sistema Horarios
                     actualizarFeedbackConfig, poblarSelectorMeses, abrirSelectorPerfiles, actualizarBotonLote,
                     cerrarSelectorPerfiles, abrirEditorPerfil, cerrarEditorPerfil, guardarEdicionPerfil, toggleModoLote,
                     eliminarPerfilDesdeEditor, crearPerfilDesdeSelector, renderizarListaPerfiles, ejecutarAccionRegistro,
-                    iniciarCambioHoras, detenerCambio, abrirConfigDesdePerfiles, alternarFechaActual, verificarBloqueoCredito,
+                    iniciarCambioHoras, detenerCambio, mostrarconfig, alternarFechaActual, verificarBloqueoCredito,
                     toggleCredito, setBloqueoEdicionGrupo, toggleBloqueoEdicionGrupo, cerrarEdicionGrupo
                 };
 
@@ -7384,11 +7380,12 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //             CAMBIOS REALIZADOS EN ESTA VERSION 6.94
+    //             CAMBIOS REALIZADOS EN ESTA VERSION 6.97
     // ====================================================================
-    1) Se reemplaza la funcion obtenersemanaactual para corregir el error de calculo de "esta semana"
-    2) Se simplifica la funcion borrarperiododirecto
-    3) Se unifica el estilo de los imputs y selects al estar bloqueados en los modales
+    1) se centraliza la gestion de dias especiales
+    2) refactorizacion de las funciones que hacen uso de dias especiales
+    3) se centraliza la gestion de modales
+    4) se refactorizan las funciones que abren modales
 
 
     -->
