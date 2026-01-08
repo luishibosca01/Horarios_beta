@@ -1498,7 +1498,7 @@
                     </svg>
                     Ajustes
                 </span>
-                <span class="version-text">v7.01</span>
+                <span class="version-text">v7.02</span>
             </h3>
             <div class="form-group">
                 <label>Horas Diarias</label>
@@ -1800,7 +1800,7 @@
                     <svg class="icon">
                         <use href="#icon-briefcase" />
                     </svg>
-                    Seleccionar Perfil
+                    Perfiles
                 </span>
             </h3>
             <div id="lista-perfiles-botones" class="perfil-list-container">
@@ -1855,13 +1855,7 @@
                 <input type="text" id="nombre-perfil-editar" placeholder="Nombre del perfil..." maxlength="30" />
             </div>
 
-            <div class="form-group">
-                <label>ID del Perfil</label>
-                <input type="text" id="id-perfil-editar" disabled style="opacity: 0.6; cursor: not-allowed;" />
-                <div class="config-hint-text" style="text-align: left; margin-top: 0.25rem;">
-                    El ID no se puede modificar
-                </div>
-            </div>
+            <input type="hidden" id="id-perfil-editar" />
 
             <div class="btn-group">
                 <button class="btn-edit" onclick="UILogic.guardarEdicionPerfil()">
@@ -6381,8 +6375,19 @@ Generado por Sistema Horarios
 
                     const perfiles = JSON.parse(localStorage.getItem('perfiles') || '{}');
 
-                    if (Object.keys(perfiles).length >= 7) { //Cantidad maxima de perfiles permitida (2 de 3)
-                        mostrarToast('Máximo de perfiles alcanzado (7)', 'error'); //Mensaje de cantidad maxima perfiles (3 de 3)
+                    // 🆕 VALIDACIÓN DE NOMBRE DUPLICADO (case-insensitive)
+                    const nombreNormalizado = nombre.toLowerCase().trim();
+                    const nombreExiste = Object.values(perfiles).some(perfil =>
+                        perfil.nombre.toLowerCase().trim() === nombreNormalizado
+                    );
+
+                    if (nombreExiste) {
+                        mostrarToast('Ya existe un perfil con ese nombre', 'error');
+                        return;
+                    }
+
+                    if (Object.keys(perfiles).length >= 7) {
+                        mostrarToast('Máximo de perfiles alcanzado (7)', 'error');
                         return;
                     }
 
@@ -6390,13 +6395,13 @@ Generado por Sistema Horarios
                     perfiles[id] = {
                         nombre: nombre,
                         registros: [],
-                        diasHabiles: 5,
+                        diasHabiles: [1, 2, 3, 4, 5], // Array por defecto
                         horasDiarias: 7
                     };
 
                     localStorage.setItem('perfiles', JSON.stringify(perfiles));
 
-                    // ⭐ FORZAR ACTUALIZACIÓN DEL PERFILMANAGER
+                    // FORZAR ACTUALIZACIÓN DEL PERFILMANAGER
                     if (window.PerfilManager) {
                         // Recargar los perfiles internamente
                         window.PerfilManager.inicializar();
@@ -6504,6 +6509,18 @@ Generado por Sistema Horarios
                     if (perfiles[perfilEnEdicion].nombre === nuevoNombre) {
                         mostrarToast('Sin cambios', 'info');
                         cerrarEditorPerfil();
+                        return;
+                    }
+
+                    // VALIDACIÓN DE NOMBRE DUPLICADO (case-insensitive)
+                    const nombreNormalizado = nuevoNombre.toLowerCase().trim();
+                    const nombreExiste = Object.entries(perfiles).some(([id, perfil]) =>
+                        id !== perfilEnEdicion && // Excluir el perfil que estamos editando
+                        perfil.nombre.toLowerCase().trim() === nombreNormalizado
+                    );
+
+                    if (nombreExiste) {
+                        mostrarToast('Ya existe otro perfil con ese nombre', 'error');
                         return;
                     }
 
@@ -7565,9 +7582,9 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //             CAMBIOS REALIZADOS EN ESTA VERSION 7.01
+    //             CAMBIOS REALIZADOS EN ESTA VERSION 7.02
     // ====================================================================
-    1) Se modifican etiquetas del modal configuracion, exportar y importar
-    2) Se quita el modal ayuda y todo lo relacionado con sus funciones
+    1) Se agregan validaciones de duplicado al agregar o editar perfiles
+
 
     -->
