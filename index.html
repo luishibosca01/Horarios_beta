@@ -1538,7 +1538,7 @@
                     </svg>
                     Configuración
                 </span>
-                <span class="version-text">v6.97</span>
+                <span class="version-text">v6.99</span>
             </h3>
             <div class="form-group">
                 <label>Horas diarias</label>
@@ -2743,7 +2743,7 @@
                     ENFERMEDAD: {
                         id: 'enfermedad',
                         codigo: '14:14',
-                        emoji: '🥼',
+                        emoji: '🏥',
                         label: 'Enfermedad',
                         labelPlural: 'Enfermedades',
                         descripcion: 'Enfermedad justificada',
@@ -2846,15 +2846,21 @@
                     }
 
                     // Validar formato
-                    if (!S.validarFechaSegura(nuevaDesde) || !S.validarFechaSegura(nuevaHasta)) {
-                        UILogic.mostrarToast('Formato de fecha inválido', 'error');
+                    if (!S.validarFechaSegura(nuevaDesde)) {
+                        UILogic.mostrarToast('Fecha "Desde" inválida', 'error');
+                        btnGuardar.disabled = false;
+                        return;
+                    }
+
+                    if (!S.validarFechaSegura(nuevaHasta)) {
+                        UILogic.mostrarToast('Fecha "Hasta" inválida', 'error');
                         btnGuardar.disabled = false;
                         return;
                     }
 
                     // Validar orden
                     if (nuevaDesde > nuevaHasta) {
-                        UILogic.mostrarToast('La fecha "Desde" debe ser anterior a "Hasta"', 'error');
+                        UILogic.mostrarToast('La fecha inicial debe ser inferior a la final', 'error');
                         btnGuardar.disabled = false;
                         return;
                     }
@@ -3593,19 +3599,33 @@
                     }
 
                     // --- 3. VALIDACIONES DE SEGURIDAD ---
-                    if (!S.validarFechaSegura(f) ||
-                        (e && !S.validarHoraSegura(e)) ||
-                        (s && !S.validarHoraSegura(s)) ||
-                        (tf && !S.validarHoraSegura(tf))) {
-
+                    if (!S.validarFechaSegura(f)) {
                         UILogic.restaurarBotonGuardarEdicion(btnGuardar);
-                        UILogic.mostrarToast('Verifica los campos (hora inválida)', 'error');
+                        UILogic.mostrarToast('Fecha inválida', 'error');
+                        return;
+                    }
+
+                    if (e && !S.validarHoraSegura(e)) {
+                        UILogic.restaurarBotonGuardarEdicion(btnGuardar);
+                        UILogic.mostrarToast('Hora de entrada inválida', 'error');
+                        return;
+                    }
+
+                    if (s && !S.validarHoraSegura(s)) {
+                        UILogic.restaurarBotonGuardarEdicion(btnGuardar);
+                        UILogic.mostrarToast('Hora de salida inválida', 'error');
+                        return;
+                    }
+
+                    if (tf && !S.validarHoraSegura(tf)) {
+                        UILogic.restaurarBotonGuardarEdicion(btnGuardar);
+                        UILogic.mostrarToast('Tiempo fuera inválido', 'error');
                         return;
                     }
 
                     if (!e && s) {
                         UILogic.restaurarBotonGuardarEdicion(btnGuardar);
-                        UILogic.mostrarToast('Debes registrar una entrada primero', 'error');
+                        UILogic.mostrarToast('Debes registrar una entrada', 'error');
                         return;
                     }
 
@@ -3780,7 +3800,10 @@
 
                     if (await guardarYActualizar(true)) {
                         UILogic.actualizarUI();
-                        UILogic.mostrarToast(`${totalRegistros} registros eliminados`, 'success');
+                        const mensaje = totalRegistros === 1
+                            ? '1 registro eliminado'
+                            : `${totalRegistros} registros eliminados`;
+                        UILogic.mostrarToast(mensaje, 'success');
                         UILogic.cerrarConfig();
                     }
                 }
@@ -3975,7 +3998,11 @@
                                     }
                                 }
 
-                                finalizarImportacionAndSave(`Se reemplazaron los datos por ${registrosImportados.length} registros.`);
+                                const mensaje = registrosImportados.length === 1
+                                    ? 'Se reemplazaron los datos por 1 registro'
+                                    : `Se reemplazaron los datos por ${registrosImportados.length} registros`;
+
+                                finalizarImportacionAndSave(mensaje);
                             }
 
                             // --- MODO COMBINAR ---
@@ -3995,7 +4022,12 @@
                                 }
 
                                 registros = registros.concat(nuevos);
-                                finalizarImportacionAndSave(`Se combinaron datos. ${nuevos.length} días nuevos agregados.`);
+
+                                const mensaje = nuevos.length === 1
+                                    ? 'Se agregó 1 día'
+                                    : `Se agregaron ${nuevos.length} días`;
+
+                                finalizarImportacionAndSave(mensaje);
                             }
 
                         } catch (err) {
@@ -4268,7 +4300,10 @@
                     const saved = await guardarYActualizar(true, idsNuevosParaAnimar);
 
                     if (saved) {
-                        UILogic.mostrarToast(`${nuevosRegistros.length} días registrados`, 'success');
+                        const mensaje = nuevosRegistros.length === 1
+                            ? '1 día registrado'
+                            : `${nuevosRegistros.length} días registrados`;
+                        UILogic.mostrarToast(mensaje, 'success');
                         if (UILogic.actualizarBotonLote) {
                             UILogic.actualizarBotonLote();
                         }
@@ -4303,7 +4338,10 @@
 
                     const saved = await guardarYActualizar();
                     if (saved) {
-                        UILogic.mostrarToast(`${registrosAEliminar.length} registros eliminados`, 'success');
+                        const mensaje = registrosAEliminar.length === 1
+                            ? '1 registro eliminado'
+                            : `${registrosAEliminar.length} registros eliminados`;
+                        UILogic.mostrarToast(mensaje, 'success');
                         UILogic.actualizarBotonLote?.();
                     } else {
                         throw new Error('Error al guardar');
@@ -5134,7 +5172,7 @@
                     const hPromedio = Math.floor(promedioDiario);
                     const mPromedio = Math.round((promedioDiario - hPromedio) * 60);
 
-                    // 🆕 CALCULAR SEMANA PASADA
+                    // CALCULAR SEMANA PASADA
                     const hoy = new Date();
                     hoy.setHours(0, 0, 0, 0); // Normalizar a medianoche
 
@@ -5664,6 +5702,8 @@
                     // 1. Si el campo tiene contenido, limpiarlo (toggle)
                     if (c.value.trim() !== '') {
                         c.value = '';
+                        UILogic.limpiarError('entrada', 'error-entrada');
+                        UILogic.limpiarError('salida', 'error-salida');
 
                         // --- Avisar que se borró para bloquear el botón ---
                         if (id === 'edit-entrada' || id === 'edit-salida') {
@@ -5687,6 +5727,7 @@
                 function limpiarCampo(id) {
                     const c = document.getElementById(id);
                     if (c) c.value = '';
+
                 }
 
                 function formatearInput(e) {
@@ -6032,7 +6073,7 @@ REPORTE DE HORAS TRABAJADAS
 
 `;
 
-                            // 🆕 Array para almacenar semanas incompletas
+                            // Array para almacenar semanas incompletas
                             const semanasIncompletas = [];
 
                             semanasOrdenadas.forEach(([lunes, datos], index) => {
@@ -6045,7 +6086,7 @@ REPORTE DE HORAS TRABAJADAS
                                 fechaDomingo.setDate(fechaLunes.getDate() + 6);
                                 const domingo = fechaDomingo.toISOString().split('T')[0];
 
-                                // 🆕 Detectar si la semana sale del mes
+                                // Detectar si la semana sale del mes
                                 let fechaFin = domingo;
                                 let esIncompleta = false;
                                 let continuaEn = '';
@@ -6304,7 +6345,10 @@ Generado por Sistema Horarios
                         localStorage.removeItem(storageKey);
                         await D.guardarYActualizar(true, registroHoy.id); // Guardamos y refrescamos UI
 
-                        mostrarToast(`Se descontaron ${minutosTranscurridos} min al registro de hoy`, 'success');
+                        const mensaje = minutosTranscurridos === 1
+                            ? 'Se descontó 1 minuto al registro de hoy'
+                            : `Se descontaron ${minutosTranscurridos} minutos al registro de hoy`;
+                        mostrarToast(mensaje, 'success');
                     }
 
                     actualizarEstadoBotonTimerMain();
@@ -6740,7 +6784,7 @@ Generado por Sistema Horarios
                     // --- CASO 1: Sin fechas (registrar HOY) ---
                     if (!desde && !hasta) {
                         if (tipo === 'normal') {
-                            mostrarToast('Para borrar normales, selecciona un rango "Desde" y "Hasta".', 'info');
+                            mostrarToast('Completa los campos Desde y Hasta.', 'info');
                             return;
                         }
 
@@ -6767,7 +6811,7 @@ Generado por Sistema Horarios
                     // --- CASO 2: Solo campo "Desde" (registrar día único) ---
                     if (desde && !hasta) {
                         if (tipo === 'normal') {
-                            mostrarToast('Para borrar normales, necesitas un rango completo', 'info');
+                            mostrarToast('Completa ambos campos', 'info');
                             return;
                         }
 
@@ -6793,12 +6837,12 @@ Generado por Sistema Horarios
 
                     // --- CASO 3: Solo "Hasta" sin "Desde" (error) ---
                     if (!desde && hasta) {
-                        mostrarToast('Debes completar "Desde" primero', 'warning');
+                        mostrarToast('Completa ambos campos', 'info');
                         return;
                     }
 
                     if (desde > hasta) {
-                        mostrarToast('La fecha "Desde" debe ser anterior a "Hasta"', 'error');
+                        mostrarToast('La fecha inicial debe ser superior a la final', 'error');
                         return;
                     }
 
@@ -6869,8 +6913,8 @@ Generado por Sistema Horarios
                     // Solo "Desde" (día único)
                     if (desde && !hasta) {
                         if (tipo === 'normal') {
-                            btnTexto.textContent = 'Requiere rango';
-                            btn.style.color = 'var(--text-muted)';
+                            btnTexto.textContent = 'Requiere Rango';
+                            btn.style.color = 'var(--c-red)';
                             return;
                         }
 
@@ -6880,52 +6924,105 @@ Generado por Sistema Horarios
                             btnTexto.textContent = 'Ya ocupado';
                             btn.style.color = 'var(--text-muted)';
                         } else {
-                            btnTexto.textContent = 'Registrar día';
+                            btnTexto.textContent = 'Registrar';
                         }
                         return;
                     }
 
                     // Solo "Hasta" (error)
                     if (!desde && hasta) {
-                        btnTexto.textContent = 'Falta "Desde"';
+                        btnTexto.textContent = 'Requiere Rango';
                         btn.style.color = 'var(--c-red)';
                         return;
                     }
 
-                    // 3. Buscamos registros en el rango
+                    // ✅ VALIDACIÓN DE FECHAS ANTES DE PROCESAR
+                    if (!S.validarFechaSegura(desde)) {
+                        btnTexto.textContent = 'Fecha Inicial Inválida';
+                        btn.style.color = 'var(--c-red)';
+                        return;
+                    }
+
+                    if (!S.validarFechaSegura(hasta)) {
+                        btnTexto.textContent = 'Fecha Final Inválida';
+                        btn.style.color = 'var(--c-red)';
+                        return;
+                    }
+
+                    if (desde > hasta) {
+                        btnTexto.textContent = 'Rango Inválido';
+                        btn.style.color = 'var(--c-red)';
+                        return;
+                    }
+
+                    // 3. Calcular días totales en el rango
+                    const fechaInicio = new Date(desde.replace(/-/g, '/') + ' 00:00:00');
+                    const fechaFin = new Date(hasta.replace(/-/g, '/') + ' 00:00:00');
+                    const diffTime = Math.abs(fechaFin - fechaInicio);
+                    const diasTotales = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+                    // 4. Buscamos registros en el rango
                     let registrosDelTipoEnRango;
 
                     if (tipo === 'normal') {
+                        // Contar registros NORMALES (no especiales) en el rango
                         registrosDelTipoEnRango = DataManagement.registros().filter(r => {
                             const dentroDelRango = r.fecha >= desde && r.fecha <= hasta;
                             const esEspecial = TiposRegistro.esRegistroEspecial(r.entrada, r.salida);
                             return dentroDelRango && !esEspecial;
                         });
 
+                        const cantidadRegistros = registrosDelTipoEnRango.length;
+
                         // Caso Normal: Siempre es una acción de borrado
-                        if (registrosDelTipoEnRango.length > 0) {
-                            btnTexto.textContent = 'Borrar';
+                        if (cantidadRegistros > 0) {
+                            btnTexto.textContent = `Borrar (${cantidadRegistros})`;
                             btn.style.color = 'var(--c-red)';
                         } else {
-                            btnTexto.textContent = 'Borrar (Vacío)';
+                            btnTexto.textContent = 'Sin Registros';
                             btn.style.color = 'var(--text-muted)';
                         }
 
                     } else {
-                        // Casos Especiales
+                        // Casos Especiales - Contar días OCUPADOS y días LIBRES
                         const codigosTipo = TiposRegistro.obtenerCodigosPorTipo(tipo);
+
                         if (codigosTipo) {
+                            // Contar cuántos días YA tienen este tipo de registro
                             registrosDelTipoEnRango = DataManagement.registros().filter(r =>
                                 r.fecha >= desde &&
                                 r.fecha <= hasta &&
                                 r.entrada === codigosTipo.entrada &&
                                 r.salida === codigosTipo.salida
                             );
+
+                            // Contar cuántos días tienen CUALQUIER tipo de registro
+                            const diasOcupados = DataManagement.registros().filter(r =>
+                                r.fecha >= desde && r.fecha <= hasta
+                            );
+
+                            const yaRegistrados = registrosDelTipoEnRango.length;
+                            const disponibles = diasTotales - diasOcupados.length;
+                            const sobreescribirOtros = diasOcupados.length - yaRegistrados;
+
+                            if (disponibles === 0 && yaRegistrados === diasTotales) {
+                                // Todos los días ya tienen este tipo
+                                btnTexto.textContent = `Ya Registrado (${diasTotales})`;
+                                btn.style.color = 'var(--text-muted)';
+                            } else if (disponibles === diasTotales) {
+                                // Todos los días están libres
+                                btnTexto.textContent = `Registrar (${diasTotales})`;
+                            } else if (sobreescribirOtros > 0) {
+                                // Hay días con otros tipos de registro
+                                btnTexto.textContent = `Registrar (${disponibles} - ${sobreescribirOtros})`;
+                            } else {
+                                // Combinación de libres y ya registrados
+                                btnTexto.textContent = `Registrar (${disponibles})`;
+                            }
                         } else {
                             registrosDelTipoEnRango = [];
+                            btnTexto.textContent = 'Registrar';
                         }
-
-                        btnTexto.textContent = 'Registrar Lote';
                     }
                 }
 
@@ -7380,12 +7477,9 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //             CAMBIOS REALIZADOS EN ESTA VERSION 6.97
+    //             CAMBIOS REALIZADOS EN ESTA VERSION 6.99
     // ====================================================================
-    1) se centraliza la gestion de dias especiales
-    2) refactorizacion de las funciones que hacen uso de dias especiales
-    3) se centraliza la gestion de modales
-    4) se refactorizan las funciones que abren modales
+    1) Se modifican etiquetas del boton registrar principal
 
 
     -->
