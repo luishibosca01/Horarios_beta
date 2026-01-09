@@ -51,17 +51,17 @@
 
         body.dark-mode {
             /* --- Variables de Color (Tema Oscuro) --- */
-            --bg-body: #0e1214;
-            --bg-card: #191e24;
-            --bg-header: #0e1214;
+            --bg-body: #111827;
+            --bg-card: #1f2937;
+            --bg-header: rgba(17, 24, 39, 0.800);
             --text-main: #f9fafb;
             --text-muted: #d1d5db;
-            --border: #29323b;
-            --input-bg: #29323b;
-            --input-focus: #29323b;
-            --c-gray-btn: #29323b;
+            --border: #374151;
+            --input-bg: #374151;
+            --input-focus: #374151;
+            --c-gray-btn: #374151;
             --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-            --bg-progress-bar: #4c5d6d3f;
+            --bg-progress-bar: rgba(255, 255, 255, 0.2);
         }
 
         body.modal-open {
@@ -388,7 +388,6 @@
         }
 
         .config-actions {
-            margin-top: 1.25rem;
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
@@ -1284,7 +1283,7 @@
 
                     <!-- MODO NORMAL -->
                     <div id="modo-normal" style="display: block;">
-                        <div class="form-group" style="padding-top: 20px;">
+                        <div class="form-group" style="padding-top: 1rem;">
                             <label>Fecha</label>
                             <div class="input-with-btn">
                                 <input type="date" id="fecha" />
@@ -1325,7 +1324,7 @@
 
                     <!-- MODO LOTE -->
                     <div id="modo-lote" style="display: none;">
-                        <div class="form-group" style="padding-top: 20px;">
+                        <div class="form-group" style="padding-top: 1rem;">
                             <label>Tipo de registro</label>
                             <div class="input-with-btn">
                                 <select id="lote-tipo" onchange="UILogic.actualizarBotonLote()">
@@ -1498,7 +1497,7 @@
                     </svg>
                     Ajustes
                 </span>
-                <span class="version-text">v7.03</span>
+                <span class="version-text">v7.04</span>
             </h3>
             <div class="form-group">
                 <label>Horas Diarias</label>
@@ -7579,7 +7578,7 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //             CAMBIOS REALIZADOS EN ESTA VERSION 7.03
+    //             CAMBIOS REALIZADOS EN ESTA VERSION 7.04
     // ====================================================================
     1) Cambio de colores modo oscuro
 
