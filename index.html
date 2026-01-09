@@ -45,23 +45,23 @@
             --c-gray-light: #cbd5e1;
             --c-white: #ffffff;
             --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            --radius: 12px;
+            --radius: 10px;
             --bg-progress-bar: rgba(224, 224, 224, 0.3);
         }
 
         body.dark-mode {
             /* --- Variables de Color (Tema Oscuro) --- */
-            --bg-body: #111827;
-            --bg-card: #1f2937;
-            --bg-header: rgba(17, 24, 39, 0.800);
+            --bg-body: #0e1214;
+            --bg-card: #191e24;
+            --bg-header: #0e1214;
             --text-main: #f9fafb;
             --text-muted: #d1d5db;
-            --border: #374151;
-            --input-bg: #374151;
-            --input-focus: #374151;
-            --c-gray-btn: #374151;
+            --border: #29323b;
+            --input-bg: #29323b;
+            --input-focus: #29323b;
+            --c-gray-btn: #29323b;
             --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-            --bg-progress-bar: rgba(255, 255, 255, 0.2);
+            --bg-progress-bar: #4c5d6d3f;
         }
 
         body.modal-open {
@@ -196,12 +196,12 @@
 
         .custom-scroll::-webkit-scrollbar-track {
             background: var(--bg-body);
-            border-radius: 4px;
+            border-radius: var(--radius);
         }
 
         .custom-scroll::-webkit-scrollbar-thumb {
             background: var(--border);
-            border-radius: 4px;
+            border-radius: var(--radius);
         }
 
         .custom-scroll::-webkit-scrollbar-thumb:hover {
@@ -241,7 +241,7 @@
             width: 100%;
             padding: 0.75rem;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: var(--radius);
             font-size: 1rem;
             background: var(--input-bg);
             color: var(--text-main);
@@ -301,7 +301,7 @@
             width: 100%;
             padding: 0.875rem;
             border: none;
-            border-radius: 8px;
+            border-radius: var(--radius);
             font-weight: 600;
             font-size: 1rem;
             cursor: pointer;
@@ -444,7 +444,7 @@
             width: 100%;
             height: 24px;
             background: var(--bg-progress-bar);
-            border-radius: 12px;
+            border-radius: var(--radius);
             overflow: hidden;
             margin: 0.5rem 0;
         }
@@ -475,7 +475,7 @@
 
         .registro-item {
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: var(--radius);
             padding: 1rem;
             margin-bottom: 0.5rem;
             display: flex;
@@ -507,7 +507,7 @@
             font-size: 0.75rem;
             font-weight: 700;
             padding: 2px 6px;
-            border-radius: 8px;
+            border-radius: var(--radius);
             letter-spacing: 0.5px;
         }
 
@@ -593,7 +593,7 @@
             background: #1f2937;
             color: white;
             padding: 1rem 1.5rem;
-            border-radius: 8px;
+            border-radius: var(--radius);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
             opacity: 0;
             transform: translateX(100px);
@@ -877,7 +877,7 @@
         .header-profile-btn {
             background: transparent;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: var(--radius);
             padding: 0.25rem 0.75rem;
             color: var(--text-main);
             font-size: 0.9rem;
@@ -923,12 +923,12 @@
 
         .perfil-list-container::-webkit-scrollbar-track {
             background: var(--bg-body);
-            border-radius: 4px;
+            border-radius: var(--radius);
         }
 
         .perfil-list-container::-webkit-scrollbar-thumb {
             background: var(--border);
-            border-radius: 4px;
+            border-radius: var(--radius);
         }
 
         .perfil-list-container::-webkit-scrollbar-thumb:hover {
@@ -941,7 +941,7 @@
             color: var(--text-main);
             padding: 1rem;
             text-align: left;
-            border-radius: 8px;
+            border-radius: var(--radius);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -981,7 +981,7 @@
             min-width: 40px;
             width: 40px;
             height: 40px;
-            border-radius: 8px;
+            border-radius: var(--radius);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1043,7 +1043,7 @@
             width: 38px;
             height: 38px;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: var(--radius);
             font-size: 0.85rem;
             font-weight: 600;
             color: var(--text-muted);
@@ -1264,8 +1264,8 @@
             <div class="card animated-card" style="animation-delay: 0.1s;">
                 <h2 class="no-margin"
                     style="display: flex; justify-content: center; align-items: center; position: relative;">
-                    <button class="time-btn timer-btn" id="btn-timer-main" onclick="UILogic.toggleTimerBreakMain()"
-                        style="background: transparent; padding: 0.5rem; position: absolute; left: 0px; width: 44px; height: 44px; border-radius: 8px;">
+                    <button class="filter-btn timer-btn" id="btn-timer-main" onclick="UILogic.toggleTimerBreakMain()"
+                        style="padding: 0.5rem; position: absolute; left: 0px; ">
                         <svg class="icon">
                             <use href="#icon-coffee" />
                         </svg>
@@ -1498,7 +1498,7 @@
                     </svg>
                     Ajustes
                 </span>
-                <span class="version-text">v7.02</span>
+                <span class="version-text">v7.03</span>
             </h3>
             <div class="form-group">
                 <label>Horas Diarias</label>
@@ -6756,33 +6756,30 @@ Generado por Sistema Horarios
                         return;
                     }
 
-                    // Lógica de Rango
+                    // --- LÓGICA DE RANGO ---
                     let registrosDelTipoEnRango;
 
                     if (tipo === 'normal') {
+                        // Contar registros NORMALES (no especiales) en el rango
                         registrosDelTipoEnRango = DataManagement.registros().filter(r => {
                             const dentroDelRango = r.fecha >= desde && r.fecha <= hasta;
-                            const esFeriado = r.entrada === '00:00' && r.salida === '00:00';
-                            const esAusencia = r.entrada === '11:11' && r.salida === '11:11';
-                            const esVacaciones = r.entrada === '12:12' && r.salida === '12:12';
-                            const esEnfermedad = r.entrada === '14:14' && r.salida === '14:14';
-                            const esAsueto = r.entrada === '13:13' && r.salida === '13:13';
-                            return dentroDelRango && !esFeriado && !esAusencia && !esVacaciones &&
-                                !esEnfermedad && !esAsueto;
+                            const esEspecial = TiposRegistro.esRegistroEspecial(r.entrada, r.salida);
+                            return dentroDelRango && !esEspecial;
                         });
                     } else {
-                        const entrada = tipo === 'vacaciones' ? '12:12' :
-                            tipo === 'ausencia' ? '11:11' :
-                                tipo === 'enfermedad' ? '14:14' :
-                                    tipo === 'asueto' ? '13:13' :
-                                        '00:00'; // feriado por defecto
-                        const salida = entrada;
+                        //  Obtener códigos del tipo seleccionado
+                        const codigosTipo = TiposRegistro.obtenerCodigosPorTipo(tipo);
+
+                        if (!codigosTipo) {
+                            mostrarToast('Tipo de registro inválido', 'error');
+                            return;
+                        }
 
                         registrosDelTipoEnRango = DataManagement.registros().filter(r =>
                             r.fecha >= desde &&
                             r.fecha <= hasta &&
-                            r.entrada === entrada &&
-                            r.salida === salida
+                            r.entrada === codigosTipo.entrada &&
+                            r.salida === codigosTipo.salida
                         );
                     }
 
@@ -7582,9 +7579,9 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //             CAMBIOS REALIZADOS EN ESTA VERSION 7.02
+    //             CAMBIOS REALIZADOS EN ESTA VERSION 7.03
     // ====================================================================
-    1) Se agregan validaciones de duplicado al agregar o editar perfiles
+    1) Cambio de colores modo oscuro
 
 
     -->
