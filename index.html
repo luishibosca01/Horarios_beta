@@ -1497,7 +1497,7 @@
                     </svg>
                     Ajustes
                 </span>
-                <span class="version-text">v7.04</span>
+                <span class="version-text">v7.05</span>
             </h3>
             <div class="form-group">
                 <label>Horas Diarias</label>
@@ -1548,20 +1548,18 @@
             </div>
             <div class="config-actions">
                 <label>Registros</label>
-                <button class="btn-export" onclick="UILogic.mostrarExportar()">
-                    <svg class="icon">
-                        <use href="#icon-download" />
-                    </svg>
-                    Descargar
-                </button>
-
                 <button class="btn-backup" onclick="UILogic.mostrarImportar()">
                     <svg class="icon">
                         <use href="#icon-upload" />
                     </svg>
                     Restaurar
                 </button>
-
+                <button class="btn-export" onclick="UILogic.mostrarExportar()">
+                    <svg class="icon">
+                        <use href="#icon-download" />
+                    </svg>
+                    Descargar
+                </button>
                 <button class="btn-delete" onclick="DataManagement.borrarTodoHistorial()">
                     <svg class="icon">
                         <use href="#icon-trash" />
@@ -4566,7 +4564,8 @@
                     }
 
                     item.className = className;
-                    item.onclick = () => D.editarRegistro(r.id);
+                    item.dataset.registroId = r.id;
+                    item.dataset.accion = 'editar-registro';
 
                     const info = document.createElement('div');
                     info.className = 'registro-info';
@@ -4766,118 +4765,9 @@
                             }
                         });
 
-                        // Evento Click del Mes
-                        (function (header, detalle, chevronIcon, contenedor) {
-                            header.onclick = (e) => {
-                                e.stopPropagation();
-                                const estaExpandido = detalle.classList.contains('expanded');
-
-                                if (estaExpandido) {
-                                    // Cerrar
-                                    detalle.classList.remove('expanded');
-                                    chevronIcon.style.transform = 'rotate(0deg)';
-
-                                    // GUARDAR ESTADO AL CERRAR
-                                    try {
-                                        localStorage.setItem(`mes-${header.dataset.mesId}-expandido`, 'false');
-                                    } catch (e) { }
-                                } else {
-                                    // Abrir
-                                    const otrosMesesAbiertos = lista.querySelectorAll('.registro-mes-detalle.expanded');
-                                    const hayOtrosAbiertos = Array.from(otrosMesesAbiertos).some(otro => otro !== detalle);
-
-                                    if (hayOtrosAbiertos) {
-                                        // CALCULAR Y RESERVAR ALTURA ANTES DE CERRAR
-                                        otrosMesesAbiertos.forEach(otroDetalle => {
-                                            if (otroDetalle !== detalle) {
-                                                const alturaActual = otroDetalle.scrollHeight;
-
-                                                // Fijar altura actual como mínima temporalmente
-                                                otroDetalle.style.minHeight = `${alturaActual}px`;
-
-                                                // Cerrar visualmente
-                                                otroDetalle.classList.remove('expanded');
-                                                const otroContainer = otroDetalle.closest('.registro-mes-container');
-                                                const otroChevron = otroContainer?.querySelector('.chevron-mes');
-                                                const otroHeader = otroContainer?.querySelector('.registro-mes-header');
-
-                                                if (otroChevron) otroChevron.style.transform = 'rotate(0deg)';
-
-                                                // GUARDAR QUE SE CERRÓ
-                                                if (otroHeader && otroHeader.dataset.mesId) {
-                                                    try {
-                                                        localStorage.setItem(`mes-${otroHeader.dataset.mesId}-expandido`, 'false');
-                                                    } catch (e) { }
-                                                }
-
-                                                // LIBERAR LA ALTURA DESPUÉS DE LA ANIMACIÓN
-                                                setTimeout(() => {
-                                                    otroDetalle.style.minHeight = '';
-                                                }, 350); // 50ms después de la animación de 300ms
-                                            }
-                                        });
-
-                                        setTimeout(() => {
-                                            detalle.classList.add('expanded');
-                                            chevronIcon.style.transform = 'rotate(180deg)';
-
-                                            // GUARDAR QUE SE ABRIÓ
-                                            try {
-                                                localStorage.setItem(`mes-${header.dataset.mesId}-expandido`, 'true');
-                                            } catch (e) { }
-
-                                            setTimeout(() => {
-                                                const margenHeader = 80;
-                                                const alturaVentana = window.innerHeight;
-                                                const registros = detalle.querySelectorAll('.registro-item');
-
-                                                if (registros.length > 0) {
-                                                    const primerRegistro = registros[0];
-                                                    const rectPrimero = primerRegistro.getBoundingClientRect();
-                                                    const segundoRegistro = registros.length > 1 ? registros[1] : null;
-                                                    const rectSegundo = segundoRegistro ? segundoRegistro.getBoundingClientRect() : null;
-
-                                                    const primeroCortado = rectPrimero.top < margenHeader || rectPrimero.bottom > alturaVentana;
-                                                    const segundoCortado = rectSegundo && (rectSegundo.top < margenHeader || rectSegundo.bottom > alturaVentana);
-
-                                                    if (primeroCortado || segundoCortado) {
-                                                        contenedor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                                    }
-                                                }
-                                            }, 310);
-                                        }, 300);
-                                    } else {
-                                        detalle.classList.add('expanded');
-                                        chevronIcon.style.transform = 'rotate(180deg)';
-
-                                        // GUARDAR QUE SE ABRIÓ
-                                        try {
-                                            localStorage.setItem(`mes-${header.dataset.mesId}-expandido`, 'true');
-                                        } catch (e) { }
-
-                                        setTimeout(() => {
-                                            const margenHeader = 80;
-                                            const alturaVentana = window.innerHeight;
-                                            const registros = detalle.querySelectorAll('.registro-item');
-
-                                            if (registros.length > 0) {
-                                                const primerRegistro = registros[0];
-                                                const rectPrimero = primerRegistro.getBoundingClientRect();
-                                                const segundoRegistro = registros.length > 1 ? registros[1] : null;
-                                                const rectSegundo = segundoRegistro ? segundoRegistro.getBoundingClientRect() : null;
-
-                                                const primeroCortado = rectPrimero.top < margenHeader || rectPrimero.bottom > alturaVentana;
-                                                const segundoCortado = rectSegundo && (rectSegundo.top < margenHeader || rectSegundo.bottom > alturaVentana);
-
-                                                if (primeroCortado || segundoCortado) {
-                                                    contenedor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                                }
-                                            }
-                                        }, 310);
-                                    }
-                                }
-                            };
-                        })(headerMes, detalleMesActual, chevron, contenedorMesActual);
+                        // Preparar datos para event delegation
+                        headerMes.dataset.accion = 'toggle-mes';
+                        headerMes.dataset.mesContainer = claveMes; // ID único del mes
 
                         contenedorMesActual.appendChild(headerMes);
                         contenedorMesActual.appendChild(detalleMesActual);
@@ -4940,11 +4830,12 @@
                     info.appendChild(totalEl);
                     header.appendChild(info);
 
-                    // Abrir modal de edición
-                    header.onclick = (e) => {
-                        e.stopPropagation();
-                        D.editarGrupo(grupo);
-                    };
+                    // Preparar datos para event delegation
+                    header.dataset.accion = 'editar-grupo';
+                    header.dataset.grupoData = JSON.stringify({
+                        registros: grupo.registros.map(r => r.id),
+                        subtipo: grupo.subtipo
+                    });
 
                     container.appendChild(header);
                     return container;
@@ -7205,7 +7096,7 @@ Generado por Sistema Horarios
                     if (tf) tf.addEventListener('input', formatearInput);
 
                     // ===================================
-                    // 🆕 LISTENERS PARA TECLA ENTER
+                    // LISTENERS PARA TECLA ENTER
                     // ===================================
 
                     // A) Enter en campo Entrada → Pasa a Salida
@@ -7293,6 +7184,168 @@ Generado por Sistema Horarios
                     actualizarUI();
                     setInterval(() => actualizarUI(null, true), 60000);
                     console.log('Sistema iniciado correctamente v6.68');
+
+                    // ===================================
+                    // EVENT DELEGATION - LISTA REGISTROS
+                    // ===================================
+                    const lista = document.getElementById('lista-registros');
+                    if (lista) {
+                        lista.addEventListener('click', (e) => {
+                            // Buscar el elemento clickeado o su ancestro con data-accion
+                            const target = e.target.closest('[data-accion]');
+                            if (!target) return;
+
+                            const accion = target.dataset.accion;
+
+                            if (accion === 'editar-registro') {
+                                const id = target.dataset.registroId;
+                                if (id) D.editarRegistro(id);
+                            }
+                            else if (accion === 'editar-grupo') {
+                                try {
+                                    const grupoData = JSON.parse(target.dataset.grupoData);
+                                    const registrosCompletos = D.registros().filter(r =>
+                                        grupoData.registros.includes(r.id)
+                                    );
+
+                                    D.editarGrupo({
+                                        registros: registrosCompletos,
+                                        subtipo: grupoData.subtipo
+                                    });
+                                } catch (err) {
+                                    console.error('Error al abrir grupo:', err);
+                                }
+                            }
+                        });
+                    }
+
+                    // ===================================
+                    // EVENT DELEGATION - TOGGLE MESES
+                    // ===================================
+                    lista.addEventListener('click', (e) => {
+                        const header = e.target.closest('.registro-mes-header');
+                        if (!header || header.dataset.accion !== 'toggle-mes') return;
+
+                        e.stopPropagation();
+
+                        const contenedor = header.closest('.registro-mes-container');
+                        if (!contenedor) return;
+
+                        const detalle = contenedor.querySelector('.registro-mes-detalle');
+                        const chevronIcon = header.querySelector('.chevron-mes');
+
+                        const estaExpandido = detalle.classList.contains('expanded');
+
+                        if (estaExpandido) {
+                            // CERRAR
+                            detalle.classList.remove('expanded');
+                            chevronIcon.style.transform = 'rotate(0deg)';
+
+                            // Guardar estado
+                            try {
+                                localStorage.setItem(`mes-${header.dataset.mesId}-expandido`, 'false');
+                            } catch (e) { }
+
+                        } else {
+                            // ABRIR
+                            const otrosMesesAbiertos = lista.querySelectorAll('.registro-mes-detalle.expanded');
+                            const hayOtrosAbiertos = Array.from(otrosMesesAbiertos).some(otro => otro !== detalle);
+
+                            if (hayOtrosAbiertos) {
+                                // Calcular y reservar altura antes de cerrar
+                                otrosMesesAbiertos.forEach(otroDetalle => {
+                                    if (otroDetalle !== detalle) {
+                                        const alturaActual = otroDetalle.scrollHeight;
+
+                                        // Fijar altura actual como mínima temporalmente
+                                        otroDetalle.style.minHeight = `${alturaActual}px`;
+
+                                        // Cerrar visualmente
+                                        otroDetalle.classList.remove('expanded');
+                                        const otroContainer = otroDetalle.closest('.registro-mes-container');
+                                        const otroChevron = otroContainer?.querySelector('.chevron-mes');
+                                        const otroHeader = otroContainer?.querySelector('.registro-mes-header');
+
+                                        if (otroChevron) otroChevron.style.transform = 'rotate(0deg)';
+
+                                        // Guardar que se cerró
+                                        if (otroHeader && otroHeader.dataset.mesId) {
+                                            try {
+                                                localStorage.setItem(`mes-${otroHeader.dataset.mesId}-expandido`, 'false');
+                                            } catch (e) { }
+                                        }
+
+                                        // Liberar la altura después de la animación
+                                        setTimeout(() => {
+                                            otroDetalle.style.minHeight = '';
+                                        }, 350);
+                                    }
+                                });
+
+                                setTimeout(() => {
+                                    detalle.classList.add('expanded');
+                                    chevronIcon.style.transform = 'rotate(180deg)';
+
+                                    // Guardar que se abrió
+                                    try {
+                                        localStorage.setItem(`mes-${header.dataset.mesId}-expandido`, 'true');
+                                    } catch (e) { }
+
+                                    // Scroll inteligente
+                                    setTimeout(() => {
+                                        const margenHeader = 80;
+                                        const alturaVentana = window.innerHeight;
+                                        const registros = detalle.querySelectorAll('.registro-item');
+
+                                        if (registros.length > 0) {
+                                            const primerRegistro = registros[0];
+                                            const rectPrimero = primerRegistro.getBoundingClientRect();
+                                            const segundoRegistro = registros.length > 1 ? registros[1] : null;
+                                            const rectSegundo = segundoRegistro ? segundoRegistro.getBoundingClientRect() : null;
+
+                                            const primeroCortado = rectPrimero.top < margenHeader || rectPrimero.bottom > alturaVentana;
+                                            const segundoCortado = rectSegundo && (rectSegundo.top < margenHeader || rectSegundo.bottom > alturaVentana);
+
+                                            if (primeroCortado || segundoCortado) {
+                                                contenedor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                            }
+                                        }
+                                    }, 310);
+                                }, 300);
+
+                            } else {
+                                // No hay otros meses abiertos
+                                detalle.classList.add('expanded');
+                                chevronIcon.style.transform = 'rotate(180deg)';
+
+                                // Guardar que se abrió
+                                try {
+                                    localStorage.setItem(`mes-${header.dataset.mesId}-expandido`, 'true');
+                                } catch (e) { }
+
+                                // Scroll inteligente
+                                setTimeout(() => {
+                                    const margenHeader = 80;
+                                    const alturaVentana = window.innerHeight;
+                                    const registros = detalle.querySelectorAll('.registro-item');
+
+                                    if (registros.length > 0) {
+                                        const primerRegistro = registros[0];
+                                        const rectPrimero = primerRegistro.getBoundingClientRect();
+                                        const segundoRegistro = registros.length > 1 ? registros[1] : null;
+                                        const rectSegundo = segundoRegistro ? segundoRegistro.getBoundingClientRect() : null;
+
+                                        const primeroCortado = rectPrimero.top < margenHeader || rectPrimero.bottom > alturaVentana;
+                                        const segundoCortado = rectSegundo && (rectSegundo.top < margenHeader || rectSegundo.bottom > alturaVentana);
+
+                                        if (primeroCortado || segundoCortado) {
+                                            contenedor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                        }
+                                    }
+                                }, 310);
+                            }
+                        }
+                    });
 
                     // Listeners Lote
                     const loteDesde = document.getElementById('lote-fecha-desde');
@@ -7578,9 +7631,9 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //             CAMBIOS REALIZADOS EN ESTA VERSION 7.04
+    //             CAMBIOS REALIZADOS EN ESTA VERSION 7.05
     // ====================================================================
-    1) Cambio de colores modo oscuro
+    1) Se realizan mejora de rendimiento con event delegation
 
 
     -->
