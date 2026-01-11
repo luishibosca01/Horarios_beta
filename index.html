@@ -1497,7 +1497,7 @@
                     </svg>
                     Ajustes
                 </span>
-                <span class="version-text">v7.05</span>
+                <span class="version-text">v7.06</span>
             </h3>
             <div class="form-group">
                 <label>Horas Diarias</label>
@@ -4284,6 +4284,21 @@
             // UI LOGIC MODULE
             // ====================================================================
             const UILogic = (function (S, D) {
+
+                // ====================================================================
+                // FUNCIÓN DEBOUNCE REUTILIZABLE
+                // ====================================================================
+                function debounce(func, wait) {
+                    let timeout;
+                    return function executedFunction(...args) {
+                        const later = () => {
+                            clearTimeout(timeout);
+                            func(...args);
+                        };
+                        clearTimeout(timeout);
+                        timeout = setTimeout(later, wait);
+                    };
+                }
 
                 function mostrarError(inputId, errorId) {
                     const input = $(inputId);
@@ -7074,19 +7089,19 @@ Generado por Sistema Horarios
                         if (el) el.addEventListener('input', formatearInput);
                     });
 
-                    // B) Inputs del Modal Editar (Formato + Verificación EN VIVO)
+                    // B) Inputs del Modal Editar (Formato + Verificación OPTIMIZADA)
+                    const verificarBloqueCreditoDebounced = debounce(verificarBloqueoCredito, 200);
+
                     ['edit-entrada', 'edit-salida'].forEach(id => {
                         const el = document.getElementById(id);
                         if (el) {
-                            // Usamos un listener unificado para garantizar el orden
+                            // Input: formato inmediato + validación debounced
                             el.addEventListener('input', (e) => {
-                                // 1. Primero ponemos los dos puntos (formato)
-                                formatearInput(e);
-                                // 2. INMEDIATAMENTE verificamos si se habilita el botón
-                                verificarBloqueoCredito();
+                                formatearInput(e); // Inmediato (visual)
+                                verificarBloqueCreditoDebounced(); // Debounced (lógica)
                             });
 
-                            // Listener extra para cuando pegas texto o autocompletas
+                            // Change: validación inmediata al perder foco
                             el.addEventListener('change', verificarBloqueoCredito);
                         }
                     });
@@ -7350,10 +7365,12 @@ Generado por Sistema Horarios
                     // Listeners Lote
                     const loteDesde = document.getElementById('lote-fecha-desde');
                     const loteHasta = document.getElementById('lote-fecha-hasta');
+                    const actualizarBotonLoteDebounced = debounce(actualizarBotonLote, 300);
+
                     const agregarListenersFecha = (el) => {
                         if (!el) return;
-                        el.addEventListener('change', () => actualizarBotonLote());
-                        el.addEventListener('input', () => actualizarBotonLote());
+                        el.addEventListener('change', () => actualizarBotonLote()); // Inmediato
+                        el.addEventListener('input', () => actualizarBotonLoteDebounced()); // Debounced
                     };
                     agregarListenersFecha(loteDesde);
                     agregarListenersFecha(loteHasta);
@@ -7631,9 +7648,9 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //             CAMBIOS REALIZADOS EN ESTA VERSION 7.05
+    //             CAMBIOS REALIZADOS EN ESTA VERSION 7.07
     // ====================================================================
-    1) Se realizan mejora de rendimiento con event delegation
+    1) Se agrega funcion debounce
 
 
     -->
