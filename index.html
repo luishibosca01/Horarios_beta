@@ -672,7 +672,19 @@
             from {
                 opacity: 0;
                 filter: blur(5px);
-                background-color: var(--c-green)
+            }
+
+            to {
+                opacity: 1;
+                filter: blur(0);
+            }
+        }
+
+        @keyframes fade-blur-green {
+            from {
+                opacity: 0;
+                filter: blur(5px);
+                background-color: var(--c-green);
             }
 
             to {
@@ -789,7 +801,7 @@
         /* Animación al crear y eliminar registro */
 
         .nuevo-registro-animacion {
-            animation: fade-blur 0.5s ease-out forwards;
+            animation: fade-blur-green 0.5s ease-out forwards;
             transform-origin: center;
             z-index: 10;
             position: relative;
@@ -1055,6 +1067,19 @@
             border: 1px solid var(--c-green);
             font-weight: bold;
             transform: scale(1.1);
+        }
+
+        /* Animación para valores de estadísticas */
+        .stat-value {
+            transition: opacity 0.3s ease-out;
+        }
+
+        .stat-value.fade-out {
+            opacity: 0;
+        }
+
+        .stat-value.fade-in {
+            animation: fade-blur 0.3s ease-out forwards;
         }
     </style>
 </head>
@@ -1497,7 +1522,7 @@
                     </svg>
                     Ajustes
                 </span>
-                <span class="version-text">v7.06</span>
+                <span class="version-text">v7.07</span>
             </h3>
             <div class="form-group">
                 <label>Horas Diarias</label>
@@ -2985,14 +3010,11 @@
                     // Verificamos si estamos en el perfil 'default' (el principal)
                     const esPerfilDefault = window.PerfilManager && PerfilManager.obtenerPerfilActual() === 'default';
                     // 1. Guardado Legacy (Compatibilidad hacia atrás)
-                    // SOLO guardamos en la clave raíz 'registros' si estamos en el perfil default.
-                    // Esto evita que un perfil secundario sobrescriba tu backup principal.
                     if (actualizarRegistros && esPerfilDefault) {
                         saveSuccessful = await guardarConIntegridad(registros);
                     }
 
-                    // 2. Guardado del Sistema de Perfiles (El nuevo estándar)
-                    // Esto guarda SIEMPRE, sin importar qué perfil sea.
+                    // 2. Guardado del Sistema de Perfiles
                     if (window.PerfilManager) {
                         PerfilManager.guardarDatosPerfilActual();
                     }
@@ -3642,7 +3664,7 @@
                 }
 
                 function exportarJSON() {
-                    // 🆕 Generar fecha local en formato YYYY-MM-DD HH:MM:SS
+                    //  Generar fecha local en formato YYYY-MM-DD HH:MM:SS
                     const ahora = new Date();
                     const año = ahora.getFullYear();
                     const mes = String(ahora.getMonth() + 1).padStart(2, '0');
@@ -3674,7 +3696,7 @@
                         }
                         const nombreSafe = nombrePerfil.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ'\-_ ]/g, '').trim().replace(/\s+/g, '_');
 
-                        // 🆕 Usar también fecha local para el nombre del archivo
+                        //  Usar también fecha local para el nombre del archivo
                         const fechaHoy = `${año}-${mes}-${dia}`;
 
                         a.download = `Horarios_${nombreSafe}_${fechaHoy}.json`;
@@ -4719,7 +4741,7 @@
                         const detalleMesActual = document.createElement('div');
                         detalleMesActual.className = 'registro-mes-detalle';
 
-                        // 🆕 LÓGICA DE APERTURA CON LOCALSTORAGE
+                        //  LÓGICA DE APERTURA CON LOCALSTORAGE
                         let debeEstarExpandido = false;
 
                         try {
@@ -5009,6 +5031,7 @@
 
                 function actualizarEstadisticas(mesAnio = null) {
                     const selectMes = $('select-mes-stats');
+                    const statsGrid = document.querySelector('#form-stats .stats-grid');
 
                     // Si no se especifica mes, usar el seleccionado (o el actual como fallback)
                     if (!mesAnio && selectMes) {
@@ -5024,67 +5047,120 @@
                         });
 
                         if (registrosDelMes.length === 0) {
-                            // El mes seleccionado ya no tiene registros, volver al actual
                             const hoy = new Date();
                             mesAnio = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
                             if (selectMes) selectMes.value = mesAnio;
                         }
                     }
 
-                    const stats = calcularEstadisticasMes(mesAnio);
-
-                    const elEntrada = $('stat-entrada-promedio');
-                    const elSalida = $('stat-salida-promedio');
-                    const elDias = $('stat-dias-trabajados');
-                    const elPromedio = $('stat-promedio-diario');
-                    const elSemanaPasada = $('stat-semana-pasada');
-                    const elTiempoFueraTotal = $('stat-tiempo-fuera-total');
-                    const elFeriados = $('stat-feriados');
-                    const elAusencias = $('stat-ausencias');
-                    const elVacaciones = $('stat-vacaciones');
-                    const elEnfermedades = $('stat-enfermedades');
-                    const elAsuetosDia = $('stat-asuetos-dia');
-                    const elCompensaciones = $('stat-compensaciones');
-
-                    if (elEntrada) elEntrada.textContent = stats.entradaPromedio;
-                    if (elSalida) elSalida.textContent = stats.salidaPromedio;
-                    if (elDias) elDias.textContent = stats.diasTrabajados;
-                    if (elPromedio) elPromedio.textContent = stats.promedioDiario;
-                    if (elSemanaPasada) elSemanaPasada.textContent = stats.semanaPasada;
-                    if (elTiempoFueraTotal) elTiempoFueraTotal.textContent = stats.tiempoFueraTotal;
-
-                    // Ocultar/Mostrar items según valor
-                    const toggleStatItem = (element, value) => {
-                        if (!element) return;
-                        const statItem = element.closest('.stat-item');
-                        if (statItem) {
-                            if (value === 0) {
-                                statItem.style.display = 'none';
-                            } else {
-                                statItem.style.display = '';
-                                element.textContent = value;
-                            }
-                        }
-                    };
-
-                    toggleStatItem(elFeriados, stats.feriados);
-                    toggleStatItem(elAusencias, stats.ausencias);
-                    toggleStatItem(elVacaciones, stats.vacaciones);
-                    toggleStatItem(elEnfermedades, stats.enfermedades);
-                    toggleStatItem(elAsuetosDia, stats.asuetosDiaCompleto);
-                    toggleStatItem(elCompensaciones, stats.compensaciones);
-
-                    // Ocultar Tiempo Fuera si es 0
-                    if (elTiempoFueraTotal) {
-                        const statItem = elTiempoFueraTotal.closest('.stat-item');
-                        if (statItem) {
-                            if (stats.tiempoFueraTotal === '0h 0m') {
-                                statItem.style.display = 'none';
-                            } else {
-                                statItem.style.display = '';
-                            }
-                        }
+                    // CAPTURAR ALTURA ACTUAL ANTES DE HACER CAMBIOS
+                    let alturaAnterior = 0;
+                    if (statsGrid) {
+                        alturaAnterior = statsGrid.offsetHeight;
                     }
+
+                    // FADE OUT: Ocultar todos los valores antes de cambiarlos
+                    const todosLosValores = statsGrid.querySelectorAll('.stat-value');
+                    todosLosValores.forEach(el => {
+                        el.classList.add('fade-out');
+                    });
+
+                    // Esperar a que termine el fade out antes de cambiar los valores
+                    setTimeout(() => {
+                        const stats = calcularEstadisticasMes(mesAnio);
+
+                        const elEntrada = $('stat-entrada-promedio');
+                        const elSalida = $('stat-salida-promedio');
+                        const elDias = $('stat-dias-trabajados');
+                        const elPromedio = $('stat-promedio-diario');
+                        const elSemanaPasada = $('stat-semana-pasada');
+                        const elTiempoFueraTotal = $('stat-tiempo-fuera-total');
+                        const elFeriados = $('stat-feriados');
+                        const elAusencias = $('stat-ausencias');
+                        const elVacaciones = $('stat-vacaciones');
+                        const elEnfermedades = $('stat-enfermedades');
+                        const elAsuetosDia = $('stat-asuetos-dia');
+                        const elCompensaciones = $('stat-compensaciones');
+
+                        if (elEntrada) elEntrada.textContent = stats.entradaPromedio;
+                        if (elSalida) elSalida.textContent = stats.salidaPromedio;
+                        if (elDias) elDias.textContent = stats.diasTrabajados;
+                        if (elPromedio) elPromedio.textContent = stats.promedioDiario;
+                        if (elSemanaPasada) elSemanaPasada.textContent = stats.semanaPasada;
+                        if (elTiempoFueraTotal) elTiempoFueraTotal.textContent = stats.tiempoFueraTotal;
+
+                        // Ocultar/Mostrar items según valor
+                        const toggleStatItem = (element, value) => {
+                            if (!element) return;
+                            const statItem = element.closest('.stat-item');
+                            if (statItem) {
+                                if (value === 0) {
+                                    statItem.style.display = 'none';
+                                } else {
+                                    statItem.style.display = '';
+                                    element.textContent = value;
+                                }
+                            }
+                        };
+
+                        toggleStatItem(elFeriados, stats.feriados);
+                        toggleStatItem(elAusencias, stats.ausencias);
+                        toggleStatItem(elVacaciones, stats.vacaciones);
+                        toggleStatItem(elEnfermedades, stats.enfermedades);
+                        toggleStatItem(elAsuetosDia, stats.asuetosDiaCompleto);
+                        toggleStatItem(elCompensaciones, stats.compensaciones);
+
+                        // Ocultar Tiempo Fuera si es 0
+                        if (elTiempoFueraTotal) {
+                            const statItem = elTiempoFueraTotal.closest('.stat-item');
+                            if (statItem) {
+                                if (stats.tiempoFueraTotal === '0h 0m') {
+                                    statItem.style.display = 'none';
+                                } else {
+                                    statItem.style.display = '';
+                                }
+                            }
+                        }
+
+                        // FADE IN: Mostrar los nuevos valores con animación
+                        requestAnimationFrame(() => {
+                            todosLosValores.forEach(el => {
+                                el.classList.remove('fade-out');
+                                el.classList.add('fade-in');
+                            });
+
+                            // Limpiar clase después de la animación
+                            setTimeout(() => {
+                                todosLosValores.forEach(el => {
+                                    el.classList.remove('fade-in');
+                                });
+                            }, 300);
+                        });
+
+                        // ANIMACIÓN SUAVE SI CAMBIÓ LA ALTURA
+                        if (statsGrid && alturaAnterior > 0) {
+                            requestAnimationFrame(() => {
+                                const alturaNueva = statsGrid.offsetHeight;
+
+                                if (Math.abs(alturaNueva - alturaAnterior) > 5) {
+                                    statsGrid.style.height = `${alturaAnterior}px`;
+                                    statsGrid.style.overflow = 'hidden';
+                                    statsGrid.style.transition = 'none';
+
+                                    statsGrid.offsetHeight;
+
+                                    statsGrid.style.transition = 'height 0.3s ease-out';
+                                    statsGrid.style.height = `${alturaNueva}px`;
+
+                                    setTimeout(() => {
+                                        statsGrid.style.height = '';
+                                        statsGrid.style.overflow = '';
+                                        statsGrid.style.transition = '';
+                                    }, 300);
+                                }
+                            });
+                        }
+                    }, 300); // Espera de fade-out
                 }
 
                 function actualizarUI(idNuevo = null, soloReloj = false) {
@@ -5927,13 +6003,13 @@ REPORTE DE HORAS TRABAJADAS
 
                                 seccion += '\n\n';
 
-                                // 🆕 Guardar info de semana incompleta
+                                //  Guardar info de semana incompleta
                                 if (esIncompleta && continuaEn) {
                                     semanasIncompletas.push(`* Semana ${index + 1}: ${continuaEn}`);
                                 }
                             });
 
-                            // 🆕 Agregar notas de semanas incompletas al final
+                            //  Agregar notas de semanas incompletas al final
                             if (semanasIncompletas.length > 0) {
                                 seccion += semanasIncompletas.join('\n') + '\n';
                             }
@@ -6280,7 +6356,7 @@ Generado por Sistema Horarios
 
                     const perfiles = JSON.parse(localStorage.getItem('perfiles') || '{}');
 
-                    // 🆕 VALIDACIÓN DE NOMBRE DUPLICADO (case-insensitive)
+                    //  VALIDACIÓN DE NOMBRE DUPLICADO (case-insensitive)
                     const nombreNormalizado = nombre.toLowerCase().trim();
                     const nombreExiste = Object.values(perfiles).some(perfil =>
                         perfil.nombre.toLowerCase().trim() === nombreNormalizado
@@ -7391,7 +7467,7 @@ Generado por Sistema Horarios
                             const btnReemplazar = document.getElementById('btn-reemplazar');
 
                             if (e.target.files.length > 0) {
-                                // ✅ Mostrar nombre del archivo
+                                // Mostrar nombre del archivo
                                 if (nombreEl) {
                                     const nombreArchivo = e.target.files[0].name;
                                     nombreEl.textContent = `✓ ${nombreArchivo}`;
@@ -7650,7 +7726,7 @@ Generado por Sistema Horarios
 <!--// ====================================================================
     //             CAMBIOS REALIZADOS EN ESTA VERSION 7.07
     // ====================================================================
-    1) Se agrega funcion debounce
+    1) Se agrega animacion a la tarjeta de estadisticas
 
 
     -->
