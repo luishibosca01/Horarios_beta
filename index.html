@@ -5047,6 +5047,7 @@
                         });
 
                         if (registrosDelMes.length === 0) {
+                            // El mes seleccionado ya no tiene registros, volver al actual
                             const hoy = new Date();
                             mesAnio = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
                             if (selectMes) selectMes.value = mesAnio;
@@ -5059,108 +5060,89 @@
                         alturaAnterior = statsGrid.offsetHeight;
                     }
 
-                    // FADE OUT: Ocultar todos los valores antes de cambiarlos
-                    const todosLosValores = statsGrid.querySelectorAll('.stat-value');
-                    todosLosValores.forEach(el => {
-                        el.classList.add('fade-out');
-                    });
+                    const stats = calcularEstadisticasMes(mesAnio);
 
-                    // Esperar a que termine el fade out antes de cambiar los valores
-                    setTimeout(() => {
-                        const stats = calcularEstadisticasMes(mesAnio);
+                    const elEntrada = $('stat-entrada-promedio');
+                    const elSalida = $('stat-salida-promedio');
+                    const elDias = $('stat-dias-trabajados');
+                    const elPromedio = $('stat-promedio-diario');
+                    const elSemanaPasada = $('stat-semana-pasada');
+                    const elTiempoFueraTotal = $('stat-tiempo-fuera-total');
+                    const elFeriados = $('stat-feriados');
+                    const elAusencias = $('stat-ausencias');
+                    const elVacaciones = $('stat-vacaciones');
+                    const elEnfermedades = $('stat-enfermedades');
+                    const elAsuetosDia = $('stat-asuetos-dia');
+                    const elCompensaciones = $('stat-compensaciones');
 
-                        const elEntrada = $('stat-entrada-promedio');
-                        const elSalida = $('stat-salida-promedio');
-                        const elDias = $('stat-dias-trabajados');
-                        const elPromedio = $('stat-promedio-diario');
-                        const elSemanaPasada = $('stat-semana-pasada');
-                        const elTiempoFueraTotal = $('stat-tiempo-fuera-total');
-                        const elFeriados = $('stat-feriados');
-                        const elAusencias = $('stat-ausencias');
-                        const elVacaciones = $('stat-vacaciones');
-                        const elEnfermedades = $('stat-enfermedades');
-                        const elAsuetosDia = $('stat-asuetos-dia');
-                        const elCompensaciones = $('stat-compensaciones');
+                    if (elEntrada) elEntrada.textContent = stats.entradaPromedio;
+                    if (elSalida) elSalida.textContent = stats.salidaPromedio;
+                    if (elDias) elDias.textContent = stats.diasTrabajados;
+                    if (elPromedio) elPromedio.textContent = stats.promedioDiario;
+                    if (elSemanaPasada) elSemanaPasada.textContent = stats.semanaPasada;
+                    if (elTiempoFueraTotal) elTiempoFueraTotal.textContent = stats.tiempoFueraTotal;
 
-                        if (elEntrada) elEntrada.textContent = stats.entradaPromedio;
-                        if (elSalida) elSalida.textContent = stats.salidaPromedio;
-                        if (elDias) elDias.textContent = stats.diasTrabajados;
-                        if (elPromedio) elPromedio.textContent = stats.promedioDiario;
-                        if (elSemanaPasada) elSemanaPasada.textContent = stats.semanaPasada;
-                        if (elTiempoFueraTotal) elTiempoFueraTotal.textContent = stats.tiempoFueraTotal;
-
-                        // Ocultar/Mostrar items según valor
-                        const toggleStatItem = (element, value) => {
-                            if (!element) return;
-                            const statItem = element.closest('.stat-item');
-                            if (statItem) {
-                                if (value === 0) {
-                                    statItem.style.display = 'none';
-                                } else {
-                                    statItem.style.display = '';
-                                    element.textContent = value;
-                                }
-                            }
-                        };
-
-                        toggleStatItem(elFeriados, stats.feriados);
-                        toggleStatItem(elAusencias, stats.ausencias);
-                        toggleStatItem(elVacaciones, stats.vacaciones);
-                        toggleStatItem(elEnfermedades, stats.enfermedades);
-                        toggleStatItem(elAsuetosDia, stats.asuetosDiaCompleto);
-                        toggleStatItem(elCompensaciones, stats.compensaciones);
-
-                        // Ocultar Tiempo Fuera si es 0
-                        if (elTiempoFueraTotal) {
-                            const statItem = elTiempoFueraTotal.closest('.stat-item');
-                            if (statItem) {
-                                if (stats.tiempoFueraTotal === '0h 0m') {
-                                    statItem.style.display = 'none';
-                                } else {
-                                    statItem.style.display = '';
-                                }
+                    // Ocultar/Mostrar items según valor
+                    const toggleStatItem = (element, value) => {
+                        if (!element) return;
+                        const statItem = element.closest('.stat-item');
+                        if (statItem) {
+                            if (value === 0) {
+                                statItem.style.display = 'none';
+                            } else {
+                                statItem.style.display = '';
+                                element.textContent = value;
                             }
                         }
+                    };
 
-                        // FADE IN: Mostrar los nuevos valores con animación
+                    toggleStatItem(elFeriados, stats.feriados);
+                    toggleStatItem(elAusencias, stats.ausencias);
+                    toggleStatItem(elVacaciones, stats.vacaciones);
+                    toggleStatItem(elEnfermedades, stats.enfermedades);
+                    toggleStatItem(elAsuetosDia, stats.asuetosDiaCompleto);
+                    toggleStatItem(elCompensaciones, stats.compensaciones);
+
+                    // Ocultar Tiempo Fuera si es 0
+                    if (elTiempoFueraTotal) {
+                        const statItem = elTiempoFueraTotal.closest('.stat-item');
+                        if (statItem) {
+                            if (stats.tiempoFueraTotal === '0h 0m') {
+                                statItem.style.display = 'none';
+                            } else {
+                                statItem.style.display = '';
+                            }
+                        }
+                    }
+
+                    // ANIMACIÓN SUAVE SI CAMBIÓ LA ALTURA
+                    if (statsGrid && alturaAnterior > 0) {
                         requestAnimationFrame(() => {
-                            todosLosValores.forEach(el => {
-                                el.classList.remove('fade-out');
-                                el.classList.add('fade-in');
-                            });
+                            const alturaNueva = statsGrid.offsetHeight;
 
-                            // Limpiar clase después de la animación
-                            setTimeout(() => {
-                                todosLosValores.forEach(el => {
-                                    el.classList.remove('fade-in');
-                                });
-                            }, 300);
+                            // Solo animar si hay cambio significativo (más de 5px)
+                            if (Math.abs(alturaNueva - alturaAnterior) > 5) {
+                                // Fijar altura actual temporalmente
+                                statsGrid.style.height = `${alturaAnterior}px`;
+                                statsGrid.style.overflow = 'hidden';
+                                statsGrid.style.transition = 'none';
+
+                                // Forzar reflow
+                                statsGrid.offsetHeight;
+
+                                // Activar transición y cambiar a nueva altura
+                                statsGrid.style.transition = 'height 0.3s ease-out';
+                                statsGrid.style.height = `${alturaNueva}px`;
+
+                                // Limpiar estilos después de la animación
+                                setTimeout(() => {
+                                    statsGrid.style.height = '';
+                                    statsGrid.style.overflow = '';
+                                    statsGrid.style.transition = '';
+                                }, 300);
+                            }
                         });
-
-                        // ANIMACIÓN SUAVE SI CAMBIÓ LA ALTURA
-                        if (statsGrid && alturaAnterior > 0) {
-                            requestAnimationFrame(() => {
-                                const alturaNueva = statsGrid.offsetHeight;
-
-                                if (Math.abs(alturaNueva - alturaAnterior) > 5) {
-                                    statsGrid.style.height = `${alturaAnterior}px`;
-                                    statsGrid.style.overflow = 'hidden';
-                                    statsGrid.style.transition = 'none';
-
-                                    statsGrid.offsetHeight;
-
-                                    statsGrid.style.transition = 'height 0.3s ease-out';
-                                    statsGrid.style.height = `${alturaNueva}px`;
-
-                                    setTimeout(() => {
-                                        statsGrid.style.height = '';
-                                        statsGrid.style.overflow = '';
-                                        statsGrid.style.transition = '';
-                                    }, 300);
-                                }
-                            });
-                        }
-                    }, 300); // Espera de fade-out
+                    }
                 }
 
                 function actualizarUI(idNuevo = null, soloReloj = false) {
