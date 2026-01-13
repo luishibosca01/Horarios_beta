@@ -1333,6 +1333,7 @@
                                     <option value="vacaciones">🏖️ Vacaciones (12:12)</option>
                                     <option value="asueto">🎁 Asueto (13:13)</option>
                                     <option value="enfermedad">🏥 Enfermedad (14:14)</option>
+                                    <option value="paro">📢 Paro (15:15)</option>
                                     <option value="normal">🕒 Normales (borrar)</option>
                                 </select>
                                 <button class="time-btn" onclick="UILogic.toggleModoLote()" title="Volver a modo normal"
@@ -1391,7 +1392,7 @@
                         </div>
                         <div class="stats-grid" style="padding-right: 0.5rem;">
                             <div class="stat-item">
-                                <div class="stat-label">Jornadas Completas</div>
+                                <div class="stat-label">Jornadas</div>
                                 <div class="stat-value" id="stat-dias-trabajados">0</div>
                             </div>
                             <div class="stat-item">
@@ -1413,6 +1414,10 @@
                             <div class="stat-item">
                                 <div class="stat-label">Asuetos</div>
                                 <div class="stat-value" id="stat-asuetos-dia">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Paros</div>
+                                <div class="stat-value" id="stat-paros">0</div>
                             </div>
                             <div class="stat-item">
                                 <div class="stat-label">Salidas Temprano</div>
@@ -1774,6 +1779,7 @@
                     <option value="vacaciones">🏖️ Vacaciones</option>
                     <option value="enfermedad">🏥 Enfermedades</option>
                     <option value="asueto">🎁 Asuetos</option>
+                    <option value="paro">📢 Paros</option>
                 </select>
             </div>
             <div class="btn-group">
@@ -1899,6 +1905,7 @@
                         <option value="vacaciones">🏖️ Vacaciones</option>
                         <option value="asueto">🎁 Asueto</option>
                         <option value="enfermedad">🏥 Enfermedad</option>
+                        <option value="paro">📢 Paro</option>
                     </select>
                     <button class="time-btn" id="btn-lock-grupo-toggle" onclick="UILogic.toggleBloqueoEdicionGrupo()"
                         title="Desbloquear edición">
@@ -2580,6 +2587,16 @@
                         label: 'Enfermedad',
                         labelPlural: 'Enfermedades',
                         descripcion: 'Enfermedad justificada',
+                        color: 'purple',
+                        contabiliza: true
+                    },
+                    PARO: {
+                        id: 'paro',
+                        codigo: '15:15',
+                        emoji: '📢',
+                        label: 'Paro',
+                        labelPlural: 'Paros',
+                        descripcion: 'Fuerza Mayor',
                         color: 'purple',
                         contabiliza: true
                     }
@@ -4884,6 +4901,7 @@
                     const vacaciones = contarPorTipo('vacaciones');
                     const enfermedades = contarPorTipo('enfermedad');
                     const asuetosDiaCompleto = contarPorTipo('asueto');
+                    const paros = contarPorTipo('paro');
 
                     // Contar Compensaciones/Asuetos parciales (días con crédito válido)
                     const compensaciones = registrosMes.filter(r => r.credito && r.credito !== '00:00').length;
@@ -4919,7 +4937,8 @@
                             vacaciones: vacaciones,
                             enfermedades: enfermedades,
                             asuetosDiaCompleto: asuetosDiaCompleto,
-                            compensaciones: compensaciones
+                            compensaciones: compensaciones,
+                            paros: paros
                         };
                     }
 
@@ -4972,35 +4991,69 @@
                     const inicioSemanaPasada = `${lunesPasado.getFullYear()}-${String(lunesPasado.getMonth() + 1).padStart(2, '0')}-${String(lunesPasado.getDate()).padStart(2, '0')}`;
                     const finSemanaPasada = `${domingoPasado.getFullYear()}-${String(domingoPasado.getMonth() + 1).padStart(2, '0')}-${String(domingoPasado.getDate()).padStart(2, '0')}`;
 
-                    // Filtrar registros de semana pasada (SOLO registros normales)
-                    const registrosSemanaPasada = D.registros().filter(r => {
+                    // Filtrar TODOS los registros de semana pasada
+                    const todosRegistrosSemanaPasada = D.registros().filter(r =>
+                        r.fecha >= inicioSemanaPasada && r.fecha <= finSemanaPasada
+                    );
+
+                    // Separar normales de especiales
+                    const normalesSemanaPasada = todosRegistrosSemanaPasada.filter(r => {
                         const esEspecial = TiposRegistro.esRegistroEspecial(r.entrada, r.salida);
-                        const esNormal = r.entrada && r.salida && !esEspecial;
-
-                        const dentroDelRango = r.fecha >= inicioSemanaPasada && r.fecha <= finSemanaPasada;
-
-                        return dentroDelRango && esNormal;
+                        return r.entrada && r.salida && !esEspecial;
                     });
 
-                    // Sumar horas
-                    const totalSemanaPasada = registrosSemanaPasada.reduce((sum, r) => sum + r.total, 0);
+                    const especialesSemanaPasada = todosRegistrosSemanaPasada.filter(r =>
+                        TiposRegistro.esRegistroEspecial(r.entrada, r.salida)
+                    );
+
+                    // Contar tipos especiales
+                    const especialesPorTipo = {};
+                    especialesSemanaPasada.forEach(r => {
+                        const tipo = TiposRegistro.obtenerTipoPorCodigo(r.entrada, r.salida);
+                        if (tipo) {
+                            if (!especialesPorTipo[tipo.labelPlural]) {
+                                especialesPorTipo[tipo.labelPlural] = 0;
+                            }
+                            especialesPorTipo[tipo.labelPlural]++;
+                        }
+                    });
+
+                    // Sumar horas trabajadas
+                    const totalSemanaPasada = normalesSemanaPasada.reduce((sum, r) => sum + r.total, 0);
                     const hSemanaPasada = Math.floor(totalSemanaPasada);
                     const mSemanaPasada = Math.round((totalSemanaPasada - hSemanaPasada) * 60);
 
+                    // Construir texto con detalles
+                    let textoSemanaPasada = `${hSemanaPasada}h ${mSemanaPasada}m`;
 
+                    if (Object.keys(especialesPorTipo).length > 0) {
+                        const detalles = Object.entries(especialesPorTipo)
+                            .map(([tipoPlural, cant]) => {
+                                // Buscar el tipo original para obtener tanto singular como plural
+                                const tipoObj = TiposRegistro.obtenerTodosLosTipos().find(t =>
+                                    t.labelPlural.toLowerCase() === tipoPlural.toLowerCase()
+                                );
+
+                                const label = (cant === 1 && tipoObj) ? tipoObj.label : tipoPlural;
+                                return `${cant} ${label.toLowerCase()}`;
+                            })
+                            .join(', ');
+                        textoSemanaPasada += ` [${detalles}]`;
+                    }
                     return {
                         entradaPromedio: `${String(hEntrada).padStart(2, '0')}:${String(mEntrada).padStart(2, '0')}`,
                         salidaPromedio: `${String(hSalida).padStart(2, '0')}:${String(mSalida).padStart(2, '0')}`,
                         diasTrabajados: registrosValidos.length,
                         promedioDiario: `${hPromedio}h ${mPromedio}m`,
                         tiempoFueraTotal: `${hTiempoFuera}h ${mTiempoFuera}m`,
-                        semanaPasada: `${hSemanaPasada}h ${mSemanaPasada}m`,
+                        semanaPasada: textoSemanaPasada,
                         feriados: feriados,
                         ausencias: ausencias,
                         vacaciones: vacaciones,
                         enfermedades: enfermedades,
                         asuetosDiaCompleto: asuetosDiaCompleto,
-                        compensaciones: compensaciones
+                        compensaciones: compensaciones,
+                        paros: paros
                     };
                 }
 
@@ -5042,6 +5095,7 @@
                     const elEnfermedades = $('stat-enfermedades');
                     const elAsuetosDia = $('stat-asuetos-dia');
                     const elCompensaciones = $('stat-compensaciones');
+                    const elParos = $('stat-paros');
 
                     if (elEntrada) elEntrada.textContent = stats.entradaPromedio;
                     if (elSalida) elSalida.textContent = stats.salidaPromedio;
@@ -5070,6 +5124,7 @@
                     toggleStatItem(elEnfermedades, stats.enfermedades);
                     toggleStatItem(elAsuetosDia, stats.asuetosDiaCompleto);
                     toggleStatItem(elCompensaciones, stats.compensaciones);
+                    toggleStatItem(elParos, stats.paros);
 
                     // Ocultar Tiempo Fuera si es 0
                     if (elTiempoFueraTotal) {
@@ -5671,9 +5726,9 @@
                     const selectMes = $('select-mes-stats');
                     const formStats = $('form-stats');
                     const icon = $('icon-indicator-stats');
-                    
+
                     // Seleccionamos el contenedor principal de la app
-                    const mainContainer = document.querySelector('.container'); 
+                    const mainContainer = document.querySelector('.container');
 
                     if (!selectMes || !formStats) return;
 
@@ -5687,7 +5742,7 @@
 
                     // 2. Iniciamos la contracción (La tarjeta se hará pequeña visualmente)
                     formStats.classList.remove('expanded');
-                    if(icon) icon.classList.remove('rotated');
+                    if (icon) icon.classList.remove('rotated');
 
                     // 3. Esperamos a que termine la animación de cierre (300ms)
                     setTimeout(() => {
@@ -5696,16 +5751,16 @@
 
                         // 4. Volvemos a expandir
                         formStats.classList.add('expanded');
-                        if(icon) icon.classList.add('rotated');
+                        if (icon) icon.classList.add('rotated');
 
                         // 5. Una vez terminada la animación de apertura, liberamos la altura de la página
                         setTimeout(() => {
                             if (mainContainer) {
                                 mainContainer.style.minHeight = '';
                             }
-                        }, 350); 
+                        }, 350);
 
-                    }, 350); 
+                    }, 350);
                 }
 
                 function generarReporte() {
@@ -5757,13 +5812,14 @@ REPORTE DE HORAS TRABAJADAS
 📈 RESUMEN GENERAL
 ────────────────────────────────────────────────────────────────
 
-   • Jornadas completas:     ${stats.diasTrabajados}
+   • Jornadas:               ${stats.diasTrabajados}
    • Feriados:               ${stats.feriados}
    • Ausencias:              ${stats.ausencias}
    • Vacaciones:             ${stats.vacaciones}
    • Enfermedades:           ${stats.enfermedades}
    • Asuetos:                ${stats.asuetosDiaCompleto}
    • Salidas Temprano:       ${stats.compensaciones}
+   • Paros:                  ${stats.paros}
 
    • Entrada promedio:       ${stats.entradaPromedio}
    • Salida promedio:        ${stats.salidaPromedio}
@@ -5859,7 +5915,8 @@ REPORTE DE HORAS TRABAJADAS
                                         ausencias: [],
                                         vacaciones: [],
                                         enfermedades: [],
-                                        asuetos: []
+                                        asuetos: [],
+                                        paros: []
                                     });
                                 }
 
@@ -5950,6 +6007,7 @@ REPORTE DE HORAS TRABAJADAS
                                 if (datos.vacaciones.length > 0) notasExtras.push(`${datos.vacaciones.length} vacacion(es)`);
                                 if (datos.enfermedades.length > 0) notasExtras.push(`${datos.enfermedades.length} enfermedad(es)`);
                                 if (datos.asuetos.length > 0) notasExtras.push(`${datos.asuetos.length} asueto(s)`);
+                                if (datos.paros.length > 0) notasExtras.push(`${datos.paros.length} paro(s)`);
 
                                 if (notasExtras.length > 0) {
                                     seccion += ` [${notasExtras.join(', ')}]`;
@@ -7681,6 +7739,7 @@ Generado por Sistema Horarios
     //             CAMBIOS REALIZADOS EN ESTA VERSION 7.07
     // ====================================================================
     1) Se agrega animacion a la tarjeta de estadisticas
+    2) Se agrega "paro" como registro especial
 
 
     -->
