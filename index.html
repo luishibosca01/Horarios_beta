@@ -175,7 +175,7 @@
             }
 
             #lista-registros {
-                max-height: 975px;
+                max-height: 1100px;
                 overflow-y: auto;
                 padding: 0.5rem;
                 scrollbar-gutter: stable;
@@ -1007,7 +1007,7 @@
 
         #modo-normal.fade-out,
         #modo-lote.fade-out,
-        #form-stats.fade-out  {
+        #form-stats.fade-out {
             opacity: 0;
             transform: translateY(-10px);
         }
@@ -1062,7 +1062,6 @@
             font-weight: bold;
             transform: scale(1.1);
         }
-
     </style>
 </head>
 
@@ -1330,7 +1329,7 @@
                     </div>
 
                     <!-- MODO LOTE -->
-                    <div id="modo-lote" style="display: none;">
+                    <div id="modo-lote" class="fade-out" style="display: none;">
                         <div class="form-group" style="padding-top: 1rem;">
                             <label>Tipo de registro</label>
                             <div class="input-with-btn">
@@ -6614,6 +6613,10 @@ Generado por Sistema Horarios
                         setTimeout(() => {
                             modoNormal.style.display = 'none';
                             modoLote.style.display = 'block';
+
+                            // Forzar reflow
+                            modoLote.offsetHeight;
+
                             modoLote.classList.remove('fade-out');
 
                             // Limpiar campos
@@ -6621,7 +6624,6 @@ Generado por Sistema Horarios
                             document.getElementById('lote-fecha-desde').value = '';
                             document.getElementById('lote-fecha-hasta').value = '';
 
-                            // Limpieza visual inicial al entrar
                             btnTexto.textContent = 'Registrar Lote';
                             btn.style.background = '';
                             btn.style.color = '';
@@ -6639,10 +6641,13 @@ Generado por Sistema Horarios
                         setTimeout(() => {
                             modoLote.style.display = 'none';
                             modoNormal.style.display = 'block';
+
+                            // Forzar reflow
+                            modoNormal.offsetHeight;
+
                             modoNormal.classList.remove('fade-out');
 
                             btnTexto.textContent = 'Registrar';
-
                             btn.style.background = '';
                             btn.style.color = '';
 
@@ -7726,7 +7731,8 @@ Generado por Sistema Horarios
 <!--// ====================================================================
     //             CAMBIOS REALIZADOS EN ESTA VERSION 7.08
     // ====================================================================
-    1) Se corrige animacion de tarjeta estadisticas
+    1) Se corrige animación de tarjeta estadisticas
+    2) Se corrige animación de la tarjeta registrar
 
 
     -->
