@@ -7900,15 +7900,13 @@ Generado por Sistema Horarios
                     const btn = $('btn-agregar');
                     const textoOriginal = btnTexto.textContent;
 
-                    // Aplicar animación al botón
+                    // Aplicar solo la animación, sin estilos inline
                     if (btn) {
                         btn.classList.add('input-agregado-animacion');
-                        btn.style.background = 'rgba(96, 172, 148, 0.1)';
-                        btn.style.color = 'var(--c-green)';
-                        btn.style.border = '1px solid var(--c-green)';
                     }
 
-                    // Fade out del texto
+                    // Fade out del texto (más suave)
+                    btnTexto.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
                     btnTexto.style.opacity = '0';
                     btnTexto.style.transform = 'translateY(-3px)';
 
@@ -7917,15 +7915,12 @@ Generado por Sistema Horarios
                         // Fade in
                         btnTexto.style.opacity = '1';
                         btnTexto.style.transform = 'translateY(0)';
-                    }, 150);
+                    }, 300);
 
                     // Remover después de 2 segundos
                     setTimeout(() => {
                         if (btn) {
                             btn.classList.remove('input-agregado-animacion');
-                            btn.style.background = '';
-                            btn.style.color = '';
-                            btn.style.border = '';
                         }
 
                         // Fade out antes de volver al texto original
@@ -7936,7 +7931,14 @@ Generado por Sistema Horarios
                             btnTexto.textContent = textoOriginal;
                             btnTexto.style.opacity = '1';
                             btnTexto.style.transform = 'translateY(0)';
-                        }, 150);
+
+                            // Limpiar estilos inline después de la animación
+                            setTimeout(() => {
+                                btnTexto.style.transition = '';
+                                btnTexto.style.opacity = '';
+                                btnTexto.style.transform = '';
+                            }, 300);
+                        }, 300);
                     }, 2000);
                 }
 
