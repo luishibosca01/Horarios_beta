@@ -3206,6 +3206,7 @@
                     }
 
                     const btn = $('btn-agregar');
+                    const btnTexto = $('btn-registrar-texto');
                     btn.disabled = true;
                     let usaHoraActual = false;
 
@@ -3284,13 +3285,20 @@
                                 UILogic.aplicarFeedbackRegistro(false, true); // Solo salida
                             }
 
+                            // FEEDBACK VISUAL DEL BOTÓN
+                            UILogic.aplicarFeedbackBotonRegistrar(btnTexto);
+
                             const mensaje = usaHoraActual ?
                                 `Salida registrada con hora actual \n(entrada: ${registroExistente.entrada})` :
                                 `Salida ${s} agregada \n(entrada: ${registroExistente.entrada})`;
                             UILogic.mostrarToast(mensaje, 'success');
-                            UILogic.resetearBoton(btn);
-                            $('fecha').value = UILogic.obtenerFechaHoy();
-                            $('salida').value = '';
+
+                            // Resetear después del feedback
+                            setTimeout(() => {
+                                UILogic.resetearBoton(btn);
+                                $('fecha').value = UILogic.obtenerFechaHoy();
+                                $('salida').value = '';
+                            }, 2000);
                         }
                         return;
                     }
@@ -3343,12 +3351,19 @@
                             UILogic.aplicarFeedbackRegistro(entradaManual, salidaManual);
                         }
 
+                        // FEEDBACK VISUAL DEL BOTÓN
+                        UILogic.aplicarFeedbackBotonRegistrar(btnTexto);
+
                         const mensaje = usaHoraActual ? 'Registro agregado con hora actual' : 'Registro agregado';
                         UILogic.mostrarToast(mensaje, 'success');
-                        UILogic.resetearBoton(btn);
-                        $('fecha').value = UILogic.obtenerFechaHoy();
-                        $('entrada').value = '';
-                        $('salida').value = '';
+
+                        // Resetear después del feedback
+                        setTimeout(() => {
+                            UILogic.resetearBoton(btn);
+                            $('fecha').value = UILogic.obtenerFechaHoy();
+                            $('entrada').value = '';
+                            $('salida').value = '';
+                        }, 2000);
                     }
 
                 }
@@ -7237,7 +7252,8 @@ Generado por Sistema Horarios
                         eliminarPerfilDesdeEditor, crearPerfilDesdeSelector, renderizarListaPerfiles, ejecutarAccionRegistro,
                         iniciarCambioHoras, detenerCambio, mostrarconfig, alternarFechaActual, verificarBloqueoCredito,
                         toggleCredito, init, toggleFormulario, setBloqueoEdicionGrupo, toggleBloqueoEdicionGrupo, cerrarEdicionGrupo,
-                        mostrarExportar, cerrarExportar, ejecutarExportacion, toggleCamposRangoExport, aplicarFeedbackRegistro
+                        mostrarExportar, cerrarExportar, ejecutarExportacion, toggleCamposRangoExport, aplicarFeedbackRegistro,
+                        aplicarFeedbackBotonRegistrar
                     };
 
                     // === LISTENERS E INTERACTIVIDAD ===
@@ -7878,6 +7894,52 @@ Generado por Sistema Horarios
                     }, 2000);
                 }
 
+                function aplicarFeedbackBotonRegistrar(btnTexto) {
+                    if (!btnTexto) return;
+
+                    const btn = $('btn-agregar');
+                    const textoOriginal = btnTexto.textContent;
+
+                    // Aplicar animación al botón
+                    if (btn) {
+                        btn.classList.add('input-agregado-animacion');
+                        btn.style.background = 'rgba(96, 172, 148, 0.1)';
+                        btn.style.color = 'var(--c-green)';
+                        btn.style.border = '1px solid var(--c-green)';
+                    }
+
+                    // Fade out del texto
+                    btnTexto.style.opacity = '0';
+                    btnTexto.style.transform = 'translateY(-3px)';
+
+                    setTimeout(() => {
+                        btnTexto.textContent = '✓ Agregado';
+                        // Fade in
+                        btnTexto.style.opacity = '1';
+                        btnTexto.style.transform = 'translateY(0)';
+                    }, 150);
+
+                    // Remover después de 2 segundos
+                    setTimeout(() => {
+                        if (btn) {
+                            btn.classList.remove('input-agregado-animacion');
+                            btn.style.background = '';
+                            btn.style.color = '';
+                            btn.style.border = '';
+                        }
+
+                        // Fade out antes de volver al texto original
+                        btnTexto.style.opacity = '0';
+                        btnTexto.style.transform = 'translateY(-3px)';
+
+                        setTimeout(() => {
+                            btnTexto.textContent = textoOriginal;
+                            btnTexto.style.opacity = '1';
+                            btnTexto.style.transform = 'translateY(0)';
+                        }, 150);
+                    }, 2000);
+                }
+
                 return {
                     init, obtenerFechaHoy, pegarHoraActual, alternarTema, alternarVista, cerrarConfig,
                     cerrarEdicion, mostrarImportar, cerrarImportar, actualizarUI, mostrarToast, mostrarError,
@@ -7890,7 +7952,8 @@ Generado por Sistema Horarios
                     eliminarPerfilDesdeEditor, crearPerfilDesdeSelector, renderizarListaPerfiles, ejecutarAccionRegistro,
                     iniciarCambioHoras, detenerCambio, mostrarconfig, alternarFechaActual, verificarBloqueoCredito,
                     toggleCredito, setBloqueoEdicionGrupo, toggleBloqueoEdicionGrupo, cerrarEdicionGrupo,
-                    mostrarExportar, cerrarExportar, ejecutarExportacion, toggleCamposRangoExport, aplicarFeedbackRegistro
+                    mostrarExportar, cerrarExportar, ejecutarExportacion, toggleCamposRangoExport, aplicarFeedbackRegistro,
+                    aplicarFeedbackBotonRegistrar
                 };
 
             })(SecurityAndUtils, DataManagement);
@@ -7926,6 +7989,8 @@ Generado por Sistema Horarios
     //       CAMBIOS REALIZADOS EN SISTEMA LUSHIBOSCA VERSION 7.12
     // ====================================================================
     1) Se cambia el max height de la tarjeta historico
+    2) Se agrega feedback visual al botoon registrar del mismo estilo que los campos "desde" y
+    "hasta"
 
 
     -->
