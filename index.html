@@ -303,7 +303,7 @@
         button {
             width: 100%;
             padding: 0.875rem;
-            border: none;
+            border: 1px solid transparent;
             border-radius: var(--radius);
             font-weight: 600;
             font-size: 1rem;
@@ -328,22 +328,17 @@
             color: #6b7280;
         }
 
+        #btn-timer-main {
+            border: none;
+        }
+
         #btn-timer-main:disabled {
             display: none;
         }
 
         /* Variantes de botones */
-        .btn-delete,
-        .btn-cancel,
-        .btn-export,
-        .btn-backup,
-        .btn-edit,
-        .time-btn,
-        .btn-increment {
-            background: var(--c-gray-btn);
-        }
 
-        .btn-action-trigger {
+        .btn-register {
             width: 70%;
             padding: 17px;
             margin: -17px;
@@ -351,7 +346,7 @@
             color: var(--text-main);
         }
 
-        .btn-action-trigger .icon {
+        .btn-register .icon {
             animation: llamarAtencion 5s ease-in-out 1.2s 2;
             transform-origin: bottom;
         }
@@ -404,6 +399,11 @@
             .time-btn:hover:not(:disabled),
             .btn-increment:hover:not(:disabled),
             .filter-btn:hover:not(:disabled),
+            .btn-delete:hover:not(:disabled),
+            .btn-cancel:hover:not(:disabled),
+            .btn-export:hover:not(:disabled),
+            .btn-backup:hover:not(:disabled),
+            .btn-edit:hover:not(:disabled),
             .registro-item:hover,
             .header-profile-btn:hover,
             .btn-perfil-select:hover,
@@ -417,20 +417,9 @@
         .stats-card {
             cursor: pointer;
             transition: transform 0.15s ease-out, opacity 0.15s ease-out, box-shadow 0.3s !important;
+            border: 1px solid transparent
         }
 
-        .stats-card:active {
-            transform: scale(0.96) !important;
-            /* Se achica un poquito */
-        }
-
-        .stats-card.cambiando-vista {
-            transform: scale(0.98);
-            opacity: 0.5;
-            /* Se desvanece ligeramente mientras cambia */
-        }
-
-        /* --- Efecto Timer en Tarjeta Principal --- */
         .stats-card.timer-running {
             border: 1px solid var(--c-red);
             animation: pulse-card 2s infinite;
@@ -440,6 +429,16 @@
             font-size: 1.8rem;
             font-weight: bold;
             margin: 0.5rem 0;
+        }
+
+        /* Animación de contenido interno de stats-card */
+        .stats-card-content {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .stats-card-content.fade-out {
+            opacity: 0;
+            transform: translateY(-10px);
         }
 
         .progress-bar {
@@ -1275,16 +1274,18 @@
         <div class="left-column">
             <div class="card stats-card animated-card" id="stats-card" onclick="UILogic.alternarVista()"
                 style="animation-delay: 0s;">
-                <h2 id="stats-titulo">Hoy</h2>
-                <div class="stats-number" id="stats-semana">
-                    <div>0 horas 0 minutos</div>
+                <div class="stats-card-content" id="stats-card-content">
+                    <h2 id="stats-titulo">Hoy</h2>
+                    <div class="stats-number" id="stats-semana">
+                        <div>0 horas 0 minutos</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-bar" style="width: 0%"></div>
+                    </div>
+                    <div id="stats-mensaje">Faltan 0 horas 0 minutos</div>
+                    <div id="stats-buffer" style="font-size: 0.85rem; margin-top: 0.5rem; min-height: 1.2rem;"></div>
+                    <span class="toggle-hint" id="toggle-hint">Toca para ver la Semana</span>
                 </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progress-bar" style="width: 0%"></div>
-                </div>
-                <div id="stats-mensaje">Faltan 0 horas 0 minutos</div>
-                <div id="stats-buffer" style="font-size: 0.85rem; margin-top: 0.5rem; min-height: 1.2rem;"></div>
-                <span class="toggle-hint" id="toggle-hint">Toca para ver la Semana</span>
             </div>
             <div class="card animated-card" style="animation-delay: 0.1s;">
                 <h2 class="no-margin"
@@ -1295,7 +1296,7 @@
                             <use href="#icon-coffee" />
                         </svg>
                     </button>
-                    <button onclick="UILogic.ejecutarAccionRegistro()" id="btn-agregar" class="btn-action-trigger">
+                    <button onclick="UILogic.ejecutarAccionRegistro()" id="btn-agregar" class="btn-register">
                         <svg class="icon">
                             <use href="#icon-save" />
                         </svg> <span id="btn-registrar-texto">Registrar</span>
@@ -1533,7 +1534,7 @@
                     </svg>
                     Ajustes
                 </span>
-                <span class="version-text">LUSHIBOSCA-7.12</span>
+                <span class="version-text">LUSHIBOSCA-7.13</span>
             </h3>
             <div class="form-group">
                 <label>Horas Diarias</label>
@@ -5555,11 +5556,13 @@
 
                 function alternarVista() {
                     const card = document.getElementById('stats-card');
+                    const content = document.getElementById('stats-card-content');
 
-                    // 1. Iniciamos animación visual
+                    // 1. Iniciamos animación de la tarjeta Y del contenido
                     if (card) card.classList.add('cambiando-vista');
+                    if (content) content.classList.add('fade-out');
 
-                    // 2. Pequeño delay para permitir que la animación se vea
+                    // 2. Delay para permitir que la animación se vea
                     setTimeout(() => {
                         // Lógica original de cambio de datos
                         let vistaActual = D.vistaActual() === 'semana' ? 'diaria' : 'semana';
@@ -5568,12 +5571,15 @@
                             localStorage.setItem('vistaActual', vistaActual);
                         } catch (e) { }
 
-                        actualizarUI(); // Se actualizan los textos
+                        actualizarUI(); // Se actualizan los textos (mientras está invisible)
 
-                        // 3. Terminamos la animación
+                        // 3. Removemos fade-out para que vuelva a aparecer
+                        if (content) content.classList.remove('fade-out');
+
+                        // 4. Terminamos la animación de la tarjeta
                         if (card) card.classList.remove('cambiando-vista');
 
-                    }, 100); // 200ms de espera
+                    }, 300); // Aumentado a 300ms para sincronizar con la transición CSS
                 }
 
                 function pegarHoraActual(id) {
@@ -6176,7 +6182,18 @@ Generado por Sistema Horarios
                         if (card) {
                             card.classList.add('timer-running');
                             const titulo = card.querySelector('h2');
-                            if (titulo) titulo.innerHTML = `<svg class="icon"><use href="#icon-coffee"/></svg> Tiempo fuera...`;
+
+                            // Mantener contexto de vista
+                            const vistaActual = D.vistaActual();
+                            const icono = vistaActual === 'semana'
+                                ? '<svg class="icon"><use href="#icon-calendar-simple"/></svg>'
+                                : '<svg class="icon"><use href="#icon-clock"/></svg>';
+
+                            const contexto = vistaActual === 'semana' ? 'Esta Semana' : 'Hoy';
+
+                            if (titulo) {
+                                titulo.innerHTML = `${icono} ${contexto} - <svg class="icon"><use href="#icon-coffee"/></svg> Tiempo fuera`;
+                            }
                         }
 
                     } else {
@@ -7926,10 +7943,22 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //       CAMBIOS REALIZADOS EN SISTEMA LUSHIBOSCA VERSION 7.12
+    //             ESTADO EN SISTEMA LUSHIBOSCA VERSION 7.13
     // ====================================================================
-    1) Se agrega el estado rotado 90 al chevron del boton historico, para mayor
-    consistencia con los 3 estados de la tarjeta
+    
+     - CAMBIOS:
+    1) Se unifica la animacion de la tarjeta de estado para que coincida con las
+    definidas en las otras tarjetas
+    2) varios arreglos menores en css
+    3) se agrega contexto en la tarjeta de estado cuando timer esta activo
+
+     - BUGS CONOCIDOS:
+     1) al tener un registro con entrada y luego agregar una salida, deshacer la accion
+     y tocar el timer, al rehacer la accion, el timer sigue corriendo
+     2) al tener horas objetivo en 0, y dias especiales toda la semana, en la tarjeta de
+     estado hoy, al cargar la pagina debajo de la barra de progreso describe el dia especial
+     pero al cambiar al "esta semana" y volver se quita la etiqueta
+     3) 
 
 
     -->
