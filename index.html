@@ -1534,7 +1534,7 @@
                     </svg>
                     Ajustes
                 </span>
-                <span class="version-text">LUSHIBOSCA-7.19</span>
+                <span class="version-text">LUSHIBOSCA-7.20</span>
             </h3>
             <div class="form-group">
                 <label>Horas Diarias</label>
@@ -3097,7 +3097,7 @@
                     const tfMinutos = tf ? tiempoEnMinutos(tf) : 0;
                     const crMinutos = cr ? tiempoEnMinutos(cr) : 0;
 
-                    // 🔧 FIX: NO verificar tipo especial si es cálculo temporal (hora actual)
+                    // NO verificar tipo especial si es cálculo temporal (hora actual)
                     if (!esCalculoTemporal) {
                         const tipoEspecial = TiposRegistro.obtenerTipoPorCodigo(e, s);
                         if (tipoEspecial) {
@@ -4330,24 +4330,39 @@
                             registros.splice(0, registros.length, ...prevState);
                             guardarYActualizar();
                             UILogic.mostrarToast('Deshecho', 'info');
+
+                            // Solo actualizar si estamos en modo lote
                             if (window.UILogic && window.UILogic.actualizarBotonLote) {
-                                window.UILogic.actualizarBotonLote();
+                                // Verificar si el modo lote está activo
+                                const modoLote = document.getElementById('modo-lote');
+                                if (modoLote && modoLote.style.display !== 'none') {
+                                    window.UILogic.actualizarBotonLote();
+                                }
                             }
+
                             // Iniciar timer de auto-cierre
                             if (window.UILogic && window.UILogic.iniciarTimerAutoCierreBotones) {
                                 window.UILogic.iniciarTimerAutoCierreBotones();
                             }
                         }
                     },
+
                     redoAction: function () {
                         const nextState = HistoryManager.redo();
                         if (nextState) {
                             registros.splice(0, registros.length, ...nextState);
                             guardarYActualizar();
                             UILogic.mostrarToast('Rehecho', 'info');
+
+                            // Solo actualizar si estamos en modo lote
                             if (window.UILogic && window.UILogic.actualizarBotonLote) {
-                                window.UILogic.actualizarBotonLote();
+                                // Verificar si el modo lote está activo
+                                const modoLote = document.getElementById('modo-lote');
+                                if (modoLote && modoLote.style.display !== 'none') {
+                                    window.UILogic.actualizarBotonLote();
+                                }
                             }
+
                             // Iniciar timer de auto-cierre
                             if (window.UILogic && window.UILogic.iniciarTimerAutoCierreBotones) {
                                 window.UILogic.iniciarTimerAutoCierreBotones();
@@ -6917,7 +6932,7 @@ Generado por Sistema Horarios
                         // Verificar si ya existe
                         const registroExiste = DataManagement.registros().find(r => r.fecha === desde);
                         if (registroExiste) {
-                            btnTexto.textContent = 'Ya ocupado';
+                            btnTexto.textContent = 'Registrado';
                             btn.style.color = 'var(--text-muted)';
                         } else {
                             btnTexto.textContent = 'Registrar';
@@ -7003,7 +7018,7 @@ Generado por Sistema Horarios
 
                             if (disponibles === 0 && yaRegistrados === diasTotales) {
                                 // Todos los días ya tienen este tipo
-                                btnTexto.textContent = `Ya Registrado (${diasTotales})`;
+                                btnTexto.textContent = `Registrado (${diasTotales})`;
                                 btn.style.color = 'var(--text-muted)';
                             } else if (disponibles === diasTotales) {
                                 // Todos los días están libres
@@ -8068,16 +8083,24 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.19
+    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.20
     // ====================================================================
     
      - CAMBIOS:
-    1) Se mejora el listener de la tecla enter para la tarjeta registro y el modal editar
+    1) Se corrige bug al hacer un undo o redo, se cambiaba la etiqueta del modo normal
+    si antes habiamos intentado agregar un registro en el modo lote
 
      - BUGS CONOCIDOS:
      1) al tener un registro con entrada y luego agregar una salida, deshacer la accion
      y tocar el timer, al rehacer la accion, el timer sigue corriendo
-      
+
+     - IDEAS DESCARTADAS/REVISION:
+     1) Registro especial "ausencia sin justificar" con el parametro "contabiliza=false",
+     Se descarta ya que existe el tipo ausencia (justificada), y en caso de no registrar
+     un dia, el buffer muestra el restante equivalente al objetivo diario
+     2) salida estimada ajustada por buffer no se muestra si los dias anteriores no cuentan
+     con registro y son dias laborables. esto se deja como está ya que el bufferEL lo cuenta
+     y se puede advertir facilmente que faltan muchas horas = dia completo      
 
 
     -->
