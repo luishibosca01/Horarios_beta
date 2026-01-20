@@ -1534,7 +1534,7 @@
                     </svg>
                     Ajustes
                 </span>
-                <span class="version-text">LUSHIBOSCA-7.20</span>
+                <span class="version-text">LUSHIBOSCA-7.21</span>
             </h3>
             <div class="form-group">
                 <label>Horas Diarias</label>
@@ -5532,15 +5532,7 @@
                             }
 
                             if (mostrarEstimacion) {
-                                // Detectar si hay días previos en la semana con registros
-                                const hayDiasPreviosConRegistros = registros.some(r =>
-                                    r.fecha >= ini &&
-                                    r.fecha < hoy &&
-                                    !TiposRegistro.esRegistroEspecial(r.entrada, r.salida)
-                                );
-
-                                // Solo mostrar buffer si hay contexto previo O si el buffer es significativo
-                                const mostrarConBuffer = hayDiasPreviosConRegistros && Math.abs(bufferSemanal) > 0.01;
+                                const mostrarConBuffer = Math.abs(bufferSemanal) > 0.01;
 
                                 let textoFinal = `Salida estimada: <strong>${horaSalida}</strong>`;
 
@@ -8083,12 +8075,12 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.20
+    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.21
     // ====================================================================
     
      - CAMBIOS:
-    1) Se corrige bug al hacer un undo o redo, se cambiaba la etiqueta del modo normal
-    si antes habiamos intentado agregar un registro en el modo lote
+    1) Se corrige el texto de estimacion, para que tenga en cuenta si no hay registro el dia anterior
+    laboral, ahora muestra nuevamente la salida con buffer.
 
      - BUGS CONOCIDOS:
      1) al tener un registro con entrada y luego agregar una salida, deshacer la accion
@@ -8098,9 +8090,6 @@ Generado por Sistema Horarios
      1) Registro especial "ausencia sin justificar" con el parametro "contabiliza=false",
      Se descarta ya que existe el tipo ausencia (justificada), y en caso de no registrar
      un dia, el buffer muestra el restante equivalente al objetivo diario
-     2) salida estimada ajustada por buffer no se muestra si los dias anteriores no cuentan
-     con registro y son dias laborables. esto se deja como está ya que el bufferEL lo cuenta
-     y se puede advertir facilmente que faltan muchas horas = dia completo      
-
+     
 
     -->
