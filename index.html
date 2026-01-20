@@ -1534,7 +1534,7 @@
                     </svg>
                     Ajustes
                 </span>
-                <span class="version-text">LUSHIBOSCA-7.18</span>
+                <span class="version-text">LUSHIBOSCA-7.19</span>
             </h3>
             <div class="form-group">
                 <label>Horas Diarias</label>
@@ -7299,6 +7299,7 @@ Generado por Sistema Horarios
                     // LISTENERS PARA TECLA ENTER
                     // ===================================
 
+                    // --- TARJETA REGISTRAR ---
                     // A) Enter en campo Entrada → Pasa a Salida
                     const inputEntrada = document.getElementById('entrada');
                     if (inputEntrada) {
@@ -7311,16 +7312,58 @@ Generado por Sistema Horarios
                         });
                     }
 
-                    // B) Enter en campo Salida → Ejecuta Registrar
+                    // B) Enter en campo Salida → Ejecuta Registrar Y cierra teclado
                     const inputSalida = document.getElementById('salida');
                     if (inputSalida) {
                         inputSalida.addEventListener('keydown', (e) => {
                             if (e.key === 'Enter') {
                                 e.preventDefault();
                                 inputSalida.blur();
+
                                 const btnAgregar = document.getElementById('btn-agregar');
                                 if (btnAgregar && !btnAgregar.disabled) {
                                     btnAgregar.click();
+                                }
+                            }
+                        });
+                    }
+
+                    // --- MODAL EDITAR ---
+                    // C) Enter en campo Entrada (editar) → Pasa a Salida
+                    const editEntrada = document.getElementById('edit-entrada');
+                    if (editEntrada) {
+                        editEntrada.addEventListener('keydown', (e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const editSalida = document.getElementById('edit-salida');
+                                if (editSalida) editSalida.focus();
+                            }
+                        });
+                    }
+
+                    // D) Enter en campo Salida (editar) → Pasa a Tiempo Fuera
+                    const editSalida = document.getElementById('edit-salida');
+                    if (editSalida) {
+                        editSalida.addEventListener('keydown', (e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const editTiempoFuera = document.getElementById('edit-tiempo-fuera');
+                                if (editTiempoFuera) editTiempoFuera.focus();
+                            }
+                        });
+                    }
+
+                    // E) Enter en campo Tiempo Fuera (editar) → Guarda Y cierra teclado
+                    const editTiempoFuera = document.getElementById('edit-tiempo-fuera');
+                    if (editTiempoFuera) {
+                        editTiempoFuera.addEventListener('keydown', (e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                editTiempoFuera.blur(); // Cierra el teclado
+
+                                const btnGuardar = document.querySelector('#modal-editar .btn-edit');
+                                if (btnGuardar && !btnGuardar.disabled) {
+                                    btnGuardar.click(); // Ejecuta guardar
                                 }
                             }
                         });
@@ -8025,13 +8068,11 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.18
+    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.19
     // ====================================================================
     
      - CAMBIOS:
-    1) Se quita del texto salida estimada, el buffer si es el primer dia laboral o no hay buffer 
-    que calcular
-    2) Se mejora el feedback visual al agregar una salida con timer iniciado
+    1) Se mejora el listener de la tecla enter para la tarjeta registro y el modal editar
 
      - BUGS CONOCIDOS:
      1) al tener un registro con entrada y luego agregar una salida, deshacer la accion
