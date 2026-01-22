@@ -45,7 +45,6 @@
             --c-white: #ffffff;
             --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             --radius: 10px;
-            --bg-progress-bar: rgba(224, 224, 224, 0.3);
         }
 
         body.dark-mode {
@@ -60,7 +59,6 @@
             --input-focus: #374151;
             --c-gray-btn: #374151;
             --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-            --bg-progress-bar: rgba(255, 255, 255, 0.2);
         }
 
         body.modal-open {
@@ -443,7 +441,8 @@
 
         .progress-bar {
             width: 100%;
-            height: 5px;
+            height: 4px;
+            background: transparent;
             border-radius: var(--radius);
             overflow: hidden;
             margin: 0.5rem 0;
