@@ -5419,6 +5419,9 @@
                     const hintEl = $('toggle-hint');
                     const bufferEl = $('stats-buffer');
 
+                    const regHoy = registros.find(r => r.fecha === hoy);
+                    actualizarEstadoVisualCard(regHoy, esDiaDeDescanso);
+
                     // --- MOSTRAR BUFFER (SOLO SI SEMANA ABIERTA) ---
                     if (bufferEl) {
                         bufferEl.innerHTML = '';
@@ -5499,9 +5502,6 @@
                     } else {
                         // VISTA DIARIA (HOY)
                         tituloEl.innerHTML = `<svg class="icon"><use href="#icon-clock" /></svg> Hoy`;
-                        const regHoy = registros.find(r => r.fecha === hoy);
-
-                        actualizarEstadoVisualCard(regHoy, esDiaDeDescanso);
 
                         let tiempoTranscurrido = 0;
                         let objetivoDiario = horasDiarias;
