@@ -713,22 +713,6 @@
             }
         }
 
-        /* Animación de pulso específica para la tarjeta (más suave) */
-        @keyframes pulse-card {
-            0% {
-                box-shadow: 0 0 0 0 rgba(192, 93, 118, 0.4);
-            }
-
-            70% {
-                box-shadow: 0 0 0 15px rgba(192, 93, 118, 0);
-                /* Expansión de la sombra */
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(192, 93, 118, 0);
-            }
-        }
-
         @keyframes pulse {
             0% {
                 box-shadow: 0 0 0 0 rgba(192, 93, 118, 0.4);
@@ -5355,7 +5339,31 @@
                         const objetivoAjustado = Math.max(0, horasSemanales - horasDescontar);
                         const prog = objetivoAjustado > 0 ? Math.min((tot / objetivoAjustado) * 100, 100) : 100;
 
-                        if (statsEl) statsEl.textContent = horasATexto(tot);
+                        // código con animación
+                        if (statsEl) {
+                            const nuevoTexto = horasATexto(tot);
+                            // Solo animar si el texto cambió para evitar parpadeos innecesarios
+                            if (statsEl.textContent !== nuevoTexto) {
+                                const cardContent = statsEl.closest('.stats-card-content');
+
+                                if (cardContent) {
+                                    // 1. Desaparecer (Fade Out)
+                                    cardContent.classList.add('fade-out');
+
+                                    // 2. Esperar el tiempo de la transición (300ms según tu CSS)
+                                    setTimeout(() => {
+                                        // 3. Cambiar el texto
+                                        statsEl.textContent = nuevoTexto;
+
+                                        // 4. Aparecer (Fade In)
+                                        cardContent.classList.remove('fade-out');
+                                    }, 300);
+                                } else {
+                                    // Fallback por si no encuentra el contenedor
+                                    statsEl.textContent = nuevoTexto;
+                                }
+                            }
+                        }
 
                         if (progressEl) {
                             progressEl.style.width = prog + '%';
