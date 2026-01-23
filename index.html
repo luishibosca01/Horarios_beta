@@ -420,9 +420,8 @@
             transition: all 0.3s ease;
         }
 
-        .stats-card.timer-running {
-            border: 1px solid var(--c-red);
-            animation: pulse-card 2s infinite;
+        #stats-card.timer-running {
+            border-left-color: var(--c-red) !important;
         }
 
         .stats-number {
@@ -5470,7 +5469,6 @@
                                     progressEl.style.width = prog + '%';
                                 }
 
-                                //  AQUÍ EMPIEZA LO QUE TIENES QUE REEMPLAZAR/AGREGAR
                                 if (regHoy.salida) {
                                     // -------------------------------------------------
                                     // CASO 1: DÍA CERRADO (Ya marcaste salida)
