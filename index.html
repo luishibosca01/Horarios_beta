@@ -1543,7 +1543,7 @@
                     </svg>
                     Ajustes
                 </span>
-                <span class="version-text">LUSHIBOSCA-7.25</span>
+                <span class="version-text">LUSHIBOSCA-7.26</span>
             </h3>
             <div class="form-group">
                 <label>Horas Diarias</label>
@@ -2442,6 +2442,99 @@
             })(SecurityAndUtils);
 
             // ====================================================================
+            // BACK BUTTON HANDLER MODULE (Android PWA)
+            // ====================================================================
+            const BackButtonHandler = (function () {
+                let modalStack = []; // Stack de modales abiertos
+                let isListening = false;
+
+                function init() {
+                    if (!isListening) {
+                        window.addEventListener('popstate', handleBackButton);
+                        isListening = true;
+                    }
+                }
+
+                function handleBackButton(event) {
+                    // Si hay modales en el stack, cerrar el último
+                    if (modalStack.length > 0) {
+                        event.preventDefault();
+                        const modalId = modalStack[modalStack.length - 1];
+                        cerrarModalDesdeHistorial(modalId);
+                    }
+                    // Si no hay modales, dejar que el navegador maneje (cerrar PWA)
+                }
+
+                function cerrarModalDesdeHistorial(modalId) {
+                    // Remover del stack
+                    modalStack = modalStack.filter(id => id !== modalId);
+
+                    // Cerrar el modal visualmente
+                    const modal = document.getElementById(modalId);
+                    if (modal) {
+                        modal.classList.remove('show');
+                        document.body.classList.remove('modal-open');
+                    }
+
+                    // Ejecutar lógica de limpieza según el modal
+                    ejecutarLimpiezaModal(modalId);
+                }
+
+                function ejecutarLimpiezaModal(modalId) {
+                    // Lógica específica de limpieza para cada modal
+                    switch (modalId) {
+                        case 'modal-editar':
+                            if (window.DataManagement) {
+                                window.DataManagement.setEditandoId(null);
+                            }
+                            break;
+                        case 'modal-editar-grupo':
+                            if (window.DataManagement) {
+                                window.DataManagement.setGrupoEnEdicion(null);
+                            }
+                            break;
+                        case 'modal-selector-perfiles':
+                            // Limpiar input de nuevo perfil
+                            const inputNuevo = document.getElementById('nombre-nuevo-perfil-selector');
+                            if (inputNuevo) inputNuevo.value = '';
+                            break;
+                        // Agregar más casos según necesites
+                    }
+                }
+
+                function pushModal(modalId) {
+                    // Solo agregar si no está ya en el stack
+                    if (!modalStack.includes(modalId)) {
+                        modalStack.push(modalId);
+                        // Agregar estado al historial
+                        history.pushState({ modal: modalId }, '', '');
+                    }
+                }
+
+                function popModal(modalId) {
+                    // Remover del stack sin disparar popstate
+                    modalStack = modalStack.filter(id => id !== modalId);
+
+                    // Si cerramos manualmente (no desde botón atrás), 
+                    // debemos retroceder en el historial
+                    if (history.state && history.state.modal === modalId) {
+                        history.back();
+                    }
+                }
+
+                function clearStack() {
+                    modalStack = [];
+                }
+
+                return {
+                    init,
+                    pushModal,
+                    popModal,
+                    clearStack
+                };
+            })();
+
+            // ====================================================================
             // MODAL MANAGER MODULE
             // ====================================================================
             const ModalManager = (function () {
@@ -2455,6 +2548,9 @@
                     modal.classList.add('show');
                     document.body.classList.add('modal-open');
 
+                    // Agregar al stack de historial
+                    BackButtonHandler.pushModal(modalId);
+
                     if (callback) callback();
                 }
 
@@ -2467,6 +2563,9 @@
 
                     modal.classList.remove('show');
                     document.body.classList.remove('modal-open');
+
+                    // Remover del stack de historial
+                    BackButtonHandler.popModal(modalId);
 
                     if (callback) callback();
                 }
@@ -7646,6 +7745,7 @@ Generado por Sistema Horarios
                     }
 
                     PWAInstaller.init();
+                    BackButtonHandler.init();
 
                     actualizarUI();
                     setInterval(() => actualizarUI(null, true), 60000);
@@ -8253,13 +8353,11 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.25
+    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.26
     // ====================================================================
     
      - CAMBIOS:
-    1) optimizacion de css en general
-    2) Se agrega listener tecla enter en agregar perfil y edicion de perfil
-    3) RTM
+    1) Se agrega boton atras para android
 
      - BUGS CONOCIDOS:
      1) al tener un registro con entrada y luego agregar una salida, deshacer la accion
