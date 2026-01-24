@@ -2447,6 +2447,7 @@
             const BackButtonHandler = (function () {
                 let modalStack = []; // Stack de modales abiertos
                 let isListening = false;
+                let isHandlingPopstate = false; // Flag para evitar loops
 
                 function init() {
                     if (!isListening) {
@@ -2456,11 +2457,19 @@
                 }
 
                 function handleBackButton(event) {
+                    // Prevenir loops
+                    if (isHandlingPopstate) return;
+
                     // Si hay modales en el stack, cerrar el último
                     if (modalStack.length > 0) {
-                        event.preventDefault();
+                        isHandlingPopstate = true;
                         const modalId = modalStack[modalStack.length - 1];
                         cerrarModalDesdeHistorial(modalId);
+
+                        // Resetear flag después de un tick
+                        setTimeout(() => {
+                            isHandlingPopstate = false;
+                        }, 10);
                     }
                     // Si no hay modales, dejar que el navegador maneje (cerrar PWA)
                 }
@@ -2512,14 +2521,28 @@
                 }
 
                 function popModal(modalId) {
-                    // Remover del stack sin disparar popstate
-                    modalStack = modalStack.filter(id => id !== modalId);
-
-                    // Si cerramos manualmente (no desde botón atrás), 
-                    // debemos retroceder en el historial
-                    if (history.state && history.state.modal === modalId) {
-                        history.back();
+                    // Remover del stack
+                    const index = modalStack.indexOf(modalId);
+                    if (index > -1) {
+                        modalStack.splice(index, 1);
                     }
+
+                    // 🆕 NO hacemos history.back() aquí
+                    // El historial se limpia solo cuando el usuario presiona atrás
+                    // o cuando alternamos entre modales
+                }
+
+                function replaceModal(modalIdCerrar, modalIdAbrir) {
+                    // Para alternar: reemplazar el estado actual en vez de hacer back + push
+                    const index = modalStack.indexOf(modalIdCerrar);
+                    if (index > -1) {
+                        modalStack[index] = modalIdAbrir;
+                    } else {
+                        modalStack.push(modalIdAbrir);
+                    }
+
+                    // Reemplazar el estado del historial en vez de back + push
+                    history.replaceState({ modal: modalIdAbrir }, '', '');
                 }
 
                 function clearStack() {
@@ -2530,6 +2553,7 @@
                     init,
                     pushModal,
                     popModal,
+                    replaceModal,
                     clearStack
                 };
             })();
@@ -2548,7 +2572,7 @@
                     modal.classList.add('show');
                     document.body.classList.add('modal-open');
 
-                    // Agregar al stack de historial
+                    // 🆕 Agregar al stack de historial
                     BackButtonHandler.pushModal(modalId);
 
                     if (callback) callback();
@@ -2564,15 +2588,34 @@
                     modal.classList.remove('show');
                     document.body.classList.remove('modal-open');
 
-                    // Remover del stack de historial
+                    // 🆕 Remover del stack de historial
                     BackButtonHandler.popModal(modalId);
 
                     if (callback) callback();
                 }
 
                 function alternar(modalIdCerrar, modalIdAbrir, callbackCerrar = null, callbackAbrir = null) {
-                    cerrar(modalIdCerrar, callbackCerrar);
-                    abrir(modalIdAbrir, callbackAbrir);
+                    // Cerrar modal visualmente
+                    const modalCerrar = document.getElementById(modalIdCerrar);
+                    if (modalCerrar) {
+                        modalCerrar.classList.remove('show');
+                    }
+
+                    // Ejecutar callback de cierre
+                    if (callbackCerrar) callbackCerrar();
+
+                    // 🆕 Reemplazar en el stack (en vez de pop + push)
+                    BackButtonHandler.replaceModal(modalIdCerrar, modalIdAbrir);
+
+                    // Abrir nuevo modal
+                    const modalAbrir = document.getElementById(modalIdAbrir);
+                    if (modalAbrir) {
+                        modalAbrir.classList.add('show');
+                        // No quitamos modal-open porque estamos alternando
+                    }
+
+                    // Ejecutar callback de apertura
+                    if (callbackAbrir) callbackAbrir();
                 }
 
                 return { abrir, cerrar, alternar };
