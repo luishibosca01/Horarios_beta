@@ -1543,7 +1543,7 @@
                     </svg>
                     Ajustes
                 </span>
-                <span class="version-text">LUSHIBOSCA-7.26</span>
+                <span class="version-text">LUSHIBOSCA-7.25</span>
             </h3>
             <div class="form-group">
                 <label>Horas Diarias</label>
@@ -2442,106 +2442,6 @@
             })(SecurityAndUtils);
 
             // ====================================================================
-            // BACK BUTTON HANDLER MODULE (Android PWA)
-            // ====================================================================
-            const BackButtonHandler = (function () {
-                let modalStack = [];
-                let skipNextPopstate = false; // Flag para ignorar el siguiente popstate
-
-                function init() {
-                    window.addEventListener('popstate', handleBackButton);
-                }
-
-                function handleBackButton(event) {
-                    // Si debemos ignorar este popstate, resetear flag y salir
-                    if (skipNextPopstate) {
-                        skipNextPopstate = false;
-                        return;
-                    }
-
-                    // Si hay modales en el stack, cerrar el último
-                    if (modalStack.length > 0) {
-                        const modalId = modalStack.pop();
-                        cerrarModalSilencioso(modalId);
-                    }
-                }
-
-                function cerrarModalSilencioso(modalId) {
-                    // Cerrar el modal visualmente SIN tocar el historial
-                    const modal = document.getElementById(modalId);
-                    if (modal) {
-                        modal.classList.remove('show');
-
-                        // Solo remover modal-open si no hay más modales
-                        if (modalStack.length === 0) {
-                            document.body.classList.remove('modal-open');
-                        }
-                    }
-
-                    // Ejecutar lógica de limpieza
-                    ejecutarLimpiezaModal(modalId);
-                }
-
-                function ejecutarLimpiezaModal(modalId) {
-                    switch (modalId) {
-                        case 'modal-editar':
-                            if (window.DataManagement) {
-                                DataManagement.setEditandoId(null);
-                            }
-                            break;
-                        case 'modal-editar-grupo':
-                            if (window.DataManagement) {
-                                DataManagement.setGrupoEnEdicion(null);
-                            }
-                            break;
-                        case 'modal-selector-perfiles':
-                            const inputNuevo = document.getElementById('nombre-nuevo-perfil-selector');
-                            if (inputNuevo) inputNuevo.value = '';
-                            break;
-                    }
-                }
-
-                function abrirModal(modalId) {
-                    modalStack.push(modalId);
-                    history.pushState({ modal: modalId }, '', '');
-                }
-
-                function cerrarModal(modalId) {
-                    // Remover del stack
-                    const index = modalStack.indexOf(modalId);
-                    if (index > -1) {
-                        modalStack.splice(index, 1);
-                    }
-
-                    // Marcar que debemos ignorar el siguiente popstate
-                    skipNextPopstate = true;
-
-                    // Hacer back en el historial
-                    history.back();
-                }
-
-                function alternarModal(cerrar, abrir) {
-                    // Remover el modal que se cierra del stack
-                    const index = modalStack.indexOf(cerrar);
-                    if (index > -1) {
-                        modalStack[index] = abrir; // Reemplazar en el mismo lugar
-                    } else {
-                        modalStack.push(abrir);
-                    }
-
-                    // Reemplazar el estado del historial
-                    history.replaceState({ modal: abrir }, '', '');
-                }
-
-                return {
-                    init,
-                    abrirModal,
-                    cerrarModal,
-                    alternarModal
-                };
-            })();
-
-            // ====================================================================
             // MODAL MANAGER MODULE
             // ====================================================================
             const ModalManager = (function () {
@@ -2554,8 +2454,6 @@
 
                     modal.classList.add('show');
                     document.body.classList.add('modal-open');
-
-                    BackButtonHandler.abrirModal(modalId);
 
                     if (callback) callback();
                 }
@@ -2570,30 +2468,12 @@
                     modal.classList.remove('show');
                     document.body.classList.remove('modal-open');
 
-                    BackButtonHandler.cerrarModal(modalId);
-
                     if (callback) callback();
                 }
 
                 function alternar(modalIdCerrar, modalIdAbrir, callbackCerrar = null, callbackAbrir = null) {
-                    // Cerrar visualmente
-                    const modalCerrar = document.getElementById(modalIdCerrar);
-                    if (modalCerrar) {
-                        modalCerrar.classList.remove('show');
-                    }
-
-                    if (callbackCerrar) callbackCerrar();
-
-                    // Actualizar historial
-                    BackButtonHandler.alternarModal(modalIdCerrar, modalIdAbrir);
-
-                    // Abrir visualmente
-                    const modalAbrir = document.getElementById(modalIdAbrir);
-                    if (modalAbrir) {
-                        modalAbrir.classList.add('show');
-                    }
-
-                    if (callbackAbrir) callbackAbrir();
+                    cerrar(modalIdCerrar, callbackCerrar);
+                    abrir(modalIdAbrir, callbackAbrir);
                 }
 
                 return { abrir, cerrar, alternar };
@@ -5146,7 +5026,9 @@
                             entradaPromedio: '--:--',
                             salidaPromedio: '--:--',
                             diasTrabajados: 0,
-                            promedioDiario: '0h 0m',
+                            promedioDiario: '--:--',
+                            tiempoFueraTotal: `--:--`,
+                            semanaPasada: '--:--',
                             feriados: feriados,
                             ausencias: ausencias,
                             vacaciones: vacaciones,
@@ -5333,6 +5215,7 @@
                         }
                     };
 
+                    toggleStatItem(elDias, stats.diasTrabajados);
                     toggleStatItem(elFeriados, stats.feriados);
                     toggleStatItem(elAusencias, stats.ausencias);
                     toggleStatItem(elVacaciones, stats.vacaciones);
@@ -5341,17 +5224,6 @@
                     toggleStatItem(elCompensaciones, stats.compensaciones);
                     toggleStatItem(elParos, stats.paros);
 
-                    // Ocultar Tiempo Fuera si es 0
-                    if (elTiempoFueraTotal) {
-                        const statItem = elTiempoFueraTotal.closest('.stat-item');
-                        if (statItem) {
-                            if (stats.tiempoFueraTotal === '0h 0m') {
-                                statItem.style.display = 'none';
-                            } else {
-                                statItem.style.display = '';
-                            }
-                        }
-                    }
                 }
 
                 function actualizarUI(idNuevo = null, soloReloj = false) {
@@ -7766,7 +7638,6 @@ Generado por Sistema Horarios
                     }
 
                     PWAInstaller.init();
-                    BackButtonHandler.init();
 
                     actualizarUI();
                     setInterval(() => actualizarUI(null, true), 60000);
@@ -8374,11 +8245,14 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.26
+    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.25
     // ====================================================================
     
      - CAMBIOS:
-    1) Se agrega boton atras para android
+    1) optimizacion de css en general
+    2) Se agrega listener tecla enter en agregar perfil y edicion de perfil
+    4) Se modifica la forma de vizualicion de algunos items de estadisticas
+    4) RTM
 
      - BUGS CONOCIDOS:
      1) al tener un registro con entrada y luego agregar una salida, deshacer la accion
