@@ -481,6 +481,10 @@
             background: var(--c-purple) !important;
         }
 
+        .progress-fill.gold {
+            background: var(--c-gold) !important;
+        }
+
         /* --- Lista de Registros --- */
 
         .registro-item {
@@ -1365,11 +1369,13 @@
                             <div class="input-with-btn">
                                 <select id="lote-tipo" onchange="UILogic.actualizarBotonLote()">
                                     <option value="feriado">🥳 Feriado (00:00)</option>
-                                    <option value="ausencia">✈️ Ausencia/Licencia (11:11)</option>
+                                    <option value="ausencia">🏠 Licencia (11:11)</option>
                                     <option value="vacaciones">🏖️ Vacaciones (12:12)</option>
                                     <option value="asueto">🎁 Asueto (13:13)</option>
                                     <option value="enfermedad">🏥 Enfermedad (14:14)</option>
                                     <option value="paro">📢 Paro (15:15)</option>
+                                    <option value="remoto">💻 Remoto (16:16)</option>
+                                    <option value="capacitacion">📚 Capacitación (17:17)</option>
                                     <option value="normal">🕒 Normales (borrar)</option>
                                 </select>
                                 <button class="time-btn" onclick="UILogic.toggleModoLote()" title="Volver a modo normal"
@@ -1436,7 +1442,7 @@
                                 <div class="stat-value" id="stat-feriados">0</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-label">Ausencias</div>
+                                <div class="stat-label">Licencias</div>
                                 <div class="stat-value" id="stat-ausencias">0</div>
                             </div>
                             <div class="stat-item">
@@ -1454,6 +1460,14 @@
                             <div class="stat-item">
                                 <div class="stat-label">Paros</div>
                                 <div class="stat-value" id="stat-paros">0</div>
+                            </div>
+                            <div class="stat-item"> <!-- ← AGREGAR -->
+                                <div class="stat-label">Remotos</div>
+                                <div class="stat-value" id="stat-remotos">0</div>
+                            </div>
+                            <div class="stat-item"> <!-- ← AGREGAR -->
+                                <div class="stat-label">Capacitaciones</div>
+                                <div class="stat-value" id="stat-capacitaciones">0</div>
                             </div>
                             <div class="stat-item">
                                 <div class="stat-label">Salidas Temprano</div>
@@ -1543,7 +1557,7 @@
                     </svg>
                     Ajustes
                 </span>
-                <span class="version-text">LUSHIBOSCA-7.25</span>
+                <span class="version-text">LUSHIBOSCA-7.26</span>
             </h3>
             <div class="form-group">
                 <label>Horas Diarias</label>
@@ -1816,11 +1830,13 @@
                     <option value="">Todos</option>
                     <option value="normal">🕒 Normales</option>
                     <option value="feriado">🥳 Feriados</option>
-                    <option value="ausencia">✈️ Ausencias</option>
+                    <option value="ausencia">🏠 Licencias</option>
                     <option value="vacaciones">🏖️ Vacaciones</option>
                     <option value="enfermedad">🏥 Enfermedades</option>
                     <option value="asueto">🎁 Asuetos</option>
                     <option value="paro">📢 Paros</option>
+                    <option value="remoto">💻 Remotos</option>
+                    <option value="capacitacion">📚 Capacitaciones</option>
                 </select>
             </div>
             <div class="btn-group">
@@ -1942,11 +1958,13 @@
                 <div class="input-with-btn">
                     <select id="edit-grupo-tipo">
                         <option value="feriado">🥳 Feriado</option>
-                        <option value="ausencia">✈️ Ausencia/Licencia</option>
+                        <option value="ausencia">🏠 Licencia</option>
                         <option value="vacaciones">🏖️ Vacaciones</option>
                         <option value="asueto">🎁 Asueto</option>
                         <option value="enfermedad">🏥 Enfermedad</option>
                         <option value="paro">📢 Paro</option>
+                        <option value="remoto">💻 Remoto</option>
+                        <option value="capacitacion">📚 Capacitación</option>
                     </select>
                     <button class="time-btn" id="btn-lock-grupo-toggle" onclick="UILogic.toggleBloqueoEdicionGrupo()"
                         title="Desbloquear edición">
@@ -2589,17 +2607,19 @@
                         labelPlural: 'Feriados',
                         descripcion: 'Día no laboral',
                         color: 'purple',
-                        contabiliza: true
+                        contabiliza: true,
+                        categoria: 'ausencia'
                     },
                     AUSENCIA: {
                         id: 'ausencia',
                         codigo: '11:11',
-                        emoji: '✈️',
-                        label: 'Ausencia',
-                        labelPlural: 'Ausencias',
-                        descripcion: 'Licencia / Ausencia',
+                        emoji: '🏠',
+                        label: 'Licencia',
+                        labelPlural: 'Licencias',
+                        descripcion: 'Dia libre',
                         color: 'purple',
-                        contabiliza: true
+                        contabiliza: true,
+                        categoria: 'ausencia'
                     },
                     VACACIONES: {
                         id: 'vacaciones',
@@ -2609,7 +2629,8 @@
                         labelPlural: 'Vacaciones',
                         descripcion: 'Vacaciones',
                         color: 'purple',
-                        contabiliza: true
+                        contabiliza: true,
+                        categoria: 'ausencia'
                     },
                     ASUETO: {
                         id: 'asueto',
@@ -2619,7 +2640,8 @@
                         labelPlural: 'Asuetos',
                         descripcion: 'Día de asueto',
                         color: 'purple',
-                        contabiliza: true
+                        contabiliza: true,
+                        categoria: 'ausencia'
                     },
                     ENFERMEDAD: {
                         id: 'enfermedad',
@@ -2628,8 +2650,9 @@
                         label: 'Enfermedad',
                         labelPlural: 'Enfermedades',
                         descripcion: 'Enfermedad justificada',
-                        color: 'purple',
-                        contabiliza: true
+                        color: 'green',
+                        contabiliza: true,
+                        categoria: 'ausencia'
                     },
                     PARO: {
                         id: 'paro',
@@ -2639,13 +2662,48 @@
                         labelPlural: 'Paros',
                         descripcion: 'Fuerza Mayor',
                         color: 'purple',
-                        contabiliza: true
-                    }
+                        contabiliza: true,
+                        categoria: 'ausencia'
+                    },
+                    REMOTO: {
+                        id: 'remoto',
+                        codigo: '16:16',
+                        emoji: '💻',
+                        label: 'Remoto',
+                        labelPlural: 'Remotos',
+                        descripcion: 'Trabajo desde casa',
+                        color: 'blue',
+                        contabiliza: true,
+                        categoria: 'trabajo'
+                    },
+                    CAPACITACION: {
+                        id: 'capacitacion',
+                        codigo: '17:17',
+                        emoji: '📚',
+                        label: 'Capacitación',
+                        labelPlural: 'Capacitaciones',
+                        descripcion: 'Formación profesional',
+                        color: 'blue',
+                        contabiliza: true,
+                        categoria: 'ausencia'
+                    },
                 };
 
                 function esRegistroEspecial(entrada, salida) {
                     if (!entrada || !salida) return false;
                     return entrada === salida && Object.values(TIPOS).some(t => t.codigo === entrada);
+                }
+
+                // ← NUEVA FUNCIÓN
+                function esRegistroTrabajo(entrada, salida) {
+                    const tipo = obtenerTipoPorCodigo(entrada, salida);
+                    return tipo && tipo.categoria === 'trabajo';
+                }
+
+                // ← NUEVA FUNCIÓN
+                function esRegistroAusencia(entrada, salida) {
+                    const tipo = obtenerTipoPorCodigo(entrada, salida);
+                    return tipo && tipo.categoria === 'ausencia';
                 }
 
                 function obtenerTipoPorCodigo(entrada, salida) {
@@ -2673,6 +2731,8 @@
                 return {
                     TIPOS,
                     esRegistroEspecial,
+                    esRegistroTrabajo,           // ← EXPORTAR NUEVA FUNCIÓN
+                    esRegistroAusencia,          // ← EXPORTAR NUEVA FUNCIÓN
                     obtenerTipoPorCodigo,
                     obtenerTipoPorId,
                     validarTipoPermitido,
@@ -4997,6 +5057,8 @@
                     const enfermedades = contarPorTipo('enfermedad');
                     const asuetosDiaCompleto = contarPorTipo('asueto');
                     const paros = contarPorTipo('paro');
+                    const remotos = contarPorTipo('remoto');
+                    const capacitaciones = contarPorTipo('capacitacion');
 
                     // Contar Compensaciones/Asuetos parciales (días con crédito válido)
                     const compensaciones = registrosMes.filter(r => r.credito && r.credito !== '00:00').length;
@@ -5018,7 +5080,8 @@
                     // Filtrar solo registros válidos para promedios (excluir registros especiales)
                     const registrosValidos = registrosMes.filter(r =>
                         r.entrada && r.salida &&
-                        !TiposRegistro.esRegistroEspecial(r.entrada, r.salida)
+                        (!TiposRegistro.esRegistroEspecial(r.entrada, r.salida) ||
+                            TiposRegistro.esRegistroTrabajo(r.entrada, r.salida))
                     );
 
                     if (registrosValidos.length === 0) {
@@ -5035,7 +5098,9 @@
                             enfermedades: enfermedades,
                             asuetosDiaCompleto: asuetosDiaCompleto,
                             compensaciones: compensaciones,
-                            paros: paros
+                            paros: paros,
+                            remotos: remotos,
+                            capacitaciones: capacitaciones
                         };
                     }
 
@@ -5096,7 +5161,8 @@
                     // Separar normales de especiales
                     const normalesSemanaPasada = todosRegistrosSemanaPasada.filter(r => {
                         const esEspecial = TiposRegistro.esRegistroEspecial(r.entrada, r.salida);
-                        return r.entrada && r.salida && !esEspecial;
+                        const esTrabajo = TiposRegistro.esRegistroTrabajo(r.entrada, r.salida);
+                        return r.entrada && r.salida && (!esEspecial || esTrabajo);
                     });
 
                     const especialesSemanaPasada = todosRegistrosSemanaPasada.filter(r =>
@@ -5150,7 +5216,9 @@
                         enfermedades: enfermedades,
                         asuetosDiaCompleto: asuetosDiaCompleto,
                         compensaciones: compensaciones,
-                        paros: paros
+                        paros: paros,
+                        remotos: remotos,
+                        capacitaciones: capacitaciones
                     };
                 }
 
@@ -5193,6 +5261,8 @@
                     const elAsuetosDia = $('stat-asuetos-dia');
                     const elCompensaciones = $('stat-compensaciones');
                     const elParos = $('stat-paros');
+                    const elRemotos = $('stat-remotos');
+                    const elCapacitaciones = $('stat-capacitaciones');
 
                     if (elEntrada) elEntrada.textContent = stats.entradaPromedio;
                     if (elSalida) elSalida.textContent = stats.salidaPromedio;
@@ -5223,6 +5293,8 @@
                     toggleStatItem(elAsuetosDia, stats.asuetosDiaCompleto);
                     toggleStatItem(elCompensaciones, stats.compensaciones);
                     toggleStatItem(elParos, stats.paros);
+                    toggleStatItem(elRemotos, stats.remotos);
+                    toggleStatItem(elCapacitaciones, stats.capacitaciones);
 
                 }
 
@@ -5941,9 +6013,10 @@
                         return aReg === año && mReg === mes;
                     });
 
-                    // Calcular total de horas del mes (excluir registros especiales)
+                    // Calcular total de horas del mes (excluir ausencias, incluir trabajo)
                     const totalHoras = registrosMes
-                        .filter(r => !TiposRegistro.esRegistroEspecial(r.entrada, r.salida))
+                        .filter(r => !TiposRegistro.esRegistroEspecial(r.entrada, r.salida) ||
+                            TiposRegistro.esRegistroTrabajo(r.entrada, r.salida))
                         .reduce((sum, r) => sum + r.total, 0);
 
                     const horasTotales = Math.floor(totalHoras);
@@ -5972,8 +6045,10 @@ REPORTE DE HORAS TRABAJADAS
 ────────────────────────────────────────────────────────────────
 
    • Jornadas:               ${stats.diasTrabajados}
+   • Remotos:                ${stats.remotos}
+   • Capacitaciones:         ${stats.capacitaciones}
    • Feriados:               ${stats.feriados}
-   • Ausencias:              ${stats.ausencias}
+   • Licencias:              ${stats.ausencias}
    • Vacaciones:             ${stats.vacaciones}
    • Enfermedades:           ${stats.enfermedades}
    • Asuetos:                ${stats.asuetosDiaCompleto}
@@ -8037,7 +8112,7 @@ Generado por Sistema Horarios
                         }
 
                         timerAutoCierreBotones = null;
-                    }, 4000); // 4 segundos timer autocierre
+                    }, 3000); // 3 segundos timer autocierre
                 }
 
                 function cancelarTimerAutoCierreBotones() {
@@ -8245,14 +8320,11 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.25
+    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.26
     // ====================================================================
     
      - CAMBIOS:
-    1) optimizacion de css en general
-    2) Se agrega listener tecla enter en agregar perfil y edicion de perfil
-    4) Se modifica la forma de vizualicion de algunos items de estadisticas
-    4) RTM
+    1) Se agregan 2 nuevos tipos de registros, capacitacion y remoto
 
      - BUGS CONOCIDOS:
      1) al tener un registro con entrada y luego agregar una salida, deshacer la accion
