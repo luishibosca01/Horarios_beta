@@ -2672,7 +2672,7 @@
                         label: 'Remoto',
                         labelPlural: 'Remotos',
                         descripcion: 'Trabajo desde casa',
-                        color: 'blue',
+                        color: 'green',
                         contabiliza: true,
                         categoria: 'trabajo'
                     },
@@ -6150,7 +6150,9 @@ REPORTE DE HORAS TRABAJADAS
                                         vacaciones: [],
                                         enfermedades: [],
                                         asuetos: [],
-                                        paros: []
+                                        paros: [],
+                                        remotos: [],
+                                        capacitaciones: []
                                     });
                                 }
 
@@ -6158,10 +6160,15 @@ REPORTE DE HORAS TRABAJADAS
                                 const tipoEspecial = TiposRegistro.obtenerTipoPorCodigo(r.entrada, r.salida);
 
                                 if (tipoEspecial) {
-                                    // Agregar a la categoría correspondiente
-                                    const categoria = tipoEspecial.id + 's'; // 'feriado' -> 'feriados'
-                                    if (semana[categoria]) {
-                                        semana[categoria].push(r);
+                                    // Si es un registro de TRABAJO, va a trabajados
+                                    if (tipoEspecial.categoria === 'trabajo') {
+                                        semana.trabajados.push(r);
+                                    } else {
+                                        // Si es AUSENCIA, va a su categoría específica
+                                        const categoria = tipoEspecial.id + 's'; // 'feriado' -> 'feriados'
+                                        if (semana[categoria]) {
+                                            semana[categoria].push(r);
+                                        }
                                     }
                                 } else {
                                     semana.trabajados.push(r);
