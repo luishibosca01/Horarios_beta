@@ -1461,14 +1461,6 @@
                                 <div class="stat-label">Paros</div>
                                 <div class="stat-value" id="stat-paros">0</div>
                             </div>
-                            <div class="stat-item"> <!-- ← AGREGAR -->
-                                <div class="stat-label">Remotos</div>
-                                <div class="stat-value" id="stat-remotos">0</div>
-                            </div>
-                            <div class="stat-item"> <!-- ← AGREGAR -->
-                                <div class="stat-label">Capacitaciones</div>
-                                <div class="stat-value" id="stat-capacitaciones">0</div>
-                            </div>
                             <div class="stat-item">
                                 <div class="stat-label">Salidas Temprano</div>
                                 <div class="stat-value" id="stat-compensaciones">0</div>
@@ -2607,8 +2599,7 @@
                         labelPlural: 'Feriados',
                         descripcion: 'Día no laboral',
                         color: 'purple',
-                        contabiliza: true,
-                        categoria: 'ausencia'
+                        contabiliza: true
                     },
                     AUSENCIA: {
                         id: 'ausencia',
@@ -2618,8 +2609,7 @@
                         labelPlural: 'Licencias',
                         descripcion: 'Dia libre',
                         color: 'purple',
-                        contabiliza: true,
-                        categoria: 'ausencia'
+                        contabiliza: true
                     },
                     VACACIONES: {
                         id: 'vacaciones',
@@ -2629,8 +2619,7 @@
                         labelPlural: 'Vacaciones',
                         descripcion: 'Vacaciones',
                         color: 'purple',
-                        contabiliza: true,
-                        categoria: 'ausencia'
+                        contabiliza: true
                     },
                     ASUETO: {
                         id: 'asueto',
@@ -2640,8 +2629,7 @@
                         labelPlural: 'Asuetos',
                         descripcion: 'Día de asueto',
                         color: 'purple',
-                        contabiliza: true,
-                        categoria: 'ausencia'
+                        contabiliza: true
                     },
                     ENFERMEDAD: {
                         id: 'enfermedad',
@@ -2650,9 +2638,8 @@
                         label: 'Enfermedad',
                         labelPlural: 'Enfermedades',
                         descripcion: 'Enfermedad justificada',
-                        color: 'green',
-                        contabiliza: true,
-                        categoria: 'ausencia'
+                        color: 'purple',
+                        contabiliza: true
                     },
                     PARO: {
                         id: 'paro',
@@ -2662,8 +2649,7 @@
                         labelPlural: 'Paros',
                         descripcion: 'Fuerza Mayor',
                         color: 'purple',
-                        contabiliza: true,
-                        categoria: 'ausencia'
+                        contabiliza: true
                     },
                     REMOTO: {
                         id: 'remoto',
@@ -2672,9 +2658,8 @@
                         label: 'Remoto',
                         labelPlural: 'Remotos',
                         descripcion: 'Trabajo desde casa',
-                        color: 'green',
-                        contabiliza: true,
-                        categoria: 'trabajo'
+                        color: 'purple',
+                        contabiliza: true
                     },
                     CAPACITACION: {
                         id: 'capacitacion',
@@ -2682,28 +2667,15 @@
                         emoji: '📚',
                         label: 'Capacitación',
                         labelPlural: 'Capacitaciones',
-                        descripcion: 'Formación profesional',
-                        color: 'blue',
-                        contabiliza: true,
-                        categoria: 'ausencia'
-                    },
+                        descripcion: 'Formacion profesional',
+                        color: 'purple',
+                        contabiliza: true
+                    }
                 };
 
                 function esRegistroEspecial(entrada, salida) {
                     if (!entrada || !salida) return false;
                     return entrada === salida && Object.values(TIPOS).some(t => t.codigo === entrada);
-                }
-
-                // ← NUEVA FUNCIÓN
-                function esRegistroTrabajo(entrada, salida) {
-                    const tipo = obtenerTipoPorCodigo(entrada, salida);
-                    return tipo && tipo.categoria === 'trabajo';
-                }
-
-                // ← NUEVA FUNCIÓN
-                function esRegistroAusencia(entrada, salida) {
-                    const tipo = obtenerTipoPorCodigo(entrada, salida);
-                    return tipo && tipo.categoria === 'ausencia';
                 }
 
                 function obtenerTipoPorCodigo(entrada, salida) {
@@ -2731,8 +2703,6 @@
                 return {
                     TIPOS,
                     esRegistroEspecial,
-                    esRegistroTrabajo,           // ← EXPORTAR NUEVA FUNCIÓN
-                    esRegistroAusencia,          // ← EXPORTAR NUEVA FUNCIÓN
                     obtenerTipoPorCodigo,
                     obtenerTipoPorId,
                     validarTipoPermitido,
@@ -3170,14 +3140,7 @@
                     if (!esCalculoTemporal) {
                         const tipoEspecial = TiposRegistro.obtenerTipoPorCodigo(e, s);
                         if (tipoEspecial) {
-                            // Si es registro de TRABAJO, cuenta como horas objetivo
-                            // Si es AUSENCIA, cuenta como 0 horas
-                            const totalHoras = tipoEspecial.categoria === 'trabajo' ? horasDiarias : 0;
-                            const resultado = {
-                                horas: tipoEspecial.categoria === 'trabajo' ? horasDiarias : 0,
-                                minutos: 0,
-                                total: totalHoras
-                            };
+                            const resultado = { horas: 0, minutos: 0, total: horasDiarias };
                             resultado[`es${tipoEspecial.label}`] = true;
                             return resultado;
                         }
@@ -5064,8 +5027,6 @@
                     const enfermedades = contarPorTipo('enfermedad');
                     const asuetosDiaCompleto = contarPorTipo('asueto');
                     const paros = contarPorTipo('paro');
-                    const remotos = contarPorTipo('remoto');
-                    const capacitaciones = contarPorTipo('capacitacion');
 
                     // Contar Compensaciones/Asuetos parciales (días con crédito válido)
                     const compensaciones = registrosMes.filter(r => r.credito && r.credito !== '00:00').length;
@@ -5087,8 +5048,7 @@
                     // Filtrar solo registros válidos para promedios (excluir registros especiales)
                     const registrosValidos = registrosMes.filter(r =>
                         r.entrada && r.salida &&
-                        (!TiposRegistro.esRegistroEspecial(r.entrada, r.salida) ||
-                            TiposRegistro.esRegistroTrabajo(r.entrada, r.salida))
+                        !TiposRegistro.esRegistroEspecial(r.entrada, r.salida)
                     );
 
                     if (registrosValidos.length === 0) {
@@ -5105,9 +5065,7 @@
                             enfermedades: enfermedades,
                             asuetosDiaCompleto: asuetosDiaCompleto,
                             compensaciones: compensaciones,
-                            paros: paros,
-                            remotos: remotos,
-                            capacitaciones: capacitaciones
+                            paros: paros
                         };
                     }
 
@@ -5168,8 +5126,7 @@
                     // Separar normales de especiales
                     const normalesSemanaPasada = todosRegistrosSemanaPasada.filter(r => {
                         const esEspecial = TiposRegistro.esRegistroEspecial(r.entrada, r.salida);
-                        const esTrabajo = TiposRegistro.esRegistroTrabajo(r.entrada, r.salida);
-                        return r.entrada && r.salida && (!esEspecial || esTrabajo);
+                        return r.entrada && r.salida && !esEspecial;
                     });
 
                     const especialesSemanaPasada = todosRegistrosSemanaPasada.filter(r =>
@@ -5223,9 +5180,7 @@
                         enfermedades: enfermedades,
                         asuetosDiaCompleto: asuetosDiaCompleto,
                         compensaciones: compensaciones,
-                        paros: paros,
-                        remotos: remotos,
-                        capacitaciones: capacitaciones
+                        paros: paros
                     };
                 }
 
@@ -5268,8 +5223,6 @@
                     const elAsuetosDia = $('stat-asuetos-dia');
                     const elCompensaciones = $('stat-compensaciones');
                     const elParos = $('stat-paros');
-                    const elRemotos = $('stat-remotos');
-                    const elCapacitaciones = $('stat-capacitaciones');
 
                     if (elEntrada) elEntrada.textContent = stats.entradaPromedio;
                     if (elSalida) elSalida.textContent = stats.salidaPromedio;
@@ -5300,8 +5253,6 @@
                     toggleStatItem(elAsuetosDia, stats.asuetosDiaCompleto);
                     toggleStatItem(elCompensaciones, stats.compensaciones);
                     toggleStatItem(elParos, stats.paros);
-                    toggleStatItem(elRemotos, stats.remotos);
-                    toggleStatItem(elCapacitaciones, stats.capacitaciones);
 
                 }
 
@@ -6020,10 +5971,9 @@
                         return aReg === año && mReg === mes;
                     });
 
-                    // Calcular total de horas del mes (excluir ausencias, incluir trabajo)
+                    // Calcular total de horas del mes (excluir registros especiales)
                     const totalHoras = registrosMes
-                        .filter(r => !TiposRegistro.esRegistroEspecial(r.entrada, r.salida) ||
-                            TiposRegistro.esRegistroTrabajo(r.entrada, r.salida))
+                        .filter(r => !TiposRegistro.esRegistroEspecial(r.entrada, r.salida))
                         .reduce((sum, r) => sum + r.total, 0);
 
                     const horasTotales = Math.floor(totalHoras);
@@ -6052,8 +6002,6 @@ REPORTE DE HORAS TRABAJADAS
 ────────────────────────────────────────────────────────────────
 
    • Jornadas:               ${stats.diasTrabajados}
-   • Remotos:                ${stats.remotos}
-   • Capacitaciones:         ${stats.capacitaciones}
    • Feriados:               ${stats.feriados}
    • Licencias:              ${stats.ausencias}
    • Vacaciones:             ${stats.vacaciones}
@@ -6157,9 +6105,7 @@ REPORTE DE HORAS TRABAJADAS
                                         vacaciones: [],
                                         enfermedades: [],
                                         asuetos: [],
-                                        paros: [],
-                                        remotos: [],
-                                        capacitaciones: []
+                                        paros: []
                                     });
                                 }
 
@@ -6167,15 +6113,10 @@ REPORTE DE HORAS TRABAJADAS
                                 const tipoEspecial = TiposRegistro.obtenerTipoPorCodigo(r.entrada, r.salida);
 
                                 if (tipoEspecial) {
-                                    // Si es un registro de TRABAJO, va a trabajados
-                                    if (tipoEspecial.categoria === 'trabajo') {
-                                        semana.trabajados.push(r);
-                                    } else {
-                                        // Si es AUSENCIA, va a su categoría específica
-                                        const categoria = tipoEspecial.id + 's'; // 'feriado' -> 'feriados'
-                                        if (semana[categoria]) {
-                                            semana[categoria].push(r);
-                                        }
+                                    // Agregar a la categoría correspondiente
+                                    const categoria = tipoEspecial.id + 's'; // 'feriado' -> 'feriados'
+                                    if (semana[categoria]) {
+                                        semana[categoria].push(r);
                                     }
                                 } else {
                                     semana.trabajados.push(r);
@@ -8338,7 +8279,7 @@ Generado por Sistema Horarios
     // ====================================================================
     
      - CAMBIOS:
-    1) Se agregan 2 nuevos tipos de registros, capacitacion y remoto
+    1) Se agregan 2 nuevos tipos de registros especiales, capacitacion y remoto
 
      - BUGS CONOCIDOS:
      1) al tener un registro con entrada y luego agregar una salida, deshacer la accion
