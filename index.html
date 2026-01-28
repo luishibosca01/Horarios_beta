@@ -1462,6 +1462,14 @@
                                 <div class="stat-value" id="stat-paros">0</div>
                             </div>
                             <div class="stat-item">
+                                <div class="stat-label">Remotos</div>
+                                <div class="stat-value" id="stat-remotos">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Capacitaciones</div>
+                                <div class="stat-value" id="stat-capacitaciones">0</div>
+                            </div>
+                            <div class="stat-item">
                                 <div class="stat-label">Salidas Temprano</div>
                                 <div class="stat-value" id="stat-compensaciones">0</div>
                             </div>
@@ -1549,7 +1557,7 @@
                     </svg>
                     Ajustes
                 </span>
-                <span class="version-text">LUSHIBOSCA-7.26</span>
+                <span class="version-text">LUSHIBOSCA-7.27</span>
             </h3>
             <div class="form-group">
                 <label>Horas Diarias</label>
@@ -3174,9 +3182,15 @@
                     let horasDescontar = 0;
 
                     registros.forEach(r => {
-                        const esEspecial = TiposRegistro.esRegistroEspecial(r.entrada, r.salida);
+                        const tipoEspecial = TiposRegistro.obtenerTipoPorCodigo(r.entrada, r.salida);
 
-                        if (r.fecha >= inicio && r.fecha <= fin && esEspecial) {
+                        // Solo descontar si es especial Y NO es remoto
+                        if (r.fecha >= inicio && r.fecha <= fin && tipoEspecial) {
+                            // Si es remoto, NO descontar (porque suma horas al total)
+                            if (tipoEspecial.id === 'remoto') {
+                                return; // Saltar este registro
+                            }
+
                             const fechaObj = new Date(r.fecha.replace(/-/g, '/') + ' 00:00:00');
                             const diaSemana = fechaObj.getDay();
 
@@ -5027,6 +5041,8 @@
                     const enfermedades = contarPorTipo('enfermedad');
                     const asuetosDiaCompleto = contarPorTipo('asueto');
                     const paros = contarPorTipo('paro');
+                    const remotos = contarPorTipo('remoto');
+                    const capacitaciones = contarPorTipo('capacitacion');
 
                     // Contar Compensaciones/Asuetos parciales (días con crédito válido)
                     const compensaciones = registrosMes.filter(r => r.credito && r.credito !== '00:00').length;
@@ -5065,7 +5081,9 @@
                             enfermedades: enfermedades,
                             asuetosDiaCompleto: asuetosDiaCompleto,
                             compensaciones: compensaciones,
-                            paros: paros
+                            paros: paros,
+                            remotos: remotos,
+                            capacitaciones: capacitaciones
                         };
                     }
 
@@ -5145,8 +5163,17 @@
                         }
                     });
 
-                    // Sumar horas trabajadas
-                    const totalSemanaPasada = normalesSemanaPasada.reduce((sum, r) => sum + r.total, 0);
+                    // Sumar horas trabajadas (normales + remotos como objetivo diario)
+                    const horasDiariasObjetivo = D.horasDiarias();
+                    let totalSemanaPasada = normalesSemanaPasada.reduce((sum, r) => sum + r.total, 0);
+
+                    // Agregar horas de días remotos (equivalente al objetivo diario)
+                    especialesSemanaPasada.forEach(r => {
+                        const tipo = TiposRegistro.obtenerTipoPorCodigo(r.entrada, r.salida);
+                        if (tipo && tipo.id === 'remoto') {
+                            totalSemanaPasada += horasDiariasObjetivo;
+                        }
+                    });
                     const hSemanaPasada = Math.floor(totalSemanaPasada);
                     const mSemanaPasada = Math.round((totalSemanaPasada - hSemanaPasada) * 60);
 
@@ -5180,7 +5207,9 @@
                         enfermedades: enfermedades,
                         asuetosDiaCompleto: asuetosDiaCompleto,
                         compensaciones: compensaciones,
-                        paros: paros
+                        paros: paros,
+                        remotos: remotos,
+                        capacitaciones: capacitaciones
                     };
                 }
 
@@ -5223,6 +5252,8 @@
                     const elAsuetosDia = $('stat-asuetos-dia');
                     const elCompensaciones = $('stat-compensaciones');
                     const elParos = $('stat-paros');
+                    const elRemotos = $('stat-remotos');
+                    const elCapacitaciones = $('stat-capacitaciones');
 
                     if (elEntrada) elEntrada.textContent = stats.entradaPromedio;
                     if (elSalida) elSalida.textContent = stats.salidaPromedio;
@@ -5253,6 +5284,8 @@
                     toggleStatItem(elAsuetosDia, stats.asuetosDiaCompleto);
                     toggleStatItem(elCompensaciones, stats.compensaciones);
                     toggleStatItem(elParos, stats.paros);
+                    toggleStatItem(elRemotos, stats.remotos);
+                    toggleStatItem(elCapacitaciones, stats.capacitaciones);
 
                 }
 
@@ -5357,10 +5390,27 @@
                         // Solo contar hasta HOY
                         const fechaLimiteCalculo = hoy < fn ? hoy : fn;
 
-                        const tot = registros.filter(r =>
-                            r.fecha >= ini && r.fecha <= fechaLimiteCalculo &&
-                            !TiposRegistro.esRegistroEspecial(r.entrada, r.salida)
-                        ).reduce((s, r) => s + r.total, 0);
+                        // Filtrar todos los registros de la semana hasta hoy
+                        const registrosSemana = registros.filter(r =>
+                            r.fecha >= ini && r.fecha <= fechaLimiteCalculo
+                        );
+
+                        // Calcular total sumando:
+                        // 1. Horas reales de registros normales
+                        // 2. Objetivo diario por cada día remoto
+                        let tot = 0;
+                        registrosSemana.forEach(r => {
+                            const tipoEspecial = TiposRegistro.obtenerTipoPorCodigo(r.entrada, r.salida);
+
+                            if (tipoEspecial && tipoEspecial.id === 'remoto') {
+                                // Si es remoto, sumar el objetivo diario
+                                tot += horasDiarias;
+                            } else if (!tipoEspecial) {
+                                // Si es un registro normal, sumar las horas reales
+                                tot += r.total;
+                            }
+                            // Los demás tipos especiales no suman
+                        });
 
                         const horasDescontar = D.calcularHorasFeriadoEnRango(ini, fn);
                         const objetivoAjustado = Math.max(0, horasSemanales - horasDescontar);
@@ -5446,7 +5496,7 @@
                                 : null;
 
                             if (tipoEspecialHoy) {
-                                // Día especial (feriado, ausencia, etc.)
+                                // Día especial (feriado, licencia, etc.)
                                 if (statsEl) statsEl.textContent = `${tipoEspecialHoy.emoji} ${tipoEspecialHoy.label}`;
                                 if (progressEl) {
                                     progressEl.style.width = '100%';
@@ -6009,6 +6059,8 @@ REPORTE DE HORAS TRABAJADAS
    • Asuetos:                ${stats.asuetosDiaCompleto}
    • Salidas Temprano:       ${stats.compensaciones}
    • Paros:                  ${stats.paros}
+   • Remotos:                ${stats.remotos}
+   • Capacitaciones:         ${stats.capacitaciones}
 
    • Entrada promedio:       ${stats.entradaPromedio}
    • Salida promedio:        ${stats.salidaPromedio}
@@ -6105,7 +6157,9 @@ REPORTE DE HORAS TRABAJADAS
                                         vacaciones: [],
                                         enfermedades: [],
                                         asuetos: [],
-                                        paros: []
+                                        paros: [],
+                                        remotos: [],
+                                        capacitaciones: []
                                     });
                                 }
 
@@ -6197,6 +6251,8 @@ REPORTE DE HORAS TRABAJADAS
                                 if (datos.enfermedades.length > 0) notasExtras.push(`${datos.enfermedades.length} enfermedad(es)`);
                                 if (datos.asuetos.length > 0) notasExtras.push(`${datos.asuetos.length} asueto(s)`);
                                 if (datos.paros.length > 0) notasExtras.push(`${datos.paros.length} paro(s)`);
+                                if (datos.remotos.length > 0) notasExtras.push(`${datos.remotos.length} remoto(s)`);
+                                if (datos.capacitaciones.length > 0) notasExtras.push(`${datos.capacitaciones.length} capacitacion(es)`);
 
                                 if (notasExtras.length > 0) {
                                     seccion += ` [${notasExtras.join(', ')}]`;
@@ -8275,11 +8331,12 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.26
+    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.27
     // ====================================================================
     
      - CAMBIOS:
-    1) Se agregan 2 nuevos tipos de registros especiales, capacitacion y remoto
+    1) Se cambia el calculo del registro "remoto" para que actue como un registro normal en los
+    calculos
 
      - BUGS CONOCIDOS:
      1) al tener un registro con entrada y luego agregar una salida, deshacer la accion
