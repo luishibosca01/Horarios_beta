@@ -1557,7 +1557,7 @@
                     </svg>
                     Ajustes
                 </span>
-                <span class="version-text">LUSHIBOSCA-7.30</span>
+                <span class="version-text">LUSHIBOSCA-7.27</span>
             </h3>
             <div class="form-group">
                 <label>Horas Diarias</label>
@@ -4426,159 +4426,6 @@
 
             })(SecurityAndUtils);
 
-            // ============================================
-            // MÓDULO DE NOTIFICACIONES
-            // ============================================
-            const NotificacionesManager = (() => {
-                let permisosConcedidos = false;
-                let swRegistration = null;
-
-                async function init() {
-                    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-                        console.warn('⚠️ Notificaciones no soportadas');
-                        return;
-                    }
-
-                    permisosConcedidos = Notification.permission === 'granted';
-
-                    if ('serviceWorker' in navigator) {
-                        swRegistration = await navigator.serviceWorker.ready;
-                    }
-
-                    console.log('📱 Sistema de notificaciones inicializado');
-                }
-
-                async function solicitarPermisos() {
-                    if (!('Notification' in window)) return false;
-
-                    if (Notification.permission === 'granted') {
-                        permisosConcedidos = true;
-                        return true;
-                    }
-
-                    if (Notification.permission !== 'denied') {
-                        const permission = await Notification.requestPermission();
-                        permisosConcedidos = permission === 'granted';
-
-                        if (permisosConcedidos) {
-                            mostrarNotificacionPrueba();
-                        }
-
-                        return permisosConcedidos;
-                    }
-
-                    return false;
-                }
-
-                function mostrarNotificacionPrueba() {
-                    if (!permisosConcedidos || !swRegistration) return;
-
-                    swRegistration.showNotification('✅ Notificaciones activadas', {
-                        body: 'Te avisaremos 5 minutos antes de cumplir tu objetivo diario',
-                        icon: './icons/icon-192.png',
-                        vibrate: [100, 50, 100],
-                        tag: 'test'
-                    });
-                }
-
-                function calcularMinutosParaNotificacion() {
-                    const horasDiarias = D.horasDiarias();
-
-                    if (horasDiarias === 0) return null;
-
-                    const hoy = UILogic.obtenerFechaHoy();
-                    const registros = D.registros();
-                    const regHoy = registros.find(r => r.fecha === hoy);
-
-                    if (!regHoy || !regHoy.entrada || regHoy.salida) return null;
-
-                    if (TiposRegistro.esRegistroEspecial(regHoy.entrada, regHoy.salida)) {
-                        return null;
-                    }
-
-                    const ahora = new Date();
-                    const horaActual = String(ahora.getHours()).padStart(2, '0') + ':' +
-                        String(ahora.getMinutes()).padStart(2, '0');
-
-                    const resultado = D.calcularHoras(
-                        regHoy.entrada,
-                        horaActual,
-                        regHoy.tiempoFuera || null,
-                        null,
-                        true
-                    );
-
-                    if (!resultado) return null;
-
-                    const horasTrabajadas = resultado.total;
-                    const horasFaltantes = horasDiarias - horasTrabajadas;
-
-                    if (horasFaltantes <= 0) return null;
-
-                    const minutosFaltantes = Math.round(horasFaltantes * 60);
-
-                    // Solo si faltan entre 6 y 60 minutos
-                    if (minutosFaltantes < 6 || minutosFaltantes > 60) return null;
-
-                    const minutosParaNotificar = minutosFaltantes - 5;
-
-                    return {
-                        minutos: minutosParaNotificar,
-                        horasObjetivo: horasDiarias
-                    };
-                }
-
-                function programarNotificacionSiCorresponde() {
-                    if (!permisosConcedidos || !swRegistration) return;
-
-                    const datos = calcularMinutosParaNotificacion();
-
-                    if (!datos) {
-                        cancelarNotificacion();
-                        return;
-                    }
-
-                    if (navigator.serviceWorker.controller) {
-                        navigator.serviceWorker.controller.postMessage({
-                            type: 'PROGRAMAR_NOTIFICACION',
-                            payload: {
-                                minutosRestantes: datos.minutos,
-                                horasObjetivo: datos.horasObjetivo
-                            }
-                        });
-
-                        console.log(`🔔 Notificación programada para dentro de ${datos.minutos} minutos`);
-                    }
-                }
-
-                function cancelarNotificacion() {
-                    if (navigator.serviceWorker.controller) {
-                        navigator.serviceWorker.controller.postMessage({
-                            type: 'CANCELAR_NOTIFICACION'
-                        });
-                    }
-                }
-
-                function verificarYProgramar() {
-                    if (Notification.permission === 'granted') {
-                        permisosConcedidos = true;
-                        programarNotificacionSiCorresponde();
-                    }
-                }
-
-                function estaHabilitado() {
-                    return permisosConcedidos && Notification.permission === 'granted';
-                }
-
-                return {
-                    init,
-                    solicitarPermisos,
-                    verificarYProgramar,
-                    cancelarNotificacion,
-                    estaHabilitado
-                };
-            })();
-
             // ====================================================================
             // UI LOGIC MODULE
             // ====================================================================
@@ -5885,9 +5732,6 @@
                     poblarSelectorMeses();
                     actualizarEstadisticas();
                     actualizarEstadoBotonTimerMain();
-                    if (typeof NotificacionesManager !== 'undefined') {
-                        NotificacionesManager.verificarYProgramar();
-                    }
                 }
 
                 function alternarTema() {
@@ -6842,9 +6686,6 @@ Generado por Sistema Horarios
                 function mostrarconfig() {
                     ModalManager.alternar('modal-selector-perfiles', 'modal-config', null, () => {
                         $('config-horas-diarias').value = D.horasDiarias();
-                        if (typeof actualizarEstadoNotificaciones === 'function') {
-                            actualizarEstadoNotificaciones();
-                        }
 
                         const diasActivos = D.diasHabiles();
                         const checkboxes = document.querySelectorAll('input[name="dia-habil"]');
@@ -7895,16 +7736,6 @@ Generado por Sistema Horarios
 
                     actualizarUI();
                     setInterval(() => actualizarUI(null, true), 60000);
-                    
-                    // Inicializar notificaciones
-                    setTimeout(async () => {
-                        await NotificacionesManager.init();
-                        if (Notification.permission === 'default') {
-                            await NotificacionesManager.solicitarPermisos();
-                        }
-                        NotificacionesManager.verificarYProgramar();
-                    }, 1000); // Esperar 1 segundo para que todo esté listo
-                    
                     console.log('Sistema iniciado correctamente');
 
                     // ===================================
@@ -8131,8 +7962,6 @@ Generado por Sistema Horarios
                             }
                         });
                     }
-                    NotificacionesManager.init();
-                    NotificacionesManager.verificarYProgramar();
                 }
 
                 function mostrarFiltros() {
@@ -8465,36 +8294,6 @@ Generado por Sistema Horarios
                     }, 2000);
                 }
 
-                async function activarNotificaciones() {
-                    const resultado = await NotificacionesManager.solicitarPermisos();
-
-                    if (resultado) {
-                        mostrarToast('✅ Notificaciones activadas', 'success');
-                        actualizarEstadoNotificaciones();
-                    } else {
-                        mostrarToast('❌ Permisos denegados', 'error');
-                    }
-                }
-
-                function actualizarEstadoNotificaciones() {
-                    const estadoEl = document.getElementById('estado-notificaciones');
-                    const btnEl = document.getElementById('btn-activar-notificaciones');
-
-                    if (!estadoEl || !btnEl) return;
-
-                    if (NotificacionesManager.estaHabilitado()) {
-                        estadoEl.innerHTML = '<span style="color: var(--c-green);">✓ Activas</span>';
-                        btnEl.textContent = 'Activadas';
-                        btnEl.disabled = true;
-                        btnEl.style.opacity = '0.5';
-                    } else {
-                        estadoEl.innerHTML = '<span style="color: var(--text-muted);">Desactivadas</span>';
-                        btnEl.textContent = 'Activar';
-                        btnEl.disabled = false;
-                        btnEl.style.opacity = '1';
-                    }
-                }
-
                 return {
                     init, obtenerFechaHoy, pegarHoraActual, alternarTema, alternarVista, cerrarConfig,
                     cerrarEdicion, mostrarImportar, cerrarImportar, actualizarUI, mostrarToast, mostrarError,
@@ -8508,7 +8307,7 @@ Generado por Sistema Horarios
                     iniciarCambioHoras, detenerCambio, mostrarconfig, alternarFechaActual, verificarBloqueoCredito,
                     toggleCredito, setBloqueoEdicionGrupo, toggleBloqueoEdicionGrupo, cerrarEdicionGrupo,
                     mostrarExportar, cerrarExportar, ejecutarExportacion, toggleCamposRangoExport, aplicarFeedbackRegistro,
-                    iniciarTimerAutoCierreBotones, cancelarTimerAutoCierreBotones, activarNotificaciones, actualizarEstadoNotificaciones
+                    iniciarTimerAutoCierreBotones, cancelarTimerAutoCierreBotones
                 };
 
             })(SecurityAndUtils, DataManagement);
@@ -8541,11 +8340,13 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.28
+    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.27
     // ====================================================================
     
      - CAMBIOS:
-    1) 
+    1) Se cambia el calculo del registro "remoto" para que actue como un registro normal en los
+    calculos
+    2) Se agrega el calculo de registro remoto al Reporte
 
      - BUGS MENORES CONOCIDOS:
      1) al tener un registro con entrada y luego agregar una salida, deshacer la accion
