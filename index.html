@@ -1557,7 +1557,7 @@
                     </svg>
                     Ajustes
                 </span>
-                <span class="version-text">LUSHIBOSCA-7.27</span>
+                <span class="version-text">LUSHIBOSCA-7.28</span>
             </h3>
             <div class="form-group">
                 <label>Horas Diarias</label>
@@ -2539,12 +2539,15 @@
                     }
 
                     updateButtons();
+                    // Guardar en localStorage
+                    saveToLocalStorage();
                 }
 
                 function undo() {
                     if (currentIndex > 0) {
                         currentIndex--;
                         updateButtons();
+                        saveToLocalStorage(); // ← LÍNEA NUEVA
                         const estado = deepClone(history[currentIndex]);
                         return estado;
                     }
@@ -2555,6 +2558,7 @@
                     if (currentIndex < history.length - 1) {
                         currentIndex++;
                         updateButtons();
+                        saveToLocalStorage(); // ← LÍNEA NUEVA
                         const estado = deepClone(history[currentIndex]);
                         return estado;
                     }
@@ -2577,9 +2581,74 @@
                     if (redoBtn) redoBtn.disabled = !canRedo();
                 }
 
+                function saveToLocalStorage() {
+                    try {
+                        const perfilActual = window.PerfilManager ? PerfilManager.obtenerPerfilActual() : 'default';
+                        const storageKey = `history_${perfilActual}`;
+
+                        const historyData = {
+                            history: history,
+                            currentIndex: currentIndex,
+                            timestamp: Date.now()
+                        };
+
+                        localStorage.setItem(storageKey, JSON.stringify(historyData));
+                    } catch (error) {
+                        console.error('Error guardando historial:', error);
+                    }
+                }
+
+                function loadFromLocalStorage() {
+                    try {
+                        const perfilActual = window.PerfilManager ? PerfilManager.obtenerPerfilActual() : 'default';
+                        const storageKey = `history_${perfilActual}`;
+                        const stored = localStorage.getItem(storageKey);
+
+                        if (stored) {
+                            const historyData = JSON.parse(stored);
+
+                            // Verificar que el historial no tenga más de 24 horas
+                            const ahora = Date.now();
+                            const tiempoTranscurrido = ahora - (historyData.timestamp || 0);
+                            const unDiaEnMs = 24 * 60 * 60 * 1000;
+
+                            if (tiempoTranscurrido < unDiaEnMs) {
+                                // Historial válido - restaurar
+                                history = historyData.history || [];
+                                currentIndex = historyData.currentIndex !== undefined ? historyData.currentIndex : -1;
+
+                                console.log(`Historial restaurado: ${history.length} estados`);
+                            } else {
+                                // Historial expirado - limpiar
+                                console.log('Historial expirado (más de 24hs), limpiando...');
+                                localStorage.removeItem(storageKey);
+                                history = [];
+                                currentIndex = -1;
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error cargando historial:', error);
+                        history = [];
+                        currentIndex = -1;
+                    }
+
+                    updateButtons();
+                }
+
+                function clearStorage() {
+                    try {
+                        const perfilActual = window.PerfilManager ? PerfilManager.obtenerPerfilActual() : 'default';
+                        const storageKey = `history_${perfilActual}`;
+                        localStorage.removeItem(storageKey);
+                    } catch (error) {
+                        console.error('Error limpiando historial:', error);
+                    }
+                }
+
                 function clear() {
                     history = [];
                     currentIndex = -1;
+                    clearStorage();
                     updateButtons();
                 }
 
@@ -2591,6 +2660,8 @@
                     canRedo,
                     updateButtons,
                     clear,
+                    saveToLocalStorage,
+                    loadFromLocalStorage
                 };
             })();
 
@@ -7666,8 +7737,14 @@ Generado por Sistema Horarios
                     const registrosCargados = perfilActual.registros || [];
                     D.registros().splice(0, D.registros().length, ...registrosCargados);
 
-                    HistoryManager.clear();
-                    HistoryManager.saveState(D.registros());
+                    // Cargar historial guardado (si existe y es válido)
+                    HistoryManager.loadFromLocalStorage();
+
+                    // Si no hay historial o está vacío, inicializar con estado actual
+                    if (!HistoryManager.canUndo()) {
+                        HistoryManager.saveState(D.registros());
+                    }
+
                     HistoryManager.updateButtons();
 
                     // TEMA
@@ -8340,13 +8417,11 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.27
+    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.28
     // ====================================================================
     
      - CAMBIOS:
-    1) Se cambia el calculo del registro "remoto" para que actue como un registro normal en los
-    calculos
-    2) Se agrega el calculo de registro remoto al Reporte
+    1) 
 
      - BUGS MENORES CONOCIDOS:
      1) al tener un registro con entrada y luego agregar una salida, deshacer la accion
