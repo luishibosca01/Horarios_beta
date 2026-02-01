@@ -2463,6 +2463,25 @@
             // MODAL MANAGER MODULE
             // ====================================================================
             const ModalManager = (function () {
+
+                // Función para manejar clics fuera del modal
+                function handleOutsideClick(event) {
+                    // Verificar si el clic fue en el overlay (fondo del modal)
+                    if (event.target.classList.contains('modal') && event.target.classList.contains('show')) {
+                        const modalId = event.target.id;
+
+                        // Solo los modales con estado crítico usan su función específica
+                        if (modalId === 'modal-editar') {
+                            if (window.UILogic) UILogic.cerrarEdicion();
+                        } else if (modalId === 'modal-editar-grupo') {
+                            if (window.UILogic) UILogic.cerrarEdicionGrupo();
+                        } else {
+                            // El resto se cierra directamente
+                            cerrar(modalId);
+                        }
+                    }
+                }
+
                 function abrir(modalId, callback = null) {
                     const modal = document.getElementById(modalId);
                     if (!modal) {
@@ -2472,6 +2491,11 @@
 
                     modal.classList.add('show');
                     document.body.classList.add('modal-open');
+
+                    // Agregar listener para clics fuera del modal
+                    setTimeout(() => {
+                        modal.addEventListener('click', handleOutsideClick);
+                    }, 100);
 
                     if (callback) callback();
                 }
@@ -2485,6 +2509,9 @@
 
                     modal.classList.remove('show');
                     document.body.classList.remove('modal-open');
+
+                    // Remover listener cuando se cierra
+                    modal.removeEventListener('click', handleOutsideClick);
 
                     if (callback) callback();
                 }
@@ -8421,7 +8448,7 @@ Generado por Sistema Horarios
     // ====================================================================
     
      - CAMBIOS:
-    1) 
+    1) Se agrega listener para cerrar los modales al hacer click o tocar fuera de ellos
 
      - BUGS MENORES CONOCIDOS:
      1) al tener un registro con entrada y luego agregar una salida, deshacer la accion
