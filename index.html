@@ -1570,7 +1570,7 @@
                     </svg>
                     Ajustes
                 </span>
-                <span class="version-text">LUSHIBOSCA-7.30</span>
+                <span class="version-text">LUSHIBOSCA-7.31</span>
             </h3>
             <div class="form-group">
                 <label>Horas Diarias</label>
@@ -5518,6 +5518,61 @@
                             r.fecha >= ini && r.fecha <= fechaLimiteCalculo
                         );
 
+                        // =========================================================
+                        // DETECCIÓN: ¿Todos los días laborables están ocupados?
+                        // =========================================================
+                        let todosLosDiasLaborablesTienenEspecial = false;
+
+                        if (Array.isArray(diasHabilesConfig) && diasHabilesConfig.length > 0 && horasDiarias > 0) {
+                            // Generar todas las fechas de días laborables de la semana actual
+                            const fechasLaborablesConfig = [];
+
+                            // Parsear fechas de inicio y fin de semana
+                            const [yIni, mIni, dIni] = ini.split('-').map(Number);
+                            const [yFin, mFin, dFin] = fn.split('-').map(Number);
+
+                            const inicioSemana = new Date(yIni, mIni - 1, dIni);
+                            const finSemana = new Date(yFin, mFin - 1, dFin);
+
+                            // Iterar cada día de la semana
+                            let fechaActual = new Date(inicioSemana);
+                            while (fechaActual <= finSemana) {
+                                const diaSemana = fechaActual.getDay();
+
+                                // Si este día está en la configuración de laborables
+                                if (diasHabilesConfig.includes(diaSemana)) {
+                                    const y = fechaActual.getFullYear();
+                                    const m = String(fechaActual.getMonth() + 1).padStart(2, '0');
+                                    const d = String(fechaActual.getDate()).padStart(2, '0');
+                                    const fechaStr = `${y}-${m}-${d}`;
+                                    fechasLaborablesConfig.push(fechaStr);
+                                }
+
+                                // Avanzar al siguiente día (crear nueva instancia)
+                                fechaActual = new Date(fechaActual);
+                                fechaActual.setDate(fechaActual.getDate() + 1);
+                            }
+
+                            // Verificar si TODOS los días laborables tienen registros especiales
+                            if (fechasLaborablesConfig.length > 0) {
+                                let contadorEspeciales = 0;
+
+                                fechasLaborablesConfig.forEach(fecha => {
+                                    const reg = registros.find(r => r.fecha === fecha);
+                                    if (reg) {
+                                        const tipo = TiposRegistro.obtenerTipoPorCodigo(reg.entrada, reg.salida);
+                                        // Es especial si tiene tipo Y no es remoto
+                                        if (tipo && tipo.id !== 'remoto') {
+                                            contadorEspeciales++;
+                                        }
+                                    }
+                                });
+
+                                // Solo si TODOS tienen especiales
+                                todosLosDiasLaborablesTienenEspecial = (contadorEspeciales === fechasLaborablesConfig.length);
+                            }
+                        }
+
                         // Calcular total sumando:
                         // 1. Horas reales de registros normales
                         // 2. Objetivo diario por cada día remoto
@@ -5539,7 +5594,14 @@
                         const objetivoAjustado = Math.max(0, horasSemanales - horasDescontar);
                         const prog = objetivoAjustado > 0 ? Math.min((tot / objetivoAjustado) * 100, 100) : 100;
 
-                        if (statsEl) statsEl.textContent = horasATexto(tot);
+                        if (statsEl) {
+                            // Si todos los días laborables tienen registros especiales, mostrar mensaje alternativo
+                            if (todosLosDiasLaborablesTienenEspecial) {
+                                statsEl.textContent = "😎 Sin Jornadas";
+                            } else {
+                                statsEl.textContent = horasATexto(tot);
+                            }
+                        }
 
                         if (progressEl) {
                             progressEl.style.width = prog + '%';
@@ -5584,7 +5646,11 @@
                         }
 
                         if (mensajeEl) {
-                            if (horasDiarias === 0) {
+                            // Si todos los días laborables están ocupados por registros especiales
+                            if (todosLosDiasLaborablesTienenEspecial) {
+                                mensajeEl.textContent = 'Semana sin días laborables';
+                                mensajeEl.style.display = 'block';
+                            } else if (horasDiarias === 0) {
                                 mensajeEl.textContent = `Total registrado: ${horasATexto(tot)}`;
                                 mensajeEl.style.display = 'none';
                             } else {
@@ -8477,13 +8543,13 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.30
+    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.31
     // ====================================================================
     
      - CAMBIOS:
-    1) Se rediseña registro-item, para mejor visualización
-    2) Se corrige bug en history manager
-    3) Se agrega icono svg para la pagina
+    1) Se agrega deteccion si los dias laborables estan registrados com registros 
+    especiales
+
 
      - BUGS MENORES CONOCIDOS:
      1) al tener un registro con entrada y luego agregar una salida, deshacer la accion
