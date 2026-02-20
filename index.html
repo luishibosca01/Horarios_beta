@@ -38,11 +38,11 @@
             --border: #dde3ea;
             --input-bg: #dde3ea;
             --input-focus: #dde3ea;
-            --c-blue: rgba(76, 106, 172, 0.7);
-            --c-green: rgba(76, 172, 119, 0.7);
-            --c-red: rgba(172, 76, 76, 0.7);
-            --c-purple: rgba(129, 76, 172, 0.7);
-            --c-gold: rgba(172, 155, 76, 0.7);
+            --c-blue: rgba(76, 114, 172, 0.8);
+            --c-green: rgba(76, 172, 140, 0.8);
+            --c-red: rgba(172, 90, 76, 0.8);
+            --c-purple: rgba(129, 76, 172, 0.8);
+            --c-gold: rgba(172, 155, 76, 0.8);
             --c-gray-btn: #dde3ea;
             --c-white: #ffffff;
             --hover: #989ca0;
@@ -5491,7 +5491,7 @@
                         // Solo mostrar buffer si hay horas configuradas, hay diferencia y la semana no terminó
                         if (horasDiarias > 0 && Math.abs(bufferSemanal) > 0.01 && semanaAbierta) {
                             const esPositivo = bufferSemanal > 0;
-                            const bufferColor = esPositivo ? '#60ac94' : '#c05d76';
+                            const bufferColor = esPositivo ? 'var(--c-green)' : 'var(--c-red)';
                             const bufferTextoHoras = horasATexto(Math.abs(bufferSemanal));
                             const bufferLabel = esPositivo ? 'extras' : 'faltantes';
 
