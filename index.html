@@ -33,8 +33,7 @@
             --bg-card: #f0f4f9;
             --bg-header: #ffffff;
             --text-main: #1f1f1f;
-            --text-muted: #444746
-            --text-inv: #ffffff;
+            --text-muted: #444746 --text-inv: #ffffff;
             --border: #dde3ea;
             --input-bg: #dde3ea;
             --input-focus: #dde3ea;
@@ -94,7 +93,7 @@
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 1rem;
+            padding: 0.5rem;
         }
 
         .header {
@@ -125,7 +124,7 @@
         .modal-content {
             background: var(--bg-card);
             border-radius: var(--radius);
-            padding: 1.5rem 1rem;
+            padding: 1.5rem 0.5rem;
             margin-bottom: 1rem;
             box-shadow: var(--shadow);
             color: var(--text-main);
@@ -147,33 +146,6 @@
 
         .card h2.no-margin {
             margin-bottom: 0;
-        }
-
-        @media (min-width: 1024px) {
-            .container {
-                display: grid;
-                grid-template-columns: minmax(350px, 1fr) minmax(400px, 1fr);
-                gap: 1rem;
-                align-items: start;
-            }
-
-            .left-column {
-                display: flex;
-                flex-direction: column;
-            }
-
-            .right-column {
-                position: sticky;
-                top: 4.5rem;
-            }
-
-            #lista-registros {
-                max-height: 1100px;
-                overflow-y: auto;
-                padding: 0.5rem;
-                scrollbar-gutter: stable;
-
-            }
         }
 
         /* --- Scrollbar Reutilizable (Clase Utilitaria) --- */
@@ -383,28 +355,6 @@
             gap: 0.75rem;
         }
 
-        /* --- Hovers de botones --- */
-
-        @media (hover: hover) and (pointer: fine) {
-
-            .icon-btn:hover:not(:disabled),
-            .time-btn:hover:not(:disabled),
-            .btn-increment:hover:not(:disabled),
-            .filter-btn:hover:not(:disabled),
-            .btn-delete:hover:not(:disabled),
-            .btn-cancel:hover:not(:disabled),
-            .btn-export:hover:not(:disabled),
-            .btn-backup:hover:not(:disabled),
-            .btn-edit:hover:not(:disabled),
-            .registro-item:hover,
-            .header-profile-btn:hover,
-            .btn-perfil-select:hover,
-            .day-checkbox:hover span,
-            .btn-perfil-edit:hover {
-                border: 1px solid var(--hover);
-            }
-        }
-
         /* --- Stats & Progreso --- */
         .stats-card {
             cursor: pointer;
@@ -491,7 +441,6 @@
         }
 
         /* --- Lista de Registros --- */
-
         .registro-item {
             border: 1px solid var(--border);
             border-radius: var(--radius);
@@ -771,12 +720,6 @@
             margin-top: 1rem;
         }
 
-        @media (max-width: 640px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
         /* --- Colapso de formulario --- */
         .form-collapsible {
             max-height: 0;
@@ -902,12 +845,7 @@
             max-width: 160px;
         }
 
-        @media (min-width: 500px) {
 
-            .header-profile-btn {
-                max-width: 300px;
-            }
-        }
 
         .header-profile-btn span {
             white-space: nowrap;
@@ -1100,6 +1038,66 @@
         /* Animación de feedback en inputs de registro */
         .input-agregado-animacion {
             animation: fade-blur 0.5s ease-out forwards;
+        }
+
+        /* moviles */
+        @media (min-width: 500px) {
+            .header-profile-btn {
+                max-width: 300px;
+            }
+        }
+
+        /* --- Hovers de botones --- */
+        @media (hover: hover) and (pointer: fine) {
+
+            .icon-btn:hover:not(:disabled),
+            .time-btn:hover:not(:disabled),
+            .btn-increment:hover:not(:disabled),
+            .filter-btn:hover:not(:disabled),
+            .btn-delete:hover:not(:disabled),
+            .btn-cancel:hover:not(:disabled),
+            .btn-export:hover:not(:disabled),
+            .btn-backup:hover:not(:disabled),
+            .btn-edit:hover:not(:disabled),
+            .registro-item:hover,
+            .header-profile-btn:hover,
+            .btn-perfil-select:hover,
+            .day-checkbox:hover span,
+            .btn-perfil-edit:hover {
+                border: 1px solid var(--hover);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .container {
+                display: grid;
+                grid-template-columns: minmax(350px, 1fr) minmax(400px, 1fr);
+                gap: 1rem;
+                align-items: start;
+                padding: 1.5rem;
+            }
+
+            .left-column {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .right-column {
+                position: sticky;
+                top: 4.5rem;
+            }
+
+            #lista-registros {
+                max-height: 1100px;
+                overflow-y: auto;
+                padding: 0.5rem;
+                scrollbar-gutter: stable;
+            }
+
+            .card,
+            .modal-content {
+                padding: 1rem;
+            }
         }
     </style>
 </head>
@@ -1353,8 +1351,8 @@
                             <label>Fecha</label>
                             <div class="input-with-btn">
                                 <input type="date" id="fecha" />
-                                <button class="time-btn" onclick="UILogic.toggleModoLote()" title="Ir al modo lote/especial"
-                                    style="flex-shrink: 0;">
+                                <button class="time-btn" onclick="UILogic.toggleModoLote()"
+                                    title="Ir al modo lote/especial" style="flex-shrink: 0;">
                                     <svg class="icon">
                                         <use href="#icon-calendar-simple" />
                                     </svg>
@@ -2598,7 +2596,7 @@
                     if (currentIndex > 0) {
                         currentIndex--;
                         updateButtons();
-                        saveToLocalStorage(); // ← LÍNEA NUEVA
+                        saveToLocalStorage();
                         const estado = deepClone(history[currentIndex]);
                         return estado;
                     }
@@ -2609,7 +2607,7 @@
                     if (currentIndex < history.length - 1) {
                         currentIndex++;
                         updateButtons();
-                        saveToLocalStorage(); // ← LÍNEA NUEVA
+                        saveToLocalStorage();
                         const estado = deepClone(history[currentIndex]);
                         return estado;
                     }
