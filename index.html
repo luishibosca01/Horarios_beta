@@ -21,30 +21,19 @@
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     <meta name="referrer" content="no-referrer">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/svg+xml" href="./icon.svg">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2Z
-    yB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyI
-    j4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZEgiIHgxPSIwJSIgeTE9IjAlI
-    iB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3Rvc
-    C1jb2xvcjojMDAwMDAwO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwM
-    CUiIHN0eWxlPSJzdG9wLWNvbG9yOiMwMDAwMDA7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbm
-    VhckdyYWRpZW50PgogIDwvZGVmcz4KICAKICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiI
-    gcng9IjEwMCIgZmlsbD0idXJsKCNncmFkSCkiIC8+CiAgCiAgPHBhdGggZD0iTTI1NiA4MCBMNDYw
-    IDQzMCBMNTIgNDMwIFoiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuMSIgLz4KICAKICA8c
-    GF0aCBkPSJNIDE4MCAxNTAgTCAxODAgMzYyIE0gMzMyIDE1MCBMIDMzMiAzNjIgTSAxODAgMjU2IE
-    wgMzMyIDI1NiIgCiAgICAgICAgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI1MCIgc3Ryb2t
-    lLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBmaWxsPSJub25lIiAvPgo8
-    L3N2Zz4K">
     <title>Horarios</title>
     <style>
         :root {
             /* --- Variables de Color (Tema Claro) --- */
-            --bg-body: #f9fafb;
-            --bg-card: #ffffff;
-            --bg-header: rgba(255, 255, 255, 0.800);
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
+            --bg-body: #ffffff;
+            --bg-card: #f0f4f9;
+            --bg-header: #ffffff;
+            --text-main: #1f1f1f;
+            --text-muted: #444746
             --text-inv: #ffffff;
             --border: #e5e7eb;
             --input-bg: #ffffff;
@@ -62,15 +51,15 @@
 
         body.dark-mode {
             /* --- Variables de Color (Tema Oscuro) --- */
-            --bg-body: #000000;
-            --bg-card: #0f141b;
-            --bg-header: rgba(0, 0, 0, 0.5);
-            --text-main: #f9fafb;
-            --text-muted: #d1d5db;
-            --border: #1f2836;
-            --input-bg: #1f2836;
-            --input-focus: #1f2836;
-            --c-gray-btn: #1f2836;
+            --bg-body: #131314;
+            --bg-card: #1e1f20;
+            --bg-header: #131314f6;
+            --text-main: #e3e3e3;
+            --text-muted: #b4b4b4;
+            --border: #444746;
+            --input-bg: #444746;
+            --input-focus: #444746;
+            --c-gray-btn: #444746;
             --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
 
@@ -1259,14 +1248,6 @@
             <line x1="12" y1="5" x2="12" y2="19" class="icon-line" stroke="currentColor"></line>
             <line x1="5" y1="12" x2="19" y2="12" class="icon-line" stroke="currentColor"></line>
         </symbol>
-        <symbol id="icon-coffee" viewBox="0 0 24 24">
-            <path d="M18 8h1a4 4 0 0 1 0 8h-1" class="icon-line" stroke="currentColor" fill="none"></path>
-            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" class="icon-line" stroke="currentColor" fill="none">
-            </path>
-            <line x1="6" y1="1" x2="6" y2="4" class="icon-line" stroke="currentColor"></line>
-            <line x1="10" y1="1" x2="10" y2="4" class="icon-line" stroke="currentColor"></line>
-            <line x1="14" y1="1" x2="14" y2="4" class="icon-line" stroke="currentColor"></line>
-        </symbol>
         <symbol id="icon-chevron-down" viewBox="0 0 24 24">
             <polyline points="6 9 12 15 18 9" class="icon-line" stroke="currentColor" stroke-width="2" fill="none">
             </polyline>
@@ -1295,7 +1276,7 @@
             <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
             <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
         </symbol>
-        <symbol id="icon-salida-puerta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        <symbol id="icon-exit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
             <polyline points="16 17 21 12 16 7"></polyline>
@@ -1347,9 +1328,9 @@
                 <h2 class="no-margin"
                     style="display: flex; justify-content: center; align-items: center; position: relative;">
                     <button class="filter-btn timer-btn" id="btn-timer-main" onclick="UILogic.toggleTimerBreakMain()"
-                        style="padding: 0.5rem; position: absolute; left: 0px; ">
+                        style="padding: 0.5rem; position: absolute; left: 0px">
                         <svg class="icon">
-                            <use href="#icon-coffee" />
+                            <use href="#icon-exit" />
                         </svg>
                     </button>
                     <button onclick="UILogic.ejecutarAccionRegistro()" id="btn-agregar" class="btn-register">
@@ -1370,7 +1351,7 @@
                             <label>Fecha</label>
                             <div class="input-with-btn">
                                 <input type="date" id="fecha" />
-                                <button class="time-btn" onclick="UILogic.toggleModoLote()" title="Registrar lote"
+                                <button class="time-btn" onclick="UILogic.toggleModoLote()" title="Ir al modo lote/especial"
                                     style="flex-shrink: 0;">
                                     <svg class="icon">
                                         <use href="#icon-calendar-simple" />
@@ -1421,7 +1402,7 @@
                                     <option value="capacitacion">📚 Capacitación (17:17)</option>
                                     <option value="normal">🕒 Normales (borrar)</option>
                                 </select>
-                                <button class="time-btn" onclick="UILogic.toggleModoLote()" title="Volver a modo normal"
+                                <button class="time-btn" onclick="UILogic.toggleModoLote()" title="Ir al modo normal"
                                     style="flex-shrink: 0;">
                                     <svg class="icon">
                                         <use href="#icon-undo" />
@@ -1600,7 +1581,7 @@
                     </svg>
                     Ajustes
                 </span>
-                <span class="version-text">LUSHIBOSCA-7.33</span>
+                <span class="version-text">LUSHIBOSCA-7.34</span>
             </h3>
             <div class="form-group">
                 <label>Horas Diarias</label>
@@ -1731,17 +1712,15 @@
                 <label>Tiempo Fuera</label>
                 <div class="input-with-btn">
                     <input type="text" id="edit-tiempo-fuera" inputmode="numeric" maxlength="5" />
-
                     <button class="time-btn" onclick="UILogic.limpiarCampo('edit-tiempo-fuera')" title="Limpiar">
                         <svg class="icon">
                             <use href="#icon-broom" />
                         </svg>
                     </button>
-
                     <button id="btn-toggle-credito" class="time-btn" onclick="UILogic.toggleCredito()"
                         style="margin-left: 5px;" title="(Compensación/Asueto)">
                         <svg class="icon">
-                            <use href="#icon-salida-puerta" />
+                            <use href="#icon-exit" />
                         </svg>
                     </button>
                 </div>
@@ -6618,7 +6597,7 @@ Generado por Sistema Horarios
                         btn.classList.add('running');
                         btn.style.color = 'var(--c-red)';
                         btn.style.borderColor = 'var(--c-red)';
-                        icon.setAttribute('href', '#icon-coffee');
+                        icon.setAttribute('href', '#icon-exit');
 
                         if (card) {
                             card.classList.add('timer-running');
@@ -6633,7 +6612,7 @@ Generado por Sistema Horarios
                             const contexto = vistaActual === 'semana' ? 'Esta Semana' : 'Hoy';
 
                             if (titulo) {
-                                titulo.innerHTML = `${icono} ${contexto} - <svg class="icon"><use href="#icon-coffee"/></svg> Tiempo fuera`;
+                                titulo.innerHTML = `${icono} ${contexto} - <svg class="icon"><use href="#icon-exit"/></svg> Tiempo fuera`;
                             }
                         }
 
@@ -6642,7 +6621,7 @@ Generado por Sistema Horarios
                         btn.classList.remove('running');
                         btn.style.color = 'var(--text-main)';
                         btn.style.borderColor = 'var(--border)';
-                        icon.setAttribute('href', '#icon-coffee');
+                        icon.setAttribute('href', '#icon-exit');
 
                         if (card) card.classList.remove('timer-running');
                     }
@@ -8573,11 +8552,11 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.33
+    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.34
     // ====================================================================
     
      - CAMBIOS:
-    1) Se cambia el icono de la app //ACTUALIZAR SW Y MANIFEST// 
+    1) Se cambia la paleta de colores
 
 
      - BUGS MENORES CONOCIDOS:
