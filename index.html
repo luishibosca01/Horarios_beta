@@ -15,7 +15,6 @@
                  object-src 'none'; 
                  base-uri 'self'; 
                  form-action 'self'; 
-                 frame-ancestors 'none'; 
                  upgrade-insecure-requests;">
     <meta name="referrer" content="no-referrer">
     <meta name="mobile-web-app-capable" content="yes">
@@ -191,6 +190,7 @@
         /* --- Formularios --- */
         .form-group {
             margin-bottom: 1rem;
+
         }
 
         label {
@@ -354,6 +354,10 @@
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
+        }
+
+        .config-actions>label {
+            margin-bottom: -0.5rem;
         }
 
         /* --- Stats & Progreso --- */
@@ -957,13 +961,16 @@
         .week-selector {
             display: flex;
             justify-content: space-between;
-            gap: 5px;
+            gap: 1px;
             margin-bottom: 0.5rem;
+            flex-wrap: wrap;
         }
 
         .day-checkbox {
             position: relative;
             cursor: pointer;
+            flex: 1 1 0;
+            min-width: 0;
         }
 
         .day-checkbox input {
@@ -978,7 +985,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 38px;
+            width: 100%;
             height: 38px;
             border: 1px solid var(--border);
             border-radius: var(--radius);
@@ -1080,6 +1087,10 @@
             .card,
             .modal-content {
                 padding: 1.5rem 1rem 1.5rem 1rem;
+            }
+
+            .week-selector {
+                gap: 5px;
             }
         }
     </style>
@@ -1481,6 +1492,10 @@
                                 <div class="stat-value" id="stat-compensaciones">0</div>
                             </div>
                             <div class="stat-item">
+                                <div class="stat-label">Tiempo Total</div>
+                                <div class="stat-value" id="stat-tiempo-total">0h 0m</div>
+                            </div>
+                            <div class="stat-item">
                                 <div class="stat-label">Tiempo Fuera</div>
                                 <div class="stat-value" id="stat-tiempo-fuera-total">0h 0m</div>
                             </div>
@@ -1498,7 +1513,7 @@
                             </div>
                             <div style="grid-column: 1 / -1; height: 1px; background: var(--border); margin: 0.5rem 0;">
                             </div>
-                            <div class="stat-item">
+                            <div class="stat-item" style="grid-column: 1 / -1">
                                 <div class="stat-label">Semana Pasada</div>
                                 <div class="stat-value" id="stat-semana-pasada">0h 0m</div>
                             </div>
@@ -1564,7 +1579,7 @@
                     </svg>
                     Ajustes
                 </span>
-                <span class="version-text">LUSHIBOSCA-7.34</span>
+                <span class="version-text">LUSHIBOSCA-7.35</span>
             </h3>
             <div class="form-group">
                 <label>Horas Diarias</label>
@@ -1612,6 +1627,18 @@
                     </label>
                 </div>
                 <div id="config-total-feedback" class="config-hint-text">(Total semanal: --hs)</div>
+            </div>
+            <div class="form-group">
+                <label>Agregar Nuevo Perfil</label>
+                <div class="input-with-btn">
+                    <input type="text" id="nombre-nuevo-perfil-selector" placeholder="Nombre del perfil..."
+                        maxlength="30" />
+                    <button class="time-btn" onclick="UILogic.crearPerfilDesdeSelector()" title="Crear perfil">
+                        <svg class="icon">
+                            <use href="#icon-plus" />
+                        </svg>
+                    </button>
+                </div>
             </div>
             <div class="config-actions">
                 <label>Registros</label>
@@ -1870,18 +1897,7 @@
             </h3>
             <div id="lista-perfiles-botones" class="perfil-list-container">
             </div>
-            <div class="form-group" style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1rem;">
-                <label>Agregar Nuevo Perfil</label>
-                <div class="input-with-btn">
-                    <input type="text" id="nombre-nuevo-perfil-selector" placeholder="Nombre del perfil..."
-                        maxlength="30" />
-                    <button class="time-btn" onclick="UILogic.crearPerfilDesdeSelector()" title="Crear perfil">
-                        <svg class="icon">
-                            <use href="#icon-plus" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
+
             <div class="btn-group">
                 <button class="btn-edit" onclick="UILogic.mostrarconfig()" style="flex: 1;">
                     <svg class="icon">
@@ -1941,9 +1957,9 @@
             <div class="btn-group">
                 <button class="btn-cancel" onclick="UILogic.cerrarEditorPerfil()">
                     <svg class="icon">
-                        <use href="#icon-cancelar" />
+                        <use href="#icon-undo" />
                     </svg>
-                    Cerrar
+                    Volver
                 </button>
             </div>
         </div>
@@ -2948,7 +2964,7 @@
 
                     if (diffDays > 60) {
                         UILogic.mostrarToast(
-                            `El rango contiene ${diffDays} días.\nMáximo: 60 días por operación.`,
+                            `El rango contiene ${diffDays} días.\n Máximo: 60 días por operación.`,
                             'error'
                         );
                         btnGuardar.disabled = false;
@@ -3000,7 +3016,7 @@
                             .join(', ');
 
                         UILogic.mostrarToast(
-                            `Conflicto en día(s): ${diasConflicto}\nYa existen registros en esas fechas.`,
+                            `Conflicto en día(s): ${diasConflicto}\n Ya existen registros en esas fechas.`,
                             'error'
                         );
                         btnGuardar.disabled = false;
@@ -5189,6 +5205,7 @@
                             diasTrabajados: 0,
                             promedioDiario: '--:--',
                             tiempoFueraTotal: `--:--`,
+                            tiempoTotal: '0h 0m',
                             semanaPasada: '--:--',
                             feriados: feriados,
                             ausencias: ausencias,
@@ -5310,12 +5327,16 @@
                             .join(', ');
                         textoSemanaPasada += ` [${detalles}]`;
                     }
+                    const hTotal = Math.floor(totalHoras);
+                    const mTotal = Math.round((totalHoras - hTotal) * 60);
+
                     return {
                         entradaPromedio: `${String(hEntrada).padStart(2, '0')}:${String(mEntrada).padStart(2, '0')}`,
                         salidaPromedio: `${String(hSalida).padStart(2, '0')}:${String(mSalida).padStart(2, '0')}`,
                         diasTrabajados: registrosValidos.length,
                         promedioDiario: `${hPromedio}h ${mPromedio}m`,
                         tiempoFueraTotal: `${hTiempoFuera}h ${mTiempoFuera}m`,
+                        tiempoTotal: `${hTotal}h ${mTotal}m`,
                         semanaPasada: textoSemanaPasada,
                         feriados: feriados,
                         ausencias: ausencias,
@@ -5361,6 +5382,7 @@
                     const elPromedio = $('stat-promedio-diario');
                     const elSemanaPasada = $('stat-semana-pasada');
                     const elTiempoFueraTotal = $('stat-tiempo-fuera-total');
+                    const elTiempoTotal = $('stat-tiempo-total');
                     const elFeriados = $('stat-feriados');
                     const elAusencias = $('stat-ausencias');
                     const elVacaciones = $('stat-vacaciones');
@@ -5377,6 +5399,7 @@
                     if (elPromedio) elPromedio.textContent = stats.promedioDiario;
                     if (elSemanaPasada) elSemanaPasada.textContent = stats.semanaPasada;
                     if (elTiempoFueraTotal) elTiempoFueraTotal.textContent = stats.tiempoFueraTotal;
+                    if (elTiempoTotal) elTiempoTotal.textContent = stats.tiempoTotal;
 
                     // Ocultar/Mostrar items según valor
                     const toggleStatItem = (element, value) => {
@@ -6090,6 +6113,8 @@
                             btnReemplazar.disabled = true;
                             btnReemplazar.style.opacity = '0.5';
                         }
+                        // Abrir selector de archivo automáticamente al abrir el modal
+                        setTimeout(() => $('file-import').click(), 50);
                     });
                 }
 
@@ -6807,7 +6832,7 @@ Generado por Sistema Horarios
                     const regexSeguro = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\-_ ]+$/;
 
                     if (!regexSeguro.test(nombre)) {
-                        mostrarToast('El nombre contiene caracteres no válidos.\nSolo letras, números y espacios.', 'error');
+                        mostrarToast('El nombre contiene caracteres no válidos.\n Solo letras, números y espacios.', 'error');
                         return;
                     }
 
@@ -8538,12 +8563,13 @@ Generado por Sistema Horarios
 </html>
 
 <!--// ====================================================================
-    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.34
+    //                 NOTAS SISTEMA LUSHIBOSCA VERSION 7.35
     // ====================================================================
     
      - CAMBIOS:
-    1) Se cambia la paleta de colores
-    2) minima refactorizacion en scroollbar
+    1) Se agrega stat-item tiempo total
+    2) modificacion del grid de "semana pasada"
+    3) al tocar el boton importar o restaurar, abre directamente el selector de archivo
 
 
      - BUGS MENORES CONOCIDOS:
