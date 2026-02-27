@@ -1629,6 +1629,14 @@
                 <div id="config-total-feedback" class="config-hint-text">(Total semanal: --hs)</div>
             </div>
             <div class="form-group">
+                <label>Tiempo Fuera</label>
+                <button id="btn-toggle-ignorar-tf" onclick="UILogic.toggleIgnorarTiempoFuera()"
+                    style="justify-content:space-between; padding:0.75rem 1rem; border:1px solid var(--border); color:var(--text-muted); font-weight:600; transition: all 0.2s;">
+                    <span>Ignorar calculo de Tiempo Fuera</span>
+                    <span id="hint-ignorar-tf" style="font-size:0.9rem;">No</span>
+                </button>
+            </div>
+            <div class="form-group">
                 <label>Agregar Nuevo Perfil</label>
                 <div class="input-with-btn">
                     <input type="text" id="nombre-nuevo-perfil-selector" placeholder="Nombre del perfil..."
@@ -1639,13 +1647,6 @@
                         </svg>
                     </button>
                 </div>
-            </div>
-            <div class="form-group">
-                <label>Tiempo fuera</label>
-                <button id="btn-toggle-ignorar-tf" onclick="UILogic.toggleIgnorarTiempoFuera()" style="justify-content:space-between; padding:0.75rem 1rem; border:1px solid var(--border); color:var(--text-muted); font-weight:600; transition: all 0.2s;">
-                    <span>Ignorar calculo de Tiempo Fuera</span>
-                    <span id="hint-ignorar-tf" style="font-size:0.9rem;">No</span>
-                </button>
             </div>
             <div class="config-actions">
                 <label>Registros</label>
@@ -4492,7 +4493,7 @@
                     setHorasDiarias: (v) => horasDiarias = v,
                     getIgnorarTiempoFuera: () => ignorarTiempoFuera,
                     setIgnorarTiempoFuera: (v) => { ignorarTiempoFuera = v; },
-                    recalcularTotalesEnMemoria: function() {
+                    recalcularTotalesEnMemoria: function () {
                         registros.forEach(r => {
                             if (r.entrada && r.salida && !TiposRegistro.esRegistroEspecial(r.entrada, r.salida)) {
                                 const t = calcularHoras(r.entrada, r.salida, r.tiempoFuera || null, r.credito || null);
@@ -6126,7 +6127,7 @@
                 function toggleIgnorarTiempoFuera() {
                     const nuevoValor = !D.getIgnorarTiempoFuera();
                     D.setIgnorarTiempoFuera(nuevoValor);
-                    try { localStorage.setItem('ignorarTiempoFuera', nuevoValor); } catch(e) {}
+                    try { localStorage.setItem('ignorarTiempoFuera', nuevoValor); } catch (e) { }
                     actualizarEstadoBotonIgnorarTF();
                     // Recalcular totales en memoria (sin guardar en historial ni perfil)
                     D.recalcularTotalesEnMemoria();
@@ -8644,7 +8645,9 @@ Generado por Sistema Horarios
     // ====================================================================
     
      - CAMBIOS:
-    1) Se agrega opcion de deshabilitar el calculo de tiempo fuera
+    1) Se agrega stat-item tiempo total
+    2) modificacion del grid de "semana pasada"
+    3) al tocar el boton importar o restaurar, abre directamente el selector de archivo
 
 
      - BUGS MENORES CONOCIDOS:
